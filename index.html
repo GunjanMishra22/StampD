@@ -1,1173 +1,1781 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>Approved Route Calculator - Roshi Transport Corporation</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #FFF8E7 0%, #F5E6D3 100%);
-            min-height: 100vh;
-            padding: 15px;
-            padding-bottom: 90px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            color: #2C1810;
-            padding: 30px 20px;
-            text-align: center;
-            border-radius: 20px 20px 0 0;
-            box-shadow: 0 4px 20px rgba(255, 165, 0, 0.3);
-        }
-
-        .header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .header p {
-            font-size: 14px;
-            font-weight: 400;
-            color: #5D4037;
-        }
-
-        .content-wrapper {
-            background: white;
-            border-radius: 0 0 20px 20px;
-            box-shadow: 0 8px 32px rgba(255, 165, 0, 0.3);
-            overflow: hidden;
-        }
-
-        .input-section {
-            padding: 30px 20px;
-            background: linear-gradient(135deg, #FFFBF0 0%, #FFF8E7 100%);
-            border-bottom: 3px solid #FFE4B5;
-        }
-
-        .input-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        label {
-            font-weight: 600;
-            color: #2C1810;
-            margin-bottom: 8px;
-            font-size: 13px;
-        }
-
-        input {
-            padding: 16px 18px;
-            border: 2px solid #FFE4B5;
-            border-radius: 10px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 15px;
-            transition: all 0.3s;
-            background: white;
-            color: #2C1810;
-            width: 100%;
-            touch-action: manipulation;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #FFD700;
-            box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.15);
-        }
-
-        .calculate-btn {
-            padding: 18px 40px;
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            color: #2C1810;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 700;
-            font-family: 'Poppins', sans-serif;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(255, 165, 0, 0.4);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 10px;
-            touch-action: manipulation;
-            min-height: 54px;
-        }
-
-        .calculate-btn:active {
-            transform: translateY(1px);
-        }
-
-        .calculate-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .navigate-btn {
-            padding: 18px 40px;
-            background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 700;
-            font-family: 'Poppins', sans-serif;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 15px;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            touch-action: manipulation;
-            min-height: 54px;
-        }
-
-        .navigate-btn:active {
-            transform: translateY(1px);
-        }
-
-        .route-info {
-            display: none;
-            padding: 25px 20px;
-            background: linear-gradient(135deg, #C8E6C9 0%, #A5D6A7 100%);
-            border: 3px solid #4CAF50;
-        }
-
-        .route-info.active {
-            display: block;
-        }
-
-        .route-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .route-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1B5E20;
-            margin-bottom: 6px;
-        }
-
-        .route-subtitle {
-            font-size: 12px;
-            color: #2E7D32;
-            font-weight: 500;
-        }
-
-        .route-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 18px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .stat-label {
-            font-size: 11px;
-            color: #5D4037;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #2C1810;
-        }
-
-        .route-points {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-        }
-
-        .route-point {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            border-bottom: 1px solid #FFE4B5;
-        }
-
-        .route-point:last-child {
-            border-bottom: none;
-        }
-
-        .route-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 14px;
-            flex-shrink: 0;
-        }
-
-        .route-icon.origin {
-            background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
-            color: white;
-        }
-
-        .route-icon.destination {
-            background: linear-gradient(135deg, #F44336 0%, #EF5350 100%);
-            color: white;
-        }
-
-        .route-text {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .route-label {
-            font-size: 10px;
-            color: #8D6E63;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .route-address {
-            font-size: 14px;
-            color: #2C1810;
-            font-weight: 500;
-            margin-top: 2px;
-            word-wrap: break-word;
-        }
-
-        .landmarks-btn {
-            padding: 14px 30px;
-            background: white;
-            color: #2C1810;
-            border: 2px solid #FFD700;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            font-family: 'Poppins', sans-serif;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 15px;
-            width: 100%;
-            touch-action: manipulation;
-            min-height: 48px;
-        }
-
-        .landmarks-btn:active {
-            background: linear-gradient(135deg, #FFFBF0 0%, #FFF8E7 100%);
-        }
-
-        .landmarks-section {
-            display: none;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 15px;
-            border: 2px solid #FFE4B5;
-        }
-
-        .landmarks-section.active {
-            display: block;
-        }
-
-        .landmarks-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #2C1810;
-            margin-bottom: 5px;
-        }
-
-        .landmarks-subtitle {
-            font-size: 11px;
-            color: #8D6E63;
-            margin-bottom: 15px;
-        }
-
-        .landmark-item {
-            padding: 12px;
-            background: linear-gradient(135deg, #FFFBF0 0%, #FFF8E7 100%);
-            border-radius: 8px;
-            margin-bottom: 10px;
-            border-left: 4px solid #FFD700;
-        }
-
-        .landmark-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .landmark-name {
-            font-size: 14px;
-            font-weight: 600;
-            color: #2C1810;
-            margin-bottom: 2px;
-        }
-
-        .landmark-type {
-            font-size: 11px;
-            color: #5D4037;
-            font-weight: 500;
-        }
-
-        .map-container {
-            padding: 25px 20px;
-            background: white;
-        }
-
-        #map {
-            width: 100%;
-            height: 450px;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-
-        .disclaimer {
-            background: linear-gradient(135deg, #FFFBF0 0%, #FFF8E7 100%);
-            border-left: 5px solid #FFD700;
-            padding: 20px;
-            margin: 0;
-            font-size: 12px;
-            color: #5D4037;
-            line-height: 1.6;
-            text-align: center;
-            font-weight: 500;
-        }
-
-        .error-message {
-            display: none;
-            background: linear-gradient(135deg, #FFCDD2 0%, #EF9A9A 100%);
-            border: 3px solid #F44336;
-            color: #B71C1C;
-            padding: 20px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .error-message.active {
-            display: block;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 30px;
-            background: linear-gradient(135deg, #FFFBF0 0%, #FFF8E7 100%);
-        }
-
-        .loading.active {
-            display: block;
-        }
-
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #FFE4B5;
-            border-top: 5px solid #FFD700;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            font-size: 14px;
-            color: #5D4037;
-            font-weight: 600;
-        }
-
-        .footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(135deg, #2C1810 0%, #5D4037 100%);
-            color: #FFE4B5;
-            text-align: center;
-            padding: 12px 15px;
-            font-size: 10px;
-            font-weight: 400;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
-            z-index: 1000;
-            line-height: 1.5;
-        }
-
-        .footer-separator {
-            margin: 0 6px;
-            opacity: 0.5;
-        }
-
-        .suggestion-list {
-            position: absolute;
-            background: white;
-            border: 2px solid #FFD700;
-            border-radius: 10px;
-            max-height: 250px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            width: 100%;
-            z-index: 1000;
-            display: none;
-            box-shadow: 0 4px 20px rgba(255, 165, 0, 0.3);
-            top: 100%;
-            margin-top: 5px;
-        }
-
-        .suggestion-list.active {
-            display: block;
-        }
-
-        .suggestion-item {
-            padding: 14px 15px;
-            cursor: pointer;
-            border-bottom: 1px solid #FFE4B5;
-            font-size: 14px;
-            color: #2C1810;
-            touch-action: manipulation;
-        }
-
-        .suggestion-item:active {
-            background: linear-gradient(135deg, #FFFBF0 0%, #FFF8E7 100%);
-        }
-
-        .suggestion-item:last-child {
-            border-bottom: none;
-        }
-
-        .suggestion-name {
-            font-weight: 600;
-            margin-bottom: 3px;
-        }
-
-        .suggestion-detail {
-            font-size: 11px;
-            color: #8D6E63;
-        }
-
-        @media (min-width: 768px) {
-            body {
-                padding: 20px;
-                padding-bottom: 80px;
-            }
-
-            .header {
-                padding: 40px;
-            }
-
-            .header h1 {
-                font-size: 32px;
-            }
-
-            .header p {
-                font-size: 16px;
-            }
-
-            .input-section {
-                padding: 40px;
-            }
-
-            .input-grid {
-                grid-template-columns: 1fr 1fr auto;
-                gap: 20px;
-                align-items: end;
-            }
-
-            .calculate-btn {
-                margin-top: 0;
-                white-space: nowrap;
-            }
-
-            .calculate-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(255, 165, 0, 0.5);
-            }
-
-            .navigate-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5);
-            }
-
-            .landmarks-btn:hover {
-                background: linear-gradient(135deg, #FFFBF0 0%, #FFF8E7 100%);
-            }
-
-            .suggestion-item:hover {
-                background: linear-gradient(135deg, #FFFBF0 0%, #FFF8E7 100%);
-            }
-
-            .route-info {
-                padding: 30px 40px;
-            }
-
-            .route-title {
-                font-size: 24px;
-            }
-
-            .route-subtitle {
-                font-size: 14px;
-            }
-
-            .route-stats {
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-                gap: 20px;
-            }
-
-            .stat-value {
-                font-size: 28px;
-            }
-
-            .map-container {
-                padding: 40px;
-            }
-
-            #map {
-                height: 600px;
-            }
-
-            .disclaimer {
-                padding: 25px 40px;
-                font-size: 13px;
-            }
-
-            .footer {
-                padding: 15px 20px;
-                font-size: 11px;
-            }
-
-            .navigate-btn {
-                width: auto;
-            }
-        }
-
-        .leaflet-control-attribution {
-            display: none !important;
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Route Planner — Part Load Logistics Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ===================== THEME ===================== */
+[data-theme="dark"] {
+  --bg-base: #16100A;
+  --bg-alt: #1B1309;
+  --bg-card: rgba(255,255,255,0.028);
+  --bg-card-hover: rgba(255,255,255,0.05);
+  --bg-input: rgba(255,255,255,0.04);
+  --bg-header: rgba(22,16,10,0.92);
+  --text-primary: #F0E6D2;
+  --text-muted: #B8956A;
+  --text-heading: #F8F0E2;
+  --border-s: rgba(237,206,77,0.09);
+  --border-card: rgba(237,206,77,0.10);
+  --border-input: rgba(237,206,77,0.16);
+  --border-hover: rgba(237,206,77,0.34);
+  --accent: #E3B209;
+  --accent-dim: rgba(227,178,9,0.12);
+  --accent-glow: rgba(227,178,9,0.07);
+  --hub-major-bg: rgba(227,178,9,0.13);
+  --hub-major-border: rgba(227,178,9,0.30);
+  --hub-minor-bg: rgba(255,255,255,0.04);
+  --hub-minor-border: rgba(237,206,77,0.10);
+  --tag-bg: rgba(163,107,35,0.14);
+  --tag-border: rgba(163,107,35,0.24);
+  --scrollbar: #16100A;
+  --grid-line: rgba(237,206,77,0.032);
+  --section-label: #E3B209;
+  --error-bg: rgba(220,60,40,0.10);
+  --error-border: rgba(220,60,40,0.24);
+  --error-text: #F87060;
+  --btn-bg: #E3B209;
+  --btn-text: #16100A;
+  --btn-hover: #F0C420;
+  --divider: rgba(237,206,77,0.10);
+  --noise-op: 0.28;
+}
+[data-theme="light"] {
+  --bg-base: #F8F0E2;
+  --bg-alt: #EDE2CA;
+  --bg-card: rgba(163,107,35,0.045);
+  --bg-card-hover: rgba(163,107,35,0.08);
+  --bg-input: rgba(163,107,35,0.05);
+  --bg-header: rgba(248,240,226,0.94);
+  --text-primary: #2C1F0A;
+  --text-muted: #6B4415;
+  --text-heading: #1A1208;
+  --border-s: rgba(163,107,35,0.14);
+  --border-card: rgba(163,107,35,0.14);
+  --border-input: rgba(163,107,35,0.22);
+  --border-hover: rgba(163,107,35,0.40);
+  --accent: #A36B23;
+  --accent-dim: rgba(163,107,35,0.11);
+  --accent-glow: rgba(163,107,35,0.06);
+  --hub-major-bg: rgba(163,107,35,0.11);
+  --hub-major-border: rgba(163,107,35,0.30);
+  --hub-minor-bg: rgba(163,107,35,0.04);
+  --hub-minor-border: rgba(163,107,35,0.12);
+  --tag-bg: rgba(163,107,35,0.09);
+  --tag-border: rgba(163,107,35,0.20);
+  --scrollbar: #F8F0E2;
+  --grid-line: rgba(163,107,35,0.055);
+  --section-label: #7A4F10;
+  --error-bg: rgba(180,40,20,0.07);
+  --error-border: rgba(180,40,20,0.20);
+  --error-text: #C0391B;
+  --btn-bg: #A36B23;
+  --btn-text: #F8F0E2;
+  --btn-hover: #8A5A1C;
+  --divider: rgba(163,107,35,0.14);
+  --noise-op: 0.12;
+}
+
+/* ===================== BASE ===================== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  font-family:'Poppins',sans-serif;
+  background:var(--bg-base);
+  color:var(--text-primary);
+  overflow-x:hidden;
+  line-height:1.65;
+  transition:background .35s,color .35s;
+  min-height:100vh;
+}
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9999;
+  opacity:var(--noise-op);
+}
+
+/* Grid bg */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);
+  background-size:52px 52px;
+  pointer-events:none;z-index:0;
+}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--scrollbar)}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:10px}
+
+/* ===================== HEADER ===================== */
+header{
+  position:sticky;top:0;z-index:100;
+  background:var(--bg-header);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border-s);
+  padding:0 2rem;
+  height:62px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.logo{
+  display:flex;align-items:center;gap:.7rem;
+}
+.logo-mark{
+  width:36px;height:36px;
+  background:#0A0A0A;
+  border:2px solid var(--accent);
+  border-radius:5px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+  overflow:hidden;
+  flex-shrink:0;
+}
+.logo-mark::before{
+  content:'';
+  position:absolute;inset:0;
+  background:transparent;
+}
+.logo-mark svg{position:relative;z-index:1;}
+.logo-title{
+  font-size:.82rem;
+  font-family:'Poppins',sans-serif;
+  letter-spacing:.06em;
+  color:var(--text-heading);
+  font-weight:normal;
+}
+.logo-sub{
+  font-size:.65rem;
+  color:var(--text-muted);
+  letter-spacing:.10em;
+  text-transform:uppercase;
+  display:block;
+  margin-top:.1rem;
+}
+.header-right{
+  display:flex;align-items:center;gap:1rem;
+}
+.theme-btn{
+  background:none;
+  border:1px solid var(--border-input);
+  color:var(--text-muted);
+  font-size:.72rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  padding:.32rem .75rem;
+  border-radius:3px;
+  cursor:pointer;
+  transition:border-color .2s,color .2s;
+  font-family:inherit;
+}
+.theme-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ===================== MAIN LAYOUT ===================== */
+main{
+  position:relative;z-index:1;
+  max-width:900px;
+  margin:0 auto;
+  padding:3.5rem 1.5rem 6rem;
+}
+
+/* ===================== PAGE HEADER ===================== */
+.page-header{
+  margin-bottom:3rem;
+}
+.page-label{
+  font-size:.65rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--section-label);
+  margin-bottom:.7rem;
+  display:block;
+}
+.page-title{
+  font-size:2rem;
+  font-family:'Poppins',sans-serif;
+  font-weight:normal;
+  color:var(--text-heading);
+  line-height:1.25;
+  margin-bottom:.7rem;
+}
+.page-desc{
+  font-size:.87rem;
+  color:var(--text-muted);
+  max-width:520px;
+  line-height:1.7;
+}
+
+/* ===================== INPUT SECTION ===================== */
+.input-section{
+  background:var(--bg-card);
+  border:1px solid var(--border-card);
+  border-radius:6px;
+  padding:1.75rem;
+  margin-bottom:2.5rem;
+}
+.input-row{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:.75rem;
+  align-items:end;
+  margin-bottom:1.25rem;
+}
+.input-group{
+  display:flex;flex-direction:column;gap:.35rem;
+}
+.input-label{
+  font-size:.65rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.input-field{
+  background:var(--bg-input);
+  border:1px solid var(--border-input);
+  color:var(--text-primary);
+  font-family:'Poppins',sans-serif;
+  font-size:.92rem;
+  padding:.65rem .85rem;
+  border-radius:4px;
+  outline:none;
+  transition:border-color .2s,background .2s;
+  width:100%;
+}
+.input-field::placeholder{color:var(--text-muted);opacity:.55;}
+.input-field:focus{border-color:var(--accent);background:var(--accent-glow);}
+.input-sep{
+  display:flex;align-items:center;justify-content:center;
+  padding-bottom:.1rem;
+}
+.sep-arrow{
+  color:var(--accent);
+  font-size:1rem;
+  opacity:.7;
+  user-select:none;
+}
+.btn-generate{
+  display:flex;align-items:center;justify-content:center;gap:.55rem;
+  background:var(--btn-bg);
+  color:var(--btn-text);
+  border:none;
+  font-family:'Poppins',sans-serif;
+  font-size:.85rem;
+  letter-spacing:.06em;
+  padding:.7rem 1.75rem;
+  border-radius:4px;
+  cursor:pointer;
+  transition:background .2s,transform .1s;
+  width:100%;
+  font-weight:bold;
+}
+.btn-generate:hover{background:var(--btn-hover);}
+.btn-generate:active{transform:scale(.99);}
+.btn-generate svg{flex-shrink:0;}
+
+/* Suggestions dropdown */
+.input-wrap{position:relative;}
+.suggestions{
+  position:absolute;top:calc(100% + 4px);left:0;right:0;
+  background:var(--bg-base);
+  border:1px solid var(--border-input);
+  border-radius:4px;
+  z-index:50;
+  max-height:200px;
+  overflow-y:auto;
+  display:none;
+  box-shadow:0 8px 24px rgba(0,0,0,.3);
+}
+.suggestions.open{display:block;}
+.sug-item{
+  padding:.5rem .85rem;
+  font-size:.85rem;
+  color:var(--text-primary);
+  cursor:pointer;
+  transition:background .15s;
+}
+.sug-item:hover,.sug-item.active{background:var(--accent-dim);color:var(--accent);}
+
+/* ===================== RESULT SECTION ===================== */
+#result{display:none;}
+#result.visible{display:block;}
+
+.result-meta{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1.75rem;
+  flex-wrap:wrap;gap:.75rem;
+}
+.result-route-name{
+  font-size:1.1rem;
+  color:var(--text-heading);
+  font-family:'Poppins',sans-serif;
+}
+.result-badge{
+  font-size:.65rem;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+  background:var(--accent-dim);
+  border:1px solid var(--hub-major-border);
+  color:var(--accent);
+  padding:.25rem .65rem;
+  border-radius:3px;
+}
+
+/* ========== ROUTE FLOW ========== */
+.section-block{
+  margin-bottom:2rem;
+}
+.section-label{
+  font-size:.63rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--section-label);
+  margin-bottom:1rem;
+  display:flex;align-items:center;gap:.6rem;
+}
+.section-label::after{
+  content:'';
+  flex:1;
+  height:1px;
+  background:var(--divider);
+}
+.route-flow{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:0;
+  background:var(--bg-card);
+  border:1px solid var(--border-card);
+  border-radius:6px;
+  padding:1.25rem 1.5rem;
+  row-gap:.6rem;
+}
+.flow-stop{
+  display:flex;align-items:center;gap:0;
+}
+.flow-city{
+  font-size:.83rem;
+  color:var(--text-primary);
+  letter-spacing:.02em;
+  white-space:nowrap;
+  transition:color .15s;
+}
+.flow-city.major{
+  color:var(--accent);
+  font-weight:bold;
+}
+.flow-arrow{
+  color:var(--text-muted);
+  font-size:.75rem;
+  padding:0 .5rem;
+  opacity:.55;
+  user-select:none;
+}
+
+/* ========== HUBS GRID ========== */
+.hubs-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:.65rem;
+}
+.hub-chip{
+  border-radius:4px;
+  padding:.55rem .9rem;
+  font-size:.8rem;
+  letter-spacing:.02em;
+  display:flex;align-items:center;gap:.5rem;
+  transition:border-color .2s,background .2s;
+  cursor:default;
+}
+.hub-chip.major{
+  background:var(--hub-major-bg);
+  border:1px solid var(--hub-major-border);
+  color:var(--accent);
+}
+.hub-chip.minor{
+  background:var(--hub-minor-bg);
+  border:1px solid var(--hub-minor-border);
+  color:var(--text-primary);
+}
+.hub-chip:hover{border-color:var(--border-hover);}
+.hub-dot{
+  width:5px;height:5px;
+  border-radius:50%;
+  flex-shrink:0;
+}
+.hub-chip.major .hub-dot{background:var(--accent);}
+.hub-chip.minor .hub-dot{background:var(--text-muted);opacity:.5;}
+
+/* ========== LOAD OPPORTUNITIES ========== */
+.load-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:.75rem;
+}
+.load-card{
+  background:var(--bg-card);
+  border:1px solid var(--border-card);
+  border-radius:5px;
+  padding:1rem 1.1rem;
+  transition:border-color .2s,background .2s;
+}
+.load-card:hover{
+  border-color:var(--border-hover);
+  background:var(--bg-card-hover);
+}
+.load-city-name{
+  font-size:.82rem;
+  color:var(--text-heading);
+  margin-bottom:.55rem;
+  display:flex;align-items:center;gap:.5rem;
+}
+.load-city-name .major-dot{
+  width:5px;height:5px;
+  border-radius:50%;
+  background:var(--accent);
+  flex-shrink:0;
+  display:inline-block;
+}
+.load-tags{
+  display:flex;flex-wrap:wrap;gap:.35rem;
+}
+.load-tag{
+  font-size:.68rem;
+  letter-spacing:.04em;
+  background:var(--tag-bg);
+  border:1px solid var(--tag-border);
+  color:var(--text-muted);
+  padding:.2rem .5rem;
+  border-radius:3px;
+  white-space:nowrap;
+}
+.no-loads{
+  font-size:.78rem;
+  color:var(--text-muted);
+  opacity:.6;
+  font-style:italic;
+}
+
+/* ========== DIVIDER ========== */
+.section-divider{
+  height:1px;
+  background:var(--divider);
+  margin:1.75rem 0;
+}
+
+/* ========== ERROR ========== */
+.error-box{
+  background:var(--error-bg);
+  border:1px solid var(--error-border);
+  color:var(--error-text);
+  border-radius:4px;
+  padding:1rem 1.25rem;
+  font-size:.83rem;
+  display:none;
+}
+.error-box.visible{display:block;}
+
+/* ========== ROUTE NOT FOUND SUGGESTIONS ========== */
+.alt-routes{
+  margin-top:1rem;
+}
+.alt-label{
+  font-size:.72rem;
+  color:var(--text-muted);
+  margin-bottom:.5rem;
+}
+.alt-route-btn{
+  background:none;
+  border:1px solid var(--border-input);
+  color:var(--text-muted);
+  font-family:'Poppins',sans-serif;
+  font-size:.78rem;
+  padding:.28rem .65rem;
+  border-radius:3px;
+  cursor:pointer;
+  margin:.2rem .25rem .2rem 0;
+  transition:border-color .2s,color .2s;
+}
+.alt-route-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ========== DISTANCE / TIME ROW ========== */
+.route-stats{
+  display:flex;gap:1.5rem;flex-wrap:wrap;
+  margin-bottom:1.75rem;
+}
+.route-stat{
+  display:flex;flex-direction:column;gap:.15rem;
+}
+.stat-value{
+  font-size:1.05rem;
+  color:var(--text-heading);
+  font-family:'Poppins',sans-serif;
+}
+.stat-key{
+  font-size:.62rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+
+/* ========== FOOTER ========== */
+footer{
+  position:relative;z-index:1;
+  border-top:1px solid var(--border-s);
+  padding:1.5rem 2rem;
+  text-align:center;
+  font-size:.72rem;
+  color:var(--text-muted);
+  letter-spacing:.04em;
+}
+
+/* ===================== ANIMATE ===================== */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.animate-in{animation:fadeUp .28s ease both;}
+.d1{animation-delay:.04s}
+.d2{animation-delay:.08s}
+.d3{animation-delay:.12s}
+
+/* ===================== RESPONSIVE ===================== */
+@media(max-width:600px){
+  main{padding:2rem 1rem 4rem;}
+  .input-row{grid-template-columns:1fr;gap:.6rem;}
+  .input-sep{display:none;}
+  .page-title{font-size:1.5rem;}
+  .hubs-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));}
+  .load-grid{grid-template-columns:1fr;}
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Approved Route Calculator</h1>
-            <p>Authoritative Distance & Route for Commercial Transport Billing</p>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-mark">
+      <svg width="22" height="22" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <!-- Bold stylised R with diagonal speed slash, matching brand logo -->
+        <path d="M18 12 L18 88 L34 88 L34 58 L52 58 L68 88 L86 88 L68 55 C76 51 82 44 82 33 C82 20 72 12 56 12 Z M34 24 L54 24 C63 24 68 28 68 35 C68 42 63 46 54 46 L34 46 Z" fill="#E3B209"/>
+        <!-- Speed diagonal slash overlay -->
+        <polygon points="10,18 24,18 52,82 38,82" fill="#E3B209" opacity="0.22"/>
+      </svg>
+    </div>
+    <div>
+      <span class="logo-title">Route Planner</span>
+      <span class="logo-sub">Part Load Logistics</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">Light</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main>
+
+  <!-- PAGE HEADER -->
+  <div class="page-header animate-in">
+    <span class="page-label">Logistics Intelligence</span>
+    <h1 class="page-title">Part Load Route Planner</h1>
+    <p class="page-desc">Enter origin and destination to generate a full route plan — intermediate hubs, district-level stops, and load opportunities mapped to each point.</p>
+  </div>
+
+  <!-- INPUT -->
+  <div class="input-section animate-in d1">
+    <div class="input-row">
+      <div class="input-group">
+        <label class="input-label" for="origin">Origin</label>
+        <div class="input-wrap">
+          <input class="input-field" id="origin" placeholder="e.g. Ajmer" autocomplete="off" spellcheck="false" />
+          <div class="suggestions" id="origin-sug"></div>
         </div>
-
-        <div class="content-wrapper">
-            <div class="input-section">
-                <div class="input-grid">
-                    <div class="form-group">
-                        <label>Origin (City or Location)</label>
-                        <input type="text" id="origin" placeholder="e.g., Mumbai, Maharashtra" autocomplete="off">
-                        <div class="suggestion-list" id="originSuggestions"></div>
-                    </div>
-                    <div class="form-group">
-                        <label>Destination (City or Location)</label>
-                        <input type="text" id="destination" placeholder="e.g., Delhi, India" autocomplete="off">
-                        <div class="suggestion-list" id="destinationSuggestions"></div>
-                    </div>
-                    <button class="calculate-btn" id="calculateBtn">Calculate Route</button>
-                </div>
-            </div>
-
-            <div class="error-message" id="errorMessage"></div>
-            <div class="loading" id="loading">
-                <div class="loading-spinner"></div>
-                <div class="loading-text">Calculating Approved Route...</div>
-            </div>
-
-            <div class="route-info" id="routeInfo">
-                <div class="route-header">
-                    <div class="route-title">✓ Approved Route – Reliable, Safe & Shortest</div>
-                    <div class="route-subtitle">This is the ONLY authorized route for billing and trip planning</div>
-                </div>
-                <div class="route-stats">
-                    <div class="stat-card">
-                        <div class="stat-label">Total Distance</div>
-                        <div class="stat-value" id="distance">—</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Estimated Time</div>
-                        <div class="stat-value" id="duration">—</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Est. Toll Points</div>
-                        <div class="stat-value" id="tolls">—</div>
-                    </div>
-                </div>
-                <div class="route-points">
-                    <div class="route-point">
-                        <div class="route-icon origin">A</div>
-                        <div class="route-text">
-                            <div class="route-label">Origin Point</div>
-                            <div class="route-address" id="originAddress">—</div>
-                        </div>
-                    </div>
-                    <div class="route-point">
-                        <div class="route-icon destination">B</div>
-                        <div class="route-text">
-                            <div class="route-label">Destination Point</div>
-                            <div class="route-address" id="destinationAddress">—</div>
-                        </div>
-                    </div>
-                </div>
-                <button class="landmarks-btn" id="landmarksBtn">VIEW ROUTE LANDMARKS</button>
-                <div class="landmarks-section" id="landmarksSection">
-                    <div class="landmarks-title">Key Checkpoints Along Route</div>
-                    <div class="landmarks-subtitle">Estimated major landmarks and waypoints</div>
-                    <div id="landmarksList"></div>
-                </div>
-                <button class="navigate-btn" id="navigateBtn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                        <path d="M2 17l10 5 10-5"/>
-                        <path d="M2 12l10 5 10-5"/>
-                    </svg>
-                    CONFIRM & PROCEED
-                </button>
-            </div>
-
-            <div class="map-container">
-                <div id="map"></div>
-            </div>
-
-            <div class="disclaimer">
-                Billing and trip planning are calculated strictly as per this Approved Route. Alternate routes are not considered. This route represents the most reliable, safe, and shortest practical path for commercial vehicles.
-            </div>
+      </div>
+      <div class="input-sep">
+        <span class="sep-arrow">&#8594;</span>
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="dest">Destination</label>
+        <div class="input-wrap">
+          <input class="input-field" id="dest" placeholder="e.g. Delhi" autocomplete="off" spellcheck="false" />
+          <div class="suggestions" id="dest-sug"></div>
         </div>
+      </div>
+    </div>
+    <button class="btn-generate" onclick="generateRoute()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      Generate Route Plan
+    </button>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-box animate-in" id="errorBox">
+    <strong>Route not found.</strong> No predefined route exists for this origin-destination pair.
+    <div class="alt-routes" id="altRoutes"></div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result">
+
+    <div class="result-meta animate-in">
+      <span class="result-route-name" id="routeName"></span>
+      <span class="result-badge" id="routeBadge"></span>
     </div>
 
-    <div class="footer">
-        All rights reserved © Roshi Transport Corporation<span class="footer-separator">|</span>Map data © OpenStreetMap contributors<span class="footer-separator">|</span>Powered by Leaflet
+    <div class="route-stats animate-in d1">
+      <div class="route-stat">
+        <span class="stat-value" id="statStops"></span>
+        <span class="stat-key">Total Stops</span>
+      </div>
+      <div class="route-stat">
+        <span class="stat-value" id="statDist"></span>
+        <span class="stat-key">Approx. Distance</span>
+      </div>
+      <div class="route-stat">
+        <span class="stat-value" id="statHubs"></span>
+        <span class="stat-key">Major Hubs</span>
+      </div>
+      <div class="route-stat">
+        <span class="stat-value" id="statLoads"></span>
+        <span class="stat-key">Load Points</span>
+      </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        // Performance optimizations and global variables
-        let map;
-        let routeLayer;
-        let originMarker;
-        let destinationMarker;
-        let originCoords = null;
-        let destinationCoords = null;
-        let searchTimeout;
-        let currentRouteData = null;
-        let currentLandmarks = [];
-        
-        // Cache for location searches to improve performance
-        const searchCache = new Map();
-        const CACHE_EXPIRY = 3600000; // 1 hour
+    <div class="section-divider"></div>
 
-        // Debounce function for optimized autocomplete
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
+    <!-- Route Flow -->
+    <div class="section-block animate-in d1">
+      <div class="section-label">Route Flow</div>
+      <div class="route-flow" id="routeFlow"></div>
+    </div>
 
-        // Initialize map with performance optimizations
-        function initMap() {
-            map = L.map('map', {
-                attributionControl: false,
-                zoomControl: true,
-                preferCanvas: true, // Better performance for mobile
-                tap: true,
-                touchZoom: true
-            }).setView([20.5937, 78.9629], 5);
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                updateWhenIdle: true,
-                keepBuffer: 2
-            }).addTo(map);
+    <!-- Hubs -->
+    <div class="section-block animate-in d2">
+      <div class="section-label">Hubs & Districts</div>
+      <div class="hubs-grid" id="hubsGrid"></div>
+    </div>
 
-            // Handle resize events efficiently
-            let resizeTimeout;
-            window.addEventListener('resize', function() {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(function() {
-                    map.invalidateSize();
-                }, 250);
-            });
+    <!-- Load Opportunities -->
+    <div class="section-block animate-in d3">
+      <div class="section-label">Load Opportunities</div>
+      <div class="load-grid" id="loadGrid"></div>
+    </div>
 
-            // Handle orientation change
-            window.addEventListener('orientationchange', function() {
-                setTimeout(function() {
-                    map.invalidateSize();
-                }, 300);
-            });
-        }
+  </div>
 
-        // Optimized search with caching and faster response
-        async function searchLocation(query, callback) {
-            if (query.length < 3) {
-                callback([]);
-                return;
-            }
+</main>
 
-            const cacheKey = query.toLowerCase();
-            const cached = searchCache.get(cacheKey);
-            
-            // Return cached results if available and not expired
-            if (cached && (Date.now() - cached.timestamp) < CACHE_EXPIRY) {
-                callback(cached.data);
-                return;
-            }
+<footer>
+  Route Planner &mdash; Part Load Logistics Tool &mdash; Pan India Freight Corridors
+</footer>
 
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000);
-                
-                const response = await fetch(
-                    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=in&limit=8&addressdetails=1`,
-                    { signal: controller.signal }
-                );
-                
-                clearTimeout(timeoutId);
-                const data = await response.json();
-                
-                // Cache the results
-                searchCache.set(cacheKey, {
-                    data: data,
-                    timestamp: Date.now()
-                });
-                
-                callback(data);
-            } catch (error) {
-                if (error.name !== 'AbortError') {
-                    console.error('Search error:', error);
-                }
-                callback([]);
-            }
-        }
+<script>
+/* ============================================================
+   PAN INDIA LOGISTICS ENGINE
+   Graph-based pathfinding across all major Indian freight corridors.
+   CITY_DATA: commodity loads per city
+   GRAPH: adjacency list (city -> [{city, km}])
+   Route is found via BFS/Dijkstra, then stops + loads assembled.
+============================================================ */
 
-        // Optimized debounced search
-        const debouncedSearch = debounce((query, callback) => {
-            searchLocation(query, callback);
-        }, 300);
+/* ---------- CITY COMMODITY DATA ----------
+   Only cities with meaningful freight/load potential included.
+   Excluded: pure tourist towns, small hamlets with no industry.
+---------- */
+const CITY_DATA = {
+  // ── DELHI NCR ──
+  "Delhi":         { loads: ["FMCG","Electronics","Pharma","Textiles","Auto parts","E-commerce","Industrial goods","Steel","Packaging"], major: true },
+  "Gurgaon":       { loads: ["FMCG","E-commerce","Auto parts","Electronics","Pharma","IT equipment"], major: true },
+  "Faridabad":     { loads: ["Auto parts","Industrial goods","Steel","Machinery"], major: false },
+  "Noida":         { loads: ["Electronics","IT equipment","FMCG","Pharma","E-commerce"], major: true },
+  "Ghaziabad":     { loads: ["Industrial goods","FMCG","Auto parts","Steel"], major: false },
+  "Ballabhgarh":   { loads: ["Steel","Industrial goods","Agri produce"], major: false },
+  "Sonipat":       { loads: ["Auto parts","Industrial goods","Agri produce","Steel"], major: false },
 
-        // Setup autocomplete with performance optimizations
-        function setupAutocomplete(inputId, suggestionsId, coordsCallback) {
-            const input = document.getElementById(inputId);
-            const suggestionsList = document.getElementById(suggestionsId);
+  // ── HARYANA ──
+  "Panipat":       { loads: ["Textiles","Recycled goods","Steel","Agri produce"], major: true },
+  "Karnal":        { loads: ["Dairy products","Agri produce","Rice","FMCG"], major: false },
+  "Kurukshetra":   { loads: ["Agri produce","Basmati rice","FMCG"], major: false },
+  "Ambala":        { loads: ["Electronics","Scientific instruments","FMCG","Agri produce"], major: true },
+  "Rohtak":        { loads: ["Agri produce","Auto parts","Steel","FMCG"], major: false },
+  "Hisar":         { loads: ["Steel","Agri produce","Cotton","Cattle feed"], major: true },
+  "Bhiwani":       { loads: ["Agri produce","Cotton","FMCG"], major: false },
+  "Rewari":        { loads: ["Agricultural goods","Building material","Industrial goods"], major: false },
+  "Narnaul":       { loads: ["Agri produce","Building material"], major: false },
+  "Dharuhera":     { loads: ["Auto components","Industrial goods","FMCG"], major: false },
+  "Neemrana":      { loads: ["Industrial machinery","Auto parts","Electronics","FMCG"], major: true },
+  "Palwal":        { loads: ["Agri produce","Industrial goods","FMCG"], major: false },
+  "Zirakpur":      { loads: ["FMCG","Building material","Consumer goods"], major: false },
+  "Sirsa":         { loads: ["Cotton","Agri produce","FMCG"], major: false },
 
-            input.addEventListener('input', function() {
-                const query = this.value.trim();
+  // ── PUNJAB ──
+  "Chandigarh":    { loads: ["FMCG","Electronics","Pharma","Consumer goods"], major: true },
+  "Ludhiana":      { loads: ["Hosiery","Woolen goods","Bicycles","Auto parts","Machine parts","Steel"], major: true },
+  "Amritsar":      { loads: ["Textiles","FMCG","Agri produce","Pharma","Spices"], major: true },
+  "Jalandhar":     { loads: ["Sports goods","Leather goods","Textiles","FMCG"], major: true },
+  "Patiala":       { loads: ["Agri produce","Dairy","FMCG","Textiles"], major: false },
+  "Bathinda":      { loads: ["Agri produce","Fertilizers","Oil refinery products","Cotton"], major: true },
+  "Pathankot":     { loads: ["Agri produce","FMCG","Building material"], major: false },
+  "Sirhind":       { loads: ["Agri produce","FMCG"], major: false },
+  "Rajpura":       { loads: ["Industrial goods","Building material","Auto parts"], major: false },
+  "Moga":          { loads: ["FMCG","Dairy products","Agri produce"], major: false },
+  "Firozpur":      { loads: ["Agri produce","Cotton","FMCG"], major: false },
 
-                if (query.length < 3) {
-                    suggestionsList.classList.remove('active');
-                    return;
-                }
+  // ── HIMACHAL PRADESH ──
+  "Shimla":        { loads: ["Apples","Horticulture produce","FMCG"], major: true },
+  "Baddi":         { loads: ["Pharma","FMCG","Consumer goods","Packaging"], major: true },
+  "Nalagarh":      { loads: ["Industrial goods","Pharma","FMCG"], major: false },
+  "Paonta Sahib":  { loads: ["Pharma","Industrial goods","FMCG"], major: false },
+  "Parwanoo":      { loads: ["Industrial goods","Pharma","Consumer goods"], major: false },
 
-                debouncedSearch(query, function(results) {
-                    suggestionsList.innerHTML = '';
-                    
-                    if (results.length === 0) {
-                        suggestionsList.classList.remove('active');
-                        return;
-                    }
+  // ── JAMMU & KASHMIR ──
+  "Jammu":         { loads: ["FMCG","Agri produce","Pharma","Textiles"], major: true },
+  "Pathankot":     { loads: ["FMCG","Agri produce"], major: false },
 
-                    // Use document fragment for better performance
-                    const fragment = document.createDocumentFragment();
-                    
-                    results.forEach(result => {
-                        const item = document.createElement('div');
-                        item.className = 'suggestion-item';
-                        
-                        const name = document.createElement('div');
-                        name.className = 'suggestion-name';
-                        name.textContent = result.display_name.split(',')[0];
-                        
-                        const detail = document.createElement('div');
-                        detail.className = 'suggestion-detail';
-                        detail.textContent = result.display_name;
-                        
-                        item.appendChild(name);
-                        item.appendChild(detail);
-                        
-                        item.addEventListener('click', function(e) {
-                            e.stopPropagation();
-                            input.value = result.display_name;
-                            coordsCallback({
-                                lat: parseFloat(result.lat),
-                                lon: parseFloat(result.lon),
-                                name: result.display_name
-                            });
-                            suggestionsList.classList.remove('active');
-                        });
-                        
-                        fragment.appendChild(item);
-                    });
-                    
-                    suggestionsList.appendChild(fragment);
-                    suggestionsList.classList.add('active');
-                });
-            });
+  // ── RAJASTHAN ──
+  "Jaipur":        { loads: ["Textiles","FMCG","Chemicals","Gems","Auto parts","Pharma"], major: true },
+  "Ajmer":         { loads: ["Textiles","Dyes","Chemicals","FMCG"], major: true },
+  "Kishangarh":    { loads: ["Marble","Granite","Stone products"], major: false },
+  "Jodhpur":       { loads: ["Agri produce","Spices","FMCG","Cement"], major: true },
+  "Bikaner":       { loads: ["FMCG","Snack foods","Agri produce","Wool"], major: true },
+  "Kota":          { loads: ["Chemicals","Fertilizers","Industrial goods","Agri produce","Cement"], major: true },
+  "Udaipur":       { loads: ["Zinc","Chemicals","FMCG","Agri produce"], major: true },
+  "Alwar":         { loads: ["Auto parts","Industrial goods","Agri produce","FMCG"], major: true },
+  "Bharatpur":     { loads: ["Agri produce","Dairy","FMCG"], major: false },
+  "Sikar":         { loads: ["Agri produce","FMCG","Cotton"], major: false },
+  "Churu":         { loads: ["Agri produce","Guar gum","Wool"], major: false },
+  "Nagaur":        { loads: ["Agri produce","Cattle","FMCG"], major: false },
+  "Pali":          { loads: ["Textiles","Dyes","Chemicals"], major: false },
+  "Beawar":        { loads: ["Chemicals","Textiles","Cement"], major: false },
+  "Bhilwara":      { loads: ["Textiles","Synthetic fibre","Agri produce"], major: true },
+  "Bundi":         { loads: ["Agri produce","Cement","FMCG"], major: false },
+  "Chittorgarh":   { loads: ["Zinc","Cement","Agri produce"], major: false },
+  "Banswara":      { loads: ["Agri produce","Textiles","FMCG"], major: false },
+  "Baran":         { loads: ["Agri produce","FMCG","Industrial goods"], major: false },
+  "Behror":        { loads: ["FMCG","Packaging goods","Industrial goods"], major: false },
+  "Neemrana":      { loads: ["Auto parts","Electronics","Industrial machinery","FMCG"], major: true },
+  "Dudu":          { loads: ["Agri produce","Cattle feed"], major: false },
+  "Phulera":       { loads: ["Agri produce","Salt"], major: false },
+  "Chomu":         { loads: ["Agricultural goods","Building material"], major: false },
+  "Shahpura":      { loads: ["Building material","Industrial goods"], major: false },
+  "Fatehpur":      { loads: ["Agri produce","Guar gum"], major: false },
+  "Ratangarh":     { loads: ["Agri produce","Building material"], major: false },
+  "Nokha":         { loads: ["Agri produce","Guar"], major: false },
+  "Merta":         { loads: ["Agri produce","Guar gum"], major: false },
+  "Hanumangarh":   { loads: ["Agri produce","Cotton","Guar","Dairy"], major: false },
+  "Ganganagar":    { loads: ["Agri produce","Cotton","FMCG","Sugar"], major: true },
 
-            // Close suggestions on outside click
-            document.addEventListener('click', function(e) {
-                if (!input.contains(e.target) && !suggestionsList.contains(e.target)) {
-                    suggestionsList.classList.remove('active');
-                }
-            });
-        }
+  // ── UTTAR PRADESH ──
+  "Lucknow":       { loads: ["Textiles","FMCG","Pharma","Handicrafts","Consumer goods"], major: true },
+  "Kanpur":        { loads: ["Leather goods","Textiles","FMCG","Chemicals","Fertilizers"], major: true },
+  "Agra":          { loads: ["Leather goods","Footwear","Textiles","Chemicals"], major: true },
+  "Meerut":        { loads: ["Sports goods","Agricultural machinery","Scissors","Musical instruments","FMCG"], major: true },
+  "Varanasi":      { loads: ["Silk textiles","Carpets","FMCG","Agri produce"], major: true },
+  "Allahabad":     { loads: ["FMCG","Agri produce","Chemicals","Pharma"], major: true },
+  "Mathura":       { loads: ["Agri produce","FMCG","Dairy","Refinery products"], major: false },
+  "Aligarh":       { loads: ["Locks","Hardware","Brass goods","Electrical goods"], major: true },
+  "Moradabad":     { loads: ["Brass goods","Metal wares","Handicrafts","FMCG"], major: true },
+  "Bareilly":      { loads: ["FMCG","Agri produce","Furniture","Building material"], major: true },
+  "Ghazipur":      { loads: ["Agri produce","FMCG","Chemicals"], major: false },
+  "Gorakhpur":     { loads: ["FMCG","Agri produce","Fertilizers","Pharma"], major: true },
+  "Jhansi":        { loads: ["Agri produce","Industrial goods","FMCG","Building material"], major: true },
+  "Firozabad":     { loads: ["Glass products","Bangles","Agri produce"], major: false },
+  "Hapur":         { loads: ["Agri produce","Building material","Paper"], major: false },
+  "Bulandshahr":   { loads: ["Agri produce","Sugar","Dairy"], major: false },
+  "Etawah":        { loads: ["Agri produce","Dairy","FMCG"], major: false },
+  "Hathras":       { loads: ["Agri produce","Footwear"], major: false },
+  "Muzaffarnagar": { loads: ["Sugar","Agri produce","Jaggery","FMCG"], major: false },
+  "Saharanpur":    { loads: ["Furniture","Wood products","FMCG","Agri produce"], major: true },
+  "Shahjahanpur":  { loads: ["Agri produce","Sugar","FMCG"], major: false },
+  "Rampur":        { loads: ["Agri produce","FMCG"], major: false },
+  "Unnao":         { loads: ["Leather goods","Agri produce","FMCG"], major: false },
+  "Rae Bareli":    { loads: ["Agri produce","FMCG","Industrial goods"], major: false },
+  "Sitapur":       { loads: ["Agri produce","FMCG"], major: false },
+  "Hardoi":        { loads: ["Agri produce","FMCG"], major: false },
+  "Sultanpur":     { loads: ["Agri produce","FMCG"], major: false },
+  "Faizabad":      { loads: ["Agri produce","FMCG","Textiles"], major: false },
+  "Basti":         { loads: ["Agri produce","FMCG","Sugar"], major: false },
+  "Azamgarh":      { loads: ["Agri produce","Pottery","FMCG"], major: false },
+  "Mirzapur":      { loads: ["Carpets","Brassware","Agri produce"], major: false },
+  "Jaunpur":       { loads: ["Agri produce","FMCG","Textiles"], major: false },
+  "Gonda":         { loads: ["Agri produce","Sugar","FMCG"], major: false },
+  "Deoria":        { loads: ["Sugar","Agri produce","FMCG"], major: false },
+  "Modinagar":     { loads: ["Paper","FMCG","Industrial goods"], major: false },
+  "Kosi Kalan":    { loads: ["Agri produce","FMCG"], major: false },
 
-        // Optimized route calculation with async rendering
-        async function calculateRoute() {
-            if (!originCoords || !destinationCoords) {
-                showError('Please select both origin and destination from the suggestions');
-                return;
-            }
+  // ── UTTARAKHAND ──
+  "Dehradun":      { loads: ["FMCG","Pharma","Consumer goods","Agri produce"], major: true },
+  "Haridwar":      { loads: ["FMCG","Pharma","Consumer goods","Religious goods"], major: true },
+  "Roorkee":       { loads: ["FMCG","Industrial goods","Agri produce"], major: false },
+  "Rudrapur":      { loads: ["Auto parts","Industrial goods","FMCG","Pharma"], major: true },
+  "Haldwani":      { loads: ["Agri produce","FMCG","Building material"], major: false },
+  "Kashipur":      { loads: ["Industrial goods","FMCG","Agri produce"], major: false },
 
-            document.getElementById('loading').classList.add('active');
-            document.getElementById('errorMessage').classList.remove('active');
-            document.getElementById('routeInfo').classList.remove('active');
-            document.getElementById('calculateBtn').disabled = true;
+  // ── BIHAR ──
+  "Patna":         { loads: ["Agri produce","FMCG","Textiles","Consumer goods","Pharma"], major: true },
+  "Gaya":          { loads: ["Agri produce","FMCG","Cement"], major: false },
+  "Muzaffarpur":   { loads: ["Agri produce","Litchi","FMCG","Sugar"], major: true },
+  "Bhagalpur":     { loads: ["Silk textiles","Agri produce","FMCG"], major: true },
+  "Darbhanga":     { loads: ["Agri produce","FMCG","Jute"], major: false },
+  "Purnia":        { loads: ["Agri produce","Jute","FMCG"], major: false },
+  "Hajipur":       { loads: ["FMCG","Industrial goods","Agri produce"], major: false },
+  "Bihar Sharif":  { loads: ["Agri produce","FMCG"], major: false },
+  "Arrah":         { loads: ["Agri produce","Sugar","FMCG"], major: false },
+  "Sasaram":       { loads: ["Agri produce","Building material","FMCG"], major: false },
+  "Buxar":         { loads: ["Agri produce","FMCG","Sugar"], major: false },
+  "Siwan":         { loads: ["Agri produce","FMCG","Sugar"], major: false },
+  "Motihari":      { loads: ["Agri produce","Sugar","FMCG"], major: false },
 
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000);
-                
-                const response = await fetch(
-                    `https://router.project-osrm.org/route/v1/driving/${originCoords.lon},${originCoords.lat};${destinationCoords.lon},${destinationCoords.lat}?overview=full&geometries=geojson&steps=true&alternatives=true`,
-                    { signal: controller.signal }
-                );
-                
-                clearTimeout(timeoutId);
-                const data = await response.json();
-                
-                if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
-                    throw new Error('No route found');
-                }
+  // ── JHARKHAND ──
+  "Ranchi":        { loads: ["Steel","Minerals","FMCG","Consumer goods","Coal"], major: true },
+  "Jamshedpur":    { loads: ["Steel","Auto parts","Industrial goods","FMCG"], major: true },
+  "Dhanbad":       { loads: ["Coal","Mining equipment","Industrial goods"], major: true },
+  "Bokaro":        { loads: ["Steel","Industrial goods","FMCG"], major: true },
+  "Hazaribagh":    { loads: ["Coal","Agri produce","FMCG"], major: false },
+  "Giridih":       { loads: ["Coal","Agri produce","Mica"], major: false },
+  "Koderma":       { loads: ["Mica","Minerals","Agri produce"], major: false },
+  "Deoghar":       { loads: ["FMCG","Agri produce"], major: false },
+  "Dumka":         { loads: ["Agri produce","FMCG","Minerals"], major: false },
 
-                currentRouteData = data.routes[0];
-                
-                // Display route immediately
-                displayRoute(currentRouteData);
-                
-                // Load landmarks asynchronously without blocking
-                setTimeout(() => findLandmarks(currentRouteData), 100);
-                
-            } catch (error) {
-                if (error.name === 'AbortError') {
-                    showError('Request timeout. Please try again.');
-                } else {
-                    showError('Could not calculate route. Please try different locations.');
-                }
-                console.error('Routing error:', error);
-            } finally {
-                document.getElementById('loading').classList.remove('active');
-                document.getElementById('calculateBtn').disabled = false;
-            }
-        }
+  // ── WEST BENGAL ──
+  "Kolkata":       { loads: ["Jute","Textiles","FMCG","Electronics","Steel","Pharma","Chemicals"], major: true },
+  "Howrah":        { loads: ["Steel","Engineering goods","Industrial goods","FMCG"], major: true },
+  "Durgapur":      { loads: ["Steel","Industrial goods","FMCG","Chemicals"], major: true },
+  "Asansol":       { loads: ["Coal","Steel","Industrial goods","Agri produce"], major: true },
+  "Siliguri":      { loads: ["Tea","Agri produce","FMCG","Building material"], major: true },
+  "Bardhaman":     { loads: ["Agri produce","Rice","FMCG","Steel"], major: false },
+  "Kharagpur":     { loads: ["Industrial goods","FMCG","Agri produce"], major: false },
+  "Haldia":        { loads: ["Petrochemicals","Chemicals","Fertilizers","Industrial goods"], major: true },
+  "Shantipur":     { loads: ["Textiles","Agri produce"], major: false },
+  "Jalpaiguri":    { loads: ["Tea","Timber","Agri produce","FMCG"], major: false },
+  "Cooch Behar":   { loads: ["Agri produce","FMCG","Jute"], major: false },
+  "Malda":         { loads: ["Agri produce","Mango","FMCG","Silk"], major: false },
+  "Midnapore":     { loads: ["Agri produce","Building material","FMCG"], major: false },
+  "Barasat":       { loads: ["FMCG","Agri produce","Consumer goods"], major: false },
 
-        // Optimized route display with efficient rendering
-        function displayRoute(route) {
-            // Clear existing layers efficiently
-            if (routeLayer) map.removeLayer(routeLayer);
-            if (originMarker) map.removeLayer(originMarker);
-            if (destinationMarker) map.removeLayer(destinationMarker);
+  // ── ODISHA ──
+  "Bhubaneswar":   { loads: ["FMCG","Pharma","Consumer goods","Steel"], major: true },
+  "Cuttack":       { loads: ["Textiles","FMCG","Agri produce","Silver goods"], major: true },
+  "Rourkela":      { loads: ["Steel","Industrial goods","Chemicals"], major: true },
+  "Berhampur":     { loads: ["Textiles","Agri produce","FMCG"], major: false },
+  "Sambalpur":     { loads: ["Textiles","Steel","Agri produce","Coal"], major: false },
+  "Jharsuguda":    { loads: ["Coal","Aluminium","Industrial goods"], major: false },
+  "Angul":         { loads: ["Aluminium","Coal","Steel","Industrial goods"], major: false },
+  "Paradip":       { loads: ["Fertilizers","Petrochemicals","Industrial goods"], major: true },
+  "Jajpur":        { loads: ["Steel","Industrial goods","Chromite"], major: false },
+  "Kalinganagar":  { loads: ["Steel","Industrial goods"], major: false },
+  "Balasore":      { loads: ["Agri produce","FMCG","Chemicals"], major: false },
+  "Baripada":      { loads: ["Agri produce","FMCG","Timber"], major: false },
+  "Jeypore":       { loads: ["Agri produce","FMCG","Timber"], major: false },
 
-            // Draw route with optimized settings
-            const coordinates = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
-            routeLayer = L.polyline(coordinates, {
-                color: '#FFD700',
-                weight: 6,
-                opacity: 0.8,
-                smoothFactor: 1
-            }).addTo(map);
+  // ── CHHATTISGARH ──
+  "Raipur":        { loads: ["Steel","Rice","Agri produce","FMCG","Cement","Iron ore"], major: true },
+  "Durg":          { loads: ["Steel","Industrial goods","FMCG"], major: true },
+  "Bhilai":        { loads: ["Steel","Industrial goods","Agri produce"], major: true },
+  "Bilaspur":      { loads: ["Agri produce","FMCG","Coal","Steel"], major: true },
+  "Korba":         { loads: ["Coal","Aluminium","Power equipment"], major: true },
+  "Rajnandgaon":   { loads: ["Agri produce","FMCG","Steel"], major: false },
+  "Raigarh":       { loads: ["Coal","Agri produce","Steel","Textiles"], major: false },
+  "Jagdalpur":     { loads: ["Agri produce","Iron ore","Timber"], major: false },
+  "Ambikapur":     { loads: ["Coal","Agri produce","FMCG"], major: false },
 
-            // Add custom markers
-            const originIcon = L.divIcon({
-                className: 'custom-marker',
-                html: '<div style="background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">A</div>',
-                iconSize: [35, 35]
-            });
+  // ── MADHYA PRADESH ──
+  "Indore":        { loads: ["FMCG","Agri produce","Pharma","Textiles","Auto parts","Soybean","Chemicals"], major: true },
+  "Bhopal":        { loads: ["FMCG","Consumer goods","Pharma","Industrial goods"], major: true },
+  "Jabalpur":      { loads: ["Agri produce","Industrial goods","FMCG","Defence goods","Cement"], major: true },
+  "Gwalior":       { loads: ["Agri produce","FMCG","Industrial goods","Chemicals"], major: true },
+  "Ujjain":        { loads: ["Agri produce","FMCG","Chemicals"], major: false },
+  "Pithampur":     { loads: ["Auto parts","Industrial machinery","FMCG","Pharma"], major: true },
+  "Dewas":         { loads: ["Auto parts","Textiles","FMCG","Industrial goods"], major: false },
+  "Ratlam":        { loads: ["Agri produce","Chemicals","FMCG","Soybean"], major: false },
+  "Sagar":         { loads: ["Agri produce","FMCG","Building material"], major: false },
+  "Satna":         { loads: ["Cement","Agri produce","FMCG"], major: false },
+  "Rewa":          { loads: ["Cement","Agri produce","Power equipment"], major: false },
+  "Katni":         { loads: ["Cement","Building material","Agri produce"], major: false },
+  "Chhindwara":    { loads: ["Agri produce","Coal","FMCG","Soybean"], major: false },
+  "Betul":         { loads: ["Agri produce","Coal","FMCG"], major: false },
+  "Hoshangabad":   { loads: ["Agri produce","FMCG","Wheat"], major: false },
+  "Vidisha":       { loads: ["Agri produce","FMCG"], major: false },
+  "Mandsaur":      { loads: ["Agri produce","Opium products","FMCG"], major: false },
+  "Morena":        { loads: ["Agri produce","Oil","FMCG"], major: false },
+  "Bhind":         { loads: ["Agri produce","FMCG"], major: false },
+  "Khandwa":       { loads: ["Agri produce","Cotton","FMCG"], major: false },
+  "Khargone":      { loads: ["Agri produce","Cotton","FMCG"], major: false },
+  "Burhanpur":     { loads: ["Textiles","Agri produce","FMCG"], major: false },
 
-            const destIcon = L.divIcon({
-                className: 'custom-marker',
-                html: '<div style="background: linear-gradient(135deg, #F44336 0%, #EF5350 100%); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">B</div>',
-                iconSize: [35, 35]
-            });
+  // ── GUJARAT ──
+  "Ahmedabad":     { loads: ["Textiles","Chemicals","Pharma","FMCG","Machinery","Diamonds","Auto parts"], major: true },
+  "Surat":         { loads: ["Textiles","Diamonds","FMCG","Chemicals","Plastics"], major: true },
+  "Vadodara":      { loads: ["Chemicals","Petrochemicals","Textiles","Machinery","Pharma"], major: true },
+  "Rajkot":        { loads: ["Engineering goods","Auto parts","Agri produce","FMCG","Steel"], major: true },
+  "Bhavnagar":     { loads: ["Ship breaking","Steel","Agri produce","FMCG"], major: true },
+  "Jamnagar":      { loads: ["Petrochemicals","Brass parts","Agri produce","FMCG"], major: true },
+  "Gandhinagar":   { loads: ["FMCG","Consumer goods","Pharma","Electronics"], major: false },
+  "Anand":         { loads: ["Dairy products","FMCG","Agri produce","Chemicals"], major: true },
+  "Nadiad":        { loads: ["Agri produce","Dairy","FMCG","Tobacco"], major: false },
+  "Mehsana":       { loads: ["Dairy products","Agri produce","FMCG","Tobacco"], major: false },
+  "Palanpur":      { loads: ["Marble","Cotton","Agri produce","FMCG"], major: false },
+  "Baruch":        { loads: ["Chemicals","Petrochemicals","Fertilizers","Textiles"], major: true },
+  "Surat":         { loads: ["Textiles","Diamonds","FMCG","Chemicals","Plastics"], major: true },
+  "Navsari":       { loads: ["Agri produce","FMCG","Textiles"], major: false },
+  "Vapi":          { loads: ["Chemicals","Industrial goods","Textiles","FMCG"], major: true },
+  "Valsad":        { loads: ["Agri produce","FMCG","Textiles"], major: false },
+  "Surendranagar": { loads: ["Cotton","Agri produce","Textiles","Salt"], major: false },
+  "Morbi":         { loads: ["Ceramics","Tiles","Agri produce","FMCG"], major: true },
+  "Bhuj":          { loads: ["Agri produce","Handicrafts","Salt","FMCG"], major: false },
+  "Amreli":        { loads: ["Agri produce","FMCG","Cotton"], major: false },
+  "Junagadh":      { loads: ["Agri produce","FMCG","Groundnut","Fruits"], major: false },
+  "Porbandar":     { loads: ["Agri produce","Chemicals","FMCG"], major: false },
+  "Botad":         { loads: ["Agri produce","FMCG","Groundnut"], major: false },
+  "Gondal":        { loads: ["Agri produce","FMCG","Oil"], major: false },
+  "Wankaner":      { loads: ["Engineering goods","Agri produce","FMCG"], major: false },
 
-            originMarker = L.marker([originCoords.lat, originCoords.lon], { icon: originIcon }).addTo(map);
-            destinationMarker = L.marker([destinationCoords.lat, destinationCoords.lon], { icon: destIcon }).addTo(map);
+  // ── MAHARASHTRA ──
+  "Mumbai":        { loads: ["FMCG","Electronics","Pharma","Textiles","E-commerce","Machinery","Chemicals"], major: true },
+  "Pune":          { loads: ["Auto parts","Electronics","FMCG","IT equipment","Pharma","Machinery"], major: true },
+  "Nashik":        { loads: ["Grapes","FMCG","Agri produce","Pharma","Auto parts","Wine"], major: true },
+  "Nagpur":        { loads: ["Agri produce","FMCG","Pharma","Oranges","Cement","Coal"], major: true },
+  "Aurangabad":    { loads: ["Auto parts","Industrial goods","FMCG","Agri produce","Pharma"], major: true },
+  "Solapur":       { loads: ["Textiles","Agri produce","FMCG","Bidi"], major: true },
+  "Kolhapur":      { loads: ["Agri produce","Sugar","Textiles","FMCG","Foundry goods"], major: true },
+  "Sangli":        { loads: ["Agri produce","Turmeric","Sugar","FMCG"], major: false },
+  "Satara":        { loads: ["Agri produce","Sugar","FMCG"], major: false },
+  "Latur":         { loads: ["Agri produce","FMCG","Soybean","Sugar"], major: false },
+  "Nanded":        { loads: ["Agri produce","Sugar","FMCG"], major: false },
+  "Osmanabad":     { loads: ["Agri produce","FMCG","Soybean"], major: false },
+  "Amravati":      { loads: ["Agri produce","Cotton","FMCG","Soybean"], major: false },
+  "Akola":         { loads: ["Agri produce","Cotton","FMCG","Soybean"], major: false },
+  "Yavatmal":      { loads: ["Cotton","Agri produce","FMCG"], major: false },
+  "Wardha":        { loads: ["Cotton","Agri produce","FMCG"], major: false },
+  "Chandrapur":    { loads: ["Coal","Cement","Steel","Agri produce"], major: false },
+  "Gadchiroli":    { loads: ["Agri produce","Timber","Minerals"], major: false },
+  "Dhule":         { loads: ["Agri produce","Textiles","FMCG"], major: false },
+  "Jalgaon":       { loads: ["Bananas","Cotton","Agri produce","FMCG"], major: true },
+  "Ahmednagar":    { loads: ["Agri produce","Sugar","FMCG","Chemicals"], major: false },
+  "Raigad":        { loads: ["Chemicals","FMCG","Steel","Industrial goods"], major: false },
+  "Ratnagiri":     { loads: ["Agri produce","Alphonso mangoes","Fish","FMCG"], major: false },
+  "Sindhudurg":    { loads: ["Agri produce","Fish","FMCG"], major: false },
+  "Thane":         { loads: ["FMCG","Industrial goods","Chemicals","Pharma"], major: true },
+  "Navi Mumbai":   { loads: ["FMCG","Chemicals","Industrial goods","Pharma"], major: true },
+  "Panvel":        { loads: ["Building material","FMCG","Industrial goods"], major: false },
+  "Khopoli":       { loads: ["Industrial goods","Agri produce"], major: false },
+  "Igatpuri":      { loads: ["Agri produce","FMCG"], major: false },
+  "Malegaon":      { loads: ["Textiles","Agri produce","FMCG"], major: false },
+  "Pimpri":        { loads: ["Auto parts","Industrial goods","FMCG","Pharma"], major: false },
+  "Bhosari":       { loads: ["Auto parts","Industrial goods","FMCG"], major: false },
+  "Hingoli":       { loads: ["Agri produce","Soybean","FMCG"], major: false },
+  "Parbhani":      { loads: ["Agri produce","FMCG","Soybean"], major: false },
+  "Buldhana":      { loads: ["Agri produce","Cotton","FMCG"], major: false },
+  "Beed":          { loads: ["Agri produce","Soybean","Sugar"], major: false },
+  "Jalna":         { loads: ["Agri produce","Seeds","FMCG"], major: false },
+  "Gondia":        { loads: ["Rice","Agri produce","FMCG","Timber"], major: false },
+  "Bhandara":      { loads: ["Rice","Agri produce","FMCG"], major: false },
+  "Washim":        { loads: ["Agri produce","Cotton","FMCG"], major: false },
 
-            // Fit bounds efficiently
-            map.fitBounds(routeLayer.getBounds(), { 
-                padding: [50, 50],
-                animate: true,
-                duration: 0.5
-            });
+  // ── GOA ──
+  "Panaji":        { loads: ["FMCG","Consumer goods","Pharma","Agri produce"], major: true },
+  "Margao":        { loads: ["FMCG","Agri produce","Consumer goods"], major: false },
+  "Vasco da Gama": { loads: ["Iron ore","FMCG","Industrial goods"], major: false },
+  "Hubli":         { loads: ["Cotton","FMCG","Agri produce","Steel"], major: true },
 
-            // Calculate statistics
-            const distanceKm = (route.distance / 1000).toFixed(1);
-            const durationHours = Math.floor(route.duration / 3600);
-            const durationMinutes = Math.floor((route.duration % 3600) / 60);
-            const estimatedTolls = Math.max(1, Math.floor(route.distance / 100000));
-            
-            // Update UI efficiently using requestAnimationFrame
-            requestAnimationFrame(() => {
-                document.getElementById('distance').textContent = distanceKm + ' km';
-                document.getElementById('duration').textContent = 
-                    durationHours > 0 ? `${durationHours}h ${durationMinutes}m` : `${durationMinutes}m`;
-                document.getElementById('tolls').textContent = estimatedTolls;
-                document.getElementById('originAddress').textContent = originCoords.name;
-                document.getElementById('destinationAddress').textContent = destinationCoords.name;
-                
-                document.getElementById('routeInfo').classList.add('active');
-            });
-        }
+  // ── KARNATAKA ──
+  "Bangalore":     { loads: ["Electronics","IT equipment","FMCG","Pharma","E-commerce","Apparel","Machinery"], major: true },
+  "Mysore":        { loads: ["Agri produce","FMCG","Silk","Consumer goods"], major: true },
+  "Hubli":         { loads: ["Cotton","FMCG","Agri produce","Steel"], major: true },
+  "Dharwad":       { loads: ["Agri produce","Cotton","FMCG","Machinery"], major: false },
+  "Bellary":       { loads: ["Iron ore","Steel","Agri produce","FMCG"], major: true },
+  "Gulbarga":      { loads: ["Agri produce","Cement","FMCG","Cotton"], major: true },
+  "Mangalore":     { loads: ["Cashews","Fish","Chemicals","FMCG","Coffee"], major: true },
+  "Belgaum":       { loads: ["Agri produce","Sugar","FMCG","Cotton"], major: true },
+  "Tumkur":        { loads: ["Agri produce","FMCG","Consumer goods","Silk"], major: false },
+  "Shimoga":       { loads: ["Agri produce","Timber","FMCG","Iron ore"], major: false },
+  "Davangere":     { loads: ["Cotton","Agri produce","FMCG","Steel"], major: false },
+  "Bijapur":       { loads: ["Agri produce","Cotton","FMCG","Limestone"], major: false },
+  "Raichur":       { loads: ["Agri produce","Cotton","Fertilizers","FMCG"], major: false },
+  "Bidar":         { loads: ["Agri produce","FMCG","Handicrafts"], major: false },
+  "Kolar":         { loads: ["Agri produce","Tomato","FMCG"], major: false },
+  "Mandya":        { loads: ["Sugar","Agri produce","FMCG"], major: false },
+  "Hassan":        { loads: ["Agri produce","Coffee","FMCG"], major: false },
+  "Chikkamagalur": { loads: ["Coffee","Agri produce","FMCG"], major: false },
+  "Chitradurga":   { loads: ["Agri produce","Iron ore","FMCG"], major: false },
+  "Hosur":         { loads: ["Auto parts","Electronics","Industrial goods","FMCG"], major: true },
+  "Chikkaballapur":{ loads: ["Floriculture","Agri produce","FMCG"], major: false },
+  "Hindupur":      { loads: ["Textiles","Agri produce","FMCG"], major: false },
+  "Vijayapura":    { loads: ["Agri produce","Cotton","FMCG","Limestone"], major: false },
+  "Yadgir":        { loads: ["Agri produce","Limestone","FMCG"], major: false },
+  "Koppal":        { loads: ["Agri produce","Iron ore","FMCG"], major: false },
+  "Gadag":         { loads: ["Agri produce","Cotton","FMCG"], major: false },
+  "Bagalkot":      { loads: ["Agri produce","Sugar","FMCG","Limestone"], major: false },
+  "Udupi":         { loads: ["Fish","FMCG","Agri produce"], major: false },
+  "Kundapur":      { loads: ["Fish","Agri produce","Timber"], major: false },
 
-        // Optimized landmark finding with limited API calls
-        async function findLandmarks(route) {
-            try {
-                const coords = route.geometry.coordinates;
-                const totalPoints = coords.length;
-                
-                // Sample 5 key points along route
-                const sampleIndices = [
-                    Math.floor(totalPoints * 0.2),
-                    Math.floor(totalPoints * 0.35),
-                    Math.floor(totalPoints * 0.5),
-                    Math.floor(totalPoints * 0.65),
-                    Math.floor(totalPoints * 0.8)
-                ];
+  // ── ANDHRA PRADESH ──
+  "Visakhapatnam": { loads: ["Steel","Agri produce","FMCG","Pharma","Chemicals","Fertilizers"], major: true },
+  "Vijayawada":    { loads: ["Agri produce","FMCG","Textiles","Pharma","Tobacco","Rice"], major: true },
+  "Guntur":        { loads: ["Cotton","Chillies","Agri produce","FMCG","Tobacco"], major: true },
+  "Tirupati":      { loads: ["FMCG","Consumer goods","Agri produce","Pharma"], major: true },
+  "Nellore":       { loads: ["Agri produce","Aquaculture","FMCG","Cement"], major: true },
+  "Kurnool":       { loads: ["Cotton","Chillies","Agri produce","FMCG","Cement"], major: false },
+  "Kadapa":        { loads: ["Cement","Agri produce","FMCG","Baryte"], major: false },
+  "Anantapur":     { loads: ["Groundnut","Agri produce","Cotton","FMCG","Cement"], major: false },
+  "Rajahmundry":   { loads: ["Agri produce","FMCG","Petroleum","Tobacco"], major: true },
+  "Eluru":         { loads: ["Agri produce","Textiles","FMCG"], major: false },
+  "Machilipatnam": { loads: ["Agri produce","Fish","FMCG"], major: false },
+  "Ongole":        { loads: ["Agri produce","Agri machinery","FMCG"], major: false },
+  "Bhimavaram":    { loads: ["Agri produce","Aquaculture","FMCG"], major: false },
+  "Srikakulam":    { loads: ["Agri produce","Fish","FMCG"], major: false },
+  "Vizianagaram":  { loads: ["Agri produce","FMCG","Textiles"], major: false },
+  "Kakinada":      { loads: ["Agri produce","Pharma","Chemicals","Fish","FMCG"], major: true },
+  "Proddatur":     { loads: ["Agri produce","Cement","FMCG"], major: false },
+  "Hindupur":      { loads: ["Textiles","Agri produce","FMCG"], major: false },
+  "Chittoor":      { loads: ["Agri produce","FMCG","Tomato","Dairy"], major: false },
 
-                const landmarks = [];
-                
-                for (let i = 0; i < Math.min(sampleIndices.length, 5); i++) {
-                    const idx = sampleIndices[i];
-                    const [lon, lat] = coords[idx];
-                    
-                    try {
-                        const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 3000);
-                        
-                        const response = await fetch(
-                            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`,
-                            { signal: controller.signal }
-                        );
-                        
-                        clearTimeout(timeoutId);
-                        const data = await response.json();
-                        
-                        if (data && data.display_name) {
-                            const parts = data.display_name.split(',');
-                            const name = parts[0].trim() || parts[1]?.trim() || 'Checkpoint';
-                            const type = data.address?.city ? 'City' : 
-                                       data.address?.town ? 'Town' : 
-                                       data.address?.village ? 'Village' :
-                                       data.address?.industrial ? 'Industrial Area' : 'Waypoint';
-                            
-                            landmarks.push({ name, type });
-                        }
-                    } catch (error) {
-                        if (error.name !== 'AbortError') {
-                            console.error('Landmark fetch error:', error);
-                        }
-                    }
-                    
-                    // Respect API rate limits
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                }
-                
-                currentLandmarks = landmarks;
-                displayLandmarks(landmarks);
-            } catch (error) {
-                console.error('Landmark search error:', error);
-                currentLandmarks = [];
-                displayLandmarks([]);
-            }
-        }
+  // ── TELANGANA ──
+  "Hyderabad":     { loads: ["Pharma","IT equipment","FMCG","Textiles","Electronics","Chemicals","Agri produce"], major: true },
+  "Warangal":      { loads: ["Agri produce","Textiles","FMCG","Steel"], major: true },
+  "Karimnagar":    { loads: ["Agri produce","Textiles","FMCG","Steel"], major: false },
+  "Nizamabad":     { loads: ["Agri produce","Turmeric","FMCG","Sugar"], major: false },
+  "Khammam":       { loads: ["Coal","Agri produce","Tobacco","FMCG"], major: false },
+  "Nalgonda":      { loads: ["Agri produce","Cement","Fluorite","FMCG"], major: false },
+  "Mahbubnagar":   { loads: ["Agri produce","FMCG","Granite"], major: false },
+  "Adilabad":      { loads: ["Coal","Agri produce","FMCG","Textiles"], major: false },
+  "Suryapet":      { loads: ["Agri produce","FMCG","Cement"], major: false },
+  "Sangareddy":    { loads: ["FMCG","Industrial goods","Agri produce","Pharma"], major: false },
+  "Siddipet":      { loads: ["Agri produce","FMCG","Textiles"], major: false },
+  "Ramagundam":    { loads: ["Coal","Fertilizers","Agri produce","FMCG"], major: false },
+  "Zaheerabad":    { loads: ["FMCG","Agri produce","Pharma"], major: false },
 
-        // Display landmarks efficiently
-        function displayLandmarks(landmarks) {
-            const landmarksList = document.getElementById('landmarksList');
-            
-            requestAnimationFrame(() => {
-                landmarksList.innerHTML = '';
-                
-                if (landmarks.length === 0) {
-                    landmarksList.innerHTML = '<div style="text-align: center; color: #8D6E63; font-size: 12px; padding: 10px;">No landmarks found along this route</div>';
-                    return;
-                }
-                
-                const fragment = document.createDocumentFragment();
-                
-                landmarks.forEach(landmark => {
-                    const item = document.createElement('div');
-                    item.className = 'landmark-item';
-                    
-                    const name = document.createElement('div');
-                    name.className = 'landmark-name';
-                    name.textContent = landmark.name;
-                    
-                    const type = document.createElement('div');
-                    type.className = 'landmark-type';
-                    type.textContent = landmark.type;
-                    
-                    item.appendChild(name);
-                    item.appendChild(type);
-                    fragment.appendChild(item);
-                });
-                
-                landmarksList.appendChild(fragment);
-            });
-        }
+  // ── TAMIL NADU ──
+  "Chennai":       { loads: ["Auto parts","Electronics","Textiles","FMCG","Pharma","Leather","IT equipment"], major: true },
+  "Coimbatore":    { loads: ["Textiles","Engineering goods","FMCG","Machinery","Pumps"], major: true },
+  "Madurai":       { loads: ["Textiles","FMCG","Agri produce","Granite","Flowers"], major: true },
+  "Tiruchirappalli":{ loads: ["FMCG","Agri produce","Textiles","Engineering goods","Cement"], major: true },
+  "Salem":         { loads: ["Steel","Agri produce","Textiles","FMCG","Mangoes"], major: true },
+  "Tirunelveli":   { loads: ["Agri produce","FMCG","Cotton","Fish"], major: false },
+  "Erode":         { loads: ["Textiles","Cotton","Agri produce","FMCG","Turmeric"], major: true },
+  "Vellore":       { loads: ["Leather goods","Footwear","Agri produce","FMCG"], major: true },
+  "Kanchipuram":   { loads: ["Silk textiles","Agri produce","FMCG"], major: false },
+  "Tiruppur":      { loads: ["Hosiery","Knitwear","Textiles","Packaging","FMCG"], major: true },
+  "Krishnagiri":   { loads: ["Agri produce","Mango","Vegetables","FMCG"], major: false },
+  "Dindigul":      { loads: ["Agri produce","FMCG","Locks","Textiles"], major: false },
+  "Thanjavur":     { loads: ["Agri produce","Rice","FMCG","Dairy"], major: false },
+  "Kumbakonam":    { loads: ["Agri produce","Dairy","FMCG","Brassware"], major: false },
+  "Cuddalore":     { loads: ["Chemicals","Agri produce","FMCG","Textiles"], major: false },
+  "Puducherry":    { loads: ["FMCG","Consumer goods","Agri produce","Textiles"], major: false },
+  "Hosur":         { loads: ["Auto parts","Electronics","Industrial goods","FMCG"], major: true },
+  "Nagercoil":     { loads: ["Fish","Agri produce","FMCG","Consumer goods"], major: false },
+  "Tuticorin":     { loads: ["Salt","Agri produce","Chemicals","FMCG","Cotton"], major: true },
+  "Sivakasi":      { loads: ["Fireworks","Matches","Printing","FMCG"], major: false },
+  "Karur":         { loads: ["Textiles","Agri produce","FMCG"], major: false },
+  "Namakkal":      { loads: ["Agri produce","Poultry","FMCG","Textiles"], major: false },
+  "Villupuram":    { loads: ["Agri produce","Sugar","FMCG"], major: false },
+  "Ambattur":      { loads: ["Auto parts","Electronics","Textiles","FMCG"], major: false },
+  "Ranipet":       { loads: ["Leather goods","Auto parts","Chemical goods","FMCG"], major: false },
 
-        // Confirm and proceed to driver client page
-        function confirmAndProceed() {
-            if (!originCoords || !destinationCoords || !currentRouteData) {
-                showError('Route not calculated yet');
-                return;
-            }
-            
-            const distanceKm = (currentRouteData.distance / 1000).toFixed(1);
-            const durationHours = Math.floor(currentRouteData.duration / 3600);
-            const durationMinutes = Math.floor((currentRouteData.duration % 3600) / 60);
-            const estimatedTolls = Math.max(1, Math.floor(currentRouteData.distance / 100000));
-            
-            const params = new URLSearchParams({
-                origin: originCoords.name,
-                destination: destinationCoords.name,
-                distance: distanceKm,
-                time: durationHours > 0 ? `${durationHours}h ${durationMinutes}m` : `${durationMinutes}m`,
-                tolls: estimatedTolls
-            });
-            
-            if (currentLandmarks && currentLandmarks.length > 0) {
-                params.append('landmarks', JSON.stringify(currentLandmarks));
-            }
-            
-            window.location.href = `https://gunjanmishra22.github.io/Drivers-Page/?${params.toString()}`;
-        }
+  // ── KERALA ──
+  "Kochi":         { loads: ["Spices","Fish","FMCG","Agri produce","Chemicals","Rubber"], major: true },
+  "Thiruvananthapuram":{ loads: ["FMCG","Consumer goods","Agri produce","Pharma","Rubber"], major: true },
+  "Kozhikode":     { loads: ["Agri produce","FMCG","Spices","Timber","Fish"], major: true },
+  "Thrissur":      { loads: ["Agri produce","FMCG","Rubber","Gold","Textiles"], major: true },
+  "Kollam":        { loads: ["Cashews","Fish","Agri produce","FMCG","Coir"], major: true },
+  "Palakkad":      { loads: ["Agri produce","FMCG","Rice","Sugar"], major: false },
+  "Alappuzha":     { loads: ["Coir","Fish","Agri produce","FMCG"], major: false },
+  "Kottayam":      { loads: ["Rubber","Agri produce","Spices","FMCG"], major: false },
+  "Malappuram":    { loads: ["Agri produce","FMCG","Textiles"], major: false },
+  "Kannur":        { loads: ["Agri produce","FMCG","Beedi","Textiles"], major: false },
+  "Kasaragod":     { loads: ["Agri produce","Fish","FMCG","Cashews"], major: false },
+  "Ernakulam":     { loads: ["FMCG","Agri produce","Rubber","Consumer goods"], major: false },
+  "Pathanamthitta":{ loads: ["Rubber","Agri produce","FMCG"], major: false },
+  "Idukki":        { loads: ["Spices","Tea","Agri produce","FMCG"], major: false },
+  "Wayanad":       { loads: ["Coffee","Tea","Agri produce","FMCG"], major: false },
 
-        // Optimized error display
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            requestAnimationFrame(() => {
-                errorDiv.textContent = message;
-                errorDiv.classList.add('active');
-            });
-            
-            setTimeout(() => {
-                requestAnimationFrame(() => {
-                    errorDiv.classList.remove('active');
-                });
-            }, 5000);
-        }
+  // ── ASSAM ──
+  "Guwahati":      { loads: ["Tea","Agri produce","FMCG","Petroleum","Textiles"], major: true },
+  "Silchar":       { loads: ["Tea","Agri produce","FMCG","Bamboo"], major: false },
+  "Dibrugarh":     { loads: ["Tea","Petroleum","Agri produce","FMCG"], major: true },
+  "Jorhat":        { loads: ["Tea","Agri produce","FMCG"], major: false },
+  "Tezpur":        { loads: ["Tea","Agri produce","FMCG"], major: false },
+  "Nagaon":        { loads: ["Agri produce","FMCG","Paper","Sugar"], major: false },
+  "Bongaigaon":    { loads: ["FMCG","Agri produce","Industrial goods","Paper"], major: false },
+  "Kamrup":        { loads: ["Agri produce","FMCG","Consumer goods"], major: false },
+  "Dhubri":        { loads: ["Agri produce","FMCG","Jute"], major: false },
 
-        // Initialize on DOM ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeApp);
-        } else {
-            initializeApp();
-        }
+  // ── NORTHEAST ──
+  "Imphal":        { loads: ["Agri produce","FMCG","Consumer goods","Bamboo"], major: true },
+  "Aizawl":        { loads: ["Agri produce","FMCG","Consumer goods","Bamboo"], major: false },
+  "Agartala":      { loads: ["Agri produce","FMCG","Bamboo","Rubber"], major: true },
+  "Shillong":      { loads: ["Agri produce","FMCG","Minerals","Coal"], major: true },
+  "Kohima":        { loads: ["Agri produce","FMCG","Consumer goods"], major: false },
+  "Itanagar":      { loads: ["Agri produce","Timber","FMCG","Minerals"], major: false },
+  "Gangtok":       { loads: ["Agri produce","FMCG","Cardamom","Consumer goods"], major: false },
 
-        function initializeApp() {
-            // Initialize map
-            initMap();
-            
-            // Setup autocomplete for both inputs
-            setupAutocomplete('origin', 'originSuggestions', function(coords) {
-                originCoords = coords;
-            });
-            
-            setupAutocomplete('destination', 'destinationSuggestions', function(coords) {
-                destinationCoords = coords;
-            });
-            
-            // Event listeners with passive where appropriate
-            document.getElementById('calculateBtn').addEventListener('click', calculateRoute);
-            document.getElementById('navigateBtn').addEventListener('click', confirmAndProceed);
-            
-            document.getElementById('landmarksBtn').addEventListener('click', function() {
-                const section = document.getElementById('landmarksSection');
-                section.classList.toggle('active');
-                this.textContent = section.classList.contains('active') 
-                    ? 'HIDE ROUTE LANDMARKS' 
-                    : 'VIEW ROUTE LANDMARKS';
-            });
-            
-            // Keyboard navigation
-            document.getElementById('origin').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    document.getElementById('destination').focus();
-                }
-            });
-            
-            document.getElementById('destination').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    if (originCoords && destinationCoords) {
-                        calculateRoute();
-                    }
-                }
-            });
+  // ── ANDAMAN ──
+  "Port Blair":    { loads: ["FMCG","Consumer goods","Agri produce","Timber"], major: false },
 
-            // Clear old cache entries periodically
-            setInterval(() => {
-                const now = Date.now();
-                for (const [key, value] of searchCache.entries()) {
-                    if (now - value.timestamp > CACHE_EXPIRY) {
-                        searchCache.delete(key);
-                    }
-                }
-            }, 600000); // Clean every 10 minutes
-        }
-    </script>
+  // ── LAKSHADWEEP / DAMAN / DADRA ──
+  "Silvassa":      { loads: ["Industrial goods","Chemicals","FMCG","Plastics"], major: false },
+  "Daman":         { loads: ["Industrial goods","FMCG","Plastics","Chemicals"], major: false },
+};
+
+/* ---------- ROAD NETWORK GRAPH ----------
+   Each entry: [CityA, CityB, km]
+   Represents NH/major road connections.
+   This is used for BFS pathfinding.
+---------- */
+const EDGES = [
+  // ── DELHI NCR SPOKES ──
+  ["Delhi","Gurgaon",30],["Gurgaon","Dharuhera",40],["Dharuhera","Neemrana",20],["Neemrana","Behror",18],
+  ["Behror","Shahpura",22],["Shahpura","Chomu",25],["Chomu","Jaipur",30],
+  ["Delhi","Faridabad",25],["Faridabad","Ballabhgarh",8],["Ballabhgarh","Palwal",30],
+  ["Palwal","Mathura",55],["Mathura","Agra",55],
+  ["Delhi","Noida",20],["Noida","Ghaziabad",12],["Ghaziabad","Modinagar",15],
+  ["Ghaziabad","Hapur",40],["Hapur","Bulandshahr",30],
+  ["Delhi","Sonipat",45],["Sonipat","Panipat",45],["Panipat","Karnal",50],
+  ["Karnal","Kurukshetra",35],["Kurukshetra","Ambala",40],["Ambala","Zirakpur",25],
+  ["Zirakpur","Chandigarh",10],["Ambala","Rajpura",30],["Rajpura","Sirhind",20],
+  ["Sirhind","Ludhiana",40],["Ludhiana","Jalandhar",65],["Jalandhar","Amritsar",75],
+  ["Jalandhar","Pathankot",90],["Pathankot","Jammu",105],
+  ["Ludhiana","Moga",50],["Moga","Firozpur",55],
+  ["Ludhiana","Patiala",45],["Chandigarh","Patiala",60],
+  ["Bathinda","Firozpur",90],["Bathinda","Hisar",110],["Bathinda","Sirsa",80],
+  ["Hisar","Bhiwani",42],["Hisar","Sirsa",80],["Sirsa","Ganganagar",90],
+  ["Delhi","Rohtak",75],["Rohtak","Hisar",90],["Rohtak","Bhiwani",50],
+  ["Delhi","Rewari",80],["Rewari","Narnaul",55],["Narnaul","Behror",35],
+  // Baddi cluster
+  ["Chandigarh","Parwanoo",35],["Parwanoo","Baddi",10],["Baddi","Nalagarh",15],
+  ["Baddi","Paonta Sahib",55],
+  // Dehradun / Haridwar
+  ["Ambala","Saharanpur",100],["Saharanpur","Dehradun",50],["Saharanpur","Muzaffarnagar",60],
+  ["Dehradun","Haridwar",55],["Haridwar","Roorkee",30],["Roorkee","Muzaffarnagar",55],
+  ["Muzaffarnagar","Meerut",60],["Meerut","Ghaziabad",60],
+  ["Haridwar","Rudrapur",80],["Rudrapur","Haldwani",45],["Haldwani","Kashipur",55],
+
+  // ── UP CORRIDOR ──
+  ["Agra","Firozabad",40],["Firozabad","Etawah",80],["Etawah","Kanpur",80],["Kanpur","Lucknow",80],
+  ["Lucknow","Rae Bareli",80],["Rae Bareli","Allahabad",110],["Allahabad","Varanasi",130],
+  ["Varanasi","Ghazipur",75],["Varanasi","Jaunpur",60],["Jaunpur","Sultanpur",70],
+  ["Sultanpur","Lucknow",135],["Lucknow","Hardoi",100],["Hardoi","Sitapur",75],
+  ["Sitapur","Gonda",80],["Gonda","Gorakhpur",95],["Gorakhpur","Deoria",50],
+  ["Gorakhpur","Basti",50],["Basti","Faizabad",75],["Faizabad","Lucknow",135],
+  ["Lucknow","Unnao",20],["Unnao","Kanpur",15],
+  ["Kanpur","Jhansi",190],["Jhansi","Gwalior",100],
+  ["Agra","Aligarh",90],["Aligarh","Mathura",50],["Aligarh","Hathras",30],
+  ["Bulandshahr","Aligarh",45],
+  ["Bareilly","Moradabad",55],["Moradabad","Rampur",45],["Bareilly","Shahjahanpur",60],
+  ["Shahjahanpur","Lucknow",165],["Bareilly","Hapur",120],
+  ["Varanasi","Mirzapur",55],["Mirzapur","Allahabad",90],
+  ["Varanasi","Azamgarh",65],["Azamgarh","Gorakhpur",100],
+  ["Kanpur","Shahjahanpur",165],
+
+  // ── RAJASTHAN ──
+  ["Jaipur","Ajmer",135],["Ajmer","Kishangarh",25],["Kishangarh","Beawar",30],
+  ["Beawar","Pali",75],["Pali","Jodhpur",70],["Jodhpur","Nagaur",120],
+  ["Nagaur","Merta",70],["Merta","Nokha",55],["Nokha","Bikaner",55],
+  ["Jaipur","Chomu",30],["Jaipur","Sikar",105],["Sikar","Fatehpur",60],
+  ["Fatehpur","Churu",75],["Churu","Ratangarh",55],["Ratangarh","Bikaner",110],
+  ["Jaipur","Alwar",155],["Alwar","Behror",55],["Alwar","Bharatpur",100],
+  ["Bharatpur","Mathura",55],["Bharatpur","Agra",60],
+  ["Jaipur","Kota",245],["Kota","Bundi",30],["Bundi","Chittorgarh",110],
+  ["Chittorgarh","Bhilwara",80],["Bhilwara","Ajmer",100],
+  ["Kota","Baran",80],["Kota","Udaipur",250],["Udaipur","Chittorgarh",115],
+  ["Udaipur","Banswara",155],["Udaipur","Dungarpur",100],
+  ["Jodhpur","Hanumangarh",285],["Hanumangarh","Ganganagar",60],
+  ["Ganganagar","Bikaner",180],["Sirsa","Hanumangarh",80],
+  ["Phulera","Jaipur",75],["Dudu","Phulera",30],["Ajmer","Dudu",70],
+  ["Jaipur","Shahpura",30],["Jaipur","Dausa",55],
+  ["Mandsaur","Ratlam",75],["Kota","Jhalawar",80],["Udaipur","Mandsaur",175],
+
+  // ── MP CORRIDOR ──
+  ["Gwalior","Morena",40],["Morena","Bhind",55],["Gwalior","Vidisha",105],
+  ["Vidisha","Bhopal",55],["Bhopal","Hoshangabad",70],["Hoshangabad","Betul",110],
+  ["Betul","Nagpur",160],["Bhopal","Sagar",180],["Sagar","Jabalpur",185],
+  ["Jabalpur","Katni",95],["Katni","Satna",55],["Satna","Rewa",75],
+  ["Rewa","Allahabad",185],
+  ["Jabalpur","Chhindwara",115],["Chhindwara","Nagpur",120],
+  ["Bhopal","Indore",190],["Indore","Ujjain",55],["Ujjain","Ratlam",80],
+  ["Ratlam","Mandsaur",75],["Ratlam","Vadodara",280],
+  ["Indore","Dewas",35],["Dewas","Bhopal",165],
+  ["Indore","Pithampur",25],["Pithampur","Dhar",25],
+  ["Indore","Khandwa",130],["Khandwa","Khargone",55],["Khargone","Burhanpur",60],
+  ["Burhanpur","Jalgaon",55],["Jalgaon","Dhule",60],["Dhule","Nashik",165],
+  ["Khandwa","Akola",130],
+  ["Sagar","Damoh",75],["Damoh","Jabalpur",110],
+  ["Gwalior","Jhansi",100],["Jhansi","Sagar",175],
+
+  // ── GUJARAT ──
+  ["Ahmedabad","Gandhinagar",25],["Ahmedabad","Mehsana",70],["Mehsana","Palanpur",65],
+  ["Palanpur","Sirohi",100],["Sirohi","Udaipur",135],
+  ["Ahmedabad","Anand",60],["Anand","Nadiad",20],["Nadiad","Vadodara",55],
+  ["Vadodara","Baruch",50],["Baruch","Surat",100],["Surat","Navsari",35],
+  ["Navsari","Valsad",30],["Valsad","Vapi",20],["Vapi","Mumbai",180],
+  ["Surat","Vapi",65],
+  ["Ahmedabad","Surendranagar",115],["Surendranagar","Rajkot",110],
+  ["Rajkot","Junagadh",100],["Junagadh","Porbandar",115],
+  ["Rajkot","Jamnagar",90],["Jamnagar","Bhuj",165],
+  ["Rajkot","Bhavnagar",100],["Bhavnagar","Botad",65],["Botad","Ahmedabad",130],
+  ["Rajkot","Morbi",65],["Morbi","Ahmedabad",190],["Morbi","Surendranagar",90],
+  ["Rajkot","Gondal",40],["Gondal","Wankaner",35],["Wankaner","Rajkot",30],
+  ["Rajkot","Amreli",115],["Amreli","Bhavnagar",90],
+  ["Ahmedabad","Vadodara",100],
+  ["Silvassa","Vapi",25],["Daman","Vapi",15],
+
+  // ── MAHARASHTRA ──
+  ["Mumbai","Navi Mumbai",15],["Navi Mumbai","Panvel",15],
+  ["Panvel","Khopoli",55],["Khopoli","Pune",85],
+  ["Mumbai","Thane",25],["Thane","Nashik",160],
+  ["Nashik","Igatpuri",50],["Igatpuri","Thane",90],
+  ["Nashik","Ahmednagar",115],["Ahmednagar","Pune",115],
+  ["Nashik","Malegaon",55],["Malegaon","Dhule",80],
+  ["Pune","Solapur",255],["Solapur","Kolhapur",215],["Kolhapur","Sangli",55],
+  ["Sangli","Satara",75],["Satara","Pune",110],
+  ["Solapur","Latur",115],["Latur","Osmanabad",55],["Osmanabad","Pune",275],
+  ["Latur","Nanded",110],["Nanded","Hingoli",85],["Hingoli","Aurangabad",165],
+  ["Aurangabad","Jalgaon",155],["Aurangabad","Nashik",175],
+  ["Aurangabad","Ahmednagar",120],["Aurangabad","Beed",90],
+  ["Aurangabad","Jalna",65],["Jalna","Parbhani",75],["Parbhani","Nanded",95],
+  ["Nagpur","Wardha",75],["Wardha","Yavatmal",70],["Yavatmal","Akola",120],
+  ["Akola","Amravati",55],["Amravati","Nagpur",145],
+  ["Nagpur","Chandrapur",115],["Chandrapur","Gadchiroli",75],
+  ["Nagpur","Gondia",145],["Gondia","Bhandara",40],["Bhandara","Nagpur",70],
+  ["Nagpur","Buldhana",195],["Buldhana","Akola",70],
+  ["Nagpur","Chhindwara",130],["Nagpur","Raipur",290],
+  ["Nagpur","Wardha",75],["Wardha","Washim",75],["Washim","Akola",75],
+  ["Mumbai","Raigad",55],["Raigad","Ratnagiri",155],["Ratnagiri","Sindhudurg",100],
+  ["Sindhudurg","Panaji",65],
+  ["Kolhapur","Belgaum",80],["Kolhapur","Panaji",190],
+  ["Pune","Pimpri",15],["Pimpri","Bhosari",10],
+  ["Solapur","Osmanabad",95],["Solapur","Bijapur",95],
+  ["Parbhani","Hingoli",85],
+
+  // ── GOA & KARNATAKA ──
+  ["Panaji","Margao",30],["Margao","Vasco da Gama",25],
+  ["Panaji","Hubli",185],["Hubli","Dharwad",25],["Dharwad","Belgaum",75],
+  ["Hubli","Davangere",55],["Davangere","Tumkur",130],["Tumkur","Bangalore",70],
+  ["Hubli","Gadag",55],["Gadag","Bellary",135],["Bellary","Hospet",14],
+  ["Bangalore","Hosur",40],["Hosur","Krishnagiri",35],["Krishnagiri","Vellore",100],
+  ["Bangalore","Kolar",65],["Kolar","Chikkaballapur",40],["Chikkaballapur","Hindupur",60],
+  ["Bangalore","Tumkur",70],["Bangalore","Mysore",140],["Mysore","Hassan",115],
+  ["Hassan","Mangalore",165],["Mangalore","Udupi",60],["Udupi","Kundapur",50],
+  ["Mangalore","Kasaragod",80],
+  ["Mysore","Mandya",35],["Mandya","Bangalore",100],
+  ["Bangalore","Shimoga",270],["Shimoga","Davangere",55],
+  ["Chitradurga","Davangere",60],["Chitradurga","Tumkur",95],
+  ["Bangalore","Chikkamagalur",240],["Chikkamagalur","Hassan",55],
+  ["Bangalore","Raichur",380],["Raichur","Gulbarga",105],
+  ["Gulbarga","Bidar",125],["Gulbarga","Bijapur",165],
+  ["Bijapur","Solapur",95],["Bijapur","Vijayapura",0],
+  ["Bellary","Raichur",90],["Raichur","Hyderabad",215],
+  ["Bellary","Anantapur",120],["Anantapur","Kurnool",155],
+  ["Kurnool","Nandyal",70],["Nandyal","Hyderabad",250],
+  ["Anantapur","Tirupati",225],["Tirupati","Nellore",175],
+  ["Tirupati","Chennai",145],["Nellore","Chennai",170],
+  ["Koppal","Bellary",60],["Yadgir","Gulbarga",55],["Bagalkot","Bijapur",75],
+  ["Bagalkot","Hubli",100],["Gadag","Bagalkot",70],
+
+  // ── ANDHRA & TELANGANA ──
+  ["Hyderabad","Warangal",145],["Warangal","Ramagundam",120],["Ramagundam","Karimnagar",55],
+  ["Karimnagar","Hyderabad",155],["Hyderabad","Nizamabad",175],["Hyderabad","Mahbubnagar",100],
+  ["Mahbubnagar","Kurnool",155],["Hyderabad","Nalgonda",90],["Nalgonda","Suryapet",55],
+  ["Suryapet","Vijayawada",155],
+  ["Hyderabad","Sangareddy",65],["Sangareddy","Zaheerabad",55],
+  ["Hyderabad","Khammam",195],["Khammam","Vijayawada",130],
+  ["Hyderabad","Adilabad",290],["Adilabad","Nagpur",265],
+  ["Hyderabad","Siddipet",95],["Siddipet","Nizamabad",80],
+  ["Vijayawada","Guntur",30],["Guntur","Nellore",210],
+  ["Vijayawada","Rajahmundry",165],["Rajahmundry","Kakinada",60],
+  ["Rajahmundry","Visakhapatnam",165],["Visakhapatnam","Vizianagaram",65],
+  ["Vizianagaram","Srikakulam",55],["Srikakulam","Bhubaneswar",320],
+  ["Vijayawada","Eluru",60],["Eluru","Machilipatnam",55],
+  ["Vijayawada","Ongole",150],["Ongole","Nellore",100],
+  ["Guntur","Bhimavaram",80],["Bhimavaram","Rajahmundry",85],
+  ["Nellore","Tirupati",130],["Kadapa","Kurnool",135],["Kadapa","Tirupati",130],
+  ["Kadapa","Nellore",175],["Proddatur","Kadapa",50],
+  ["Hyderabad","Warangal",145],["Warangal","Khammam",115],
+  ["Hyderabad","Vikarabad",75],["Vikarabad","Bidar",125],
+
+  // ── TAMIL NADU ──
+  ["Chennai","Vellore",140],["Vellore","Krishnagiri",100],["Krishnagiri","Salem",90],
+  ["Salem","Coimbatore",160],["Coimbatore","Tiruppur",55],["Tiruppur","Erode",55],
+  ["Erode","Salem",60],["Erode","Karur",55],["Karur","Tiruchirappalli",75],
+  ["Tiruchirappalli","Madurai",135],["Madurai","Dindigul",65],["Dindigul","Coimbatore",115],
+  ["Madurai","Tirunelveli",160],["Tirunelveli","Nagercoil",55],["Tirunelveli","Tuticorin",55],
+  ["Tuticorin","Madurai",155],
+  ["Tiruchirappalli","Thanjavur",55],["Thanjavur","Kumbakonam",40],
+  ["Thanjavur","Tiruchirappalli",55],
+  ["Chennai","Kanchipuram",75],["Kanchipuram","Vellore",75],
+  ["Chennai","Villupuram",155],["Villupuram","Puducherry",40],
+  ["Villupuram","Cuddalore",45],["Cuddalore","Chidambaram",25],
+  ["Salem","Namakkal",55],["Namakkal","Tiruchirappalli",90],
+  ["Salem","Erode",60],["Coimbatore","Palakkad",55],["Palakkad","Thrissur",55],
+  ["Thrissur","Kochi",80],["Kochi","Alappuzha",55],["Alappuzha","Kollam",80],
+  ["Kollam","Thiruvananthapuram",70],["Thiruvananthapuram","Nagercoil",75],
+  ["Kochi","Kottayam",55],["Kottayam","Alappuzha",40],
+  ["Kochi","Thrissur",80],["Thrissur","Palakkad",55],
+  ["Kozhikode","Malappuram",55],["Malappuram","Thrissur",90],
+  ["Kozhikode","Kannur",90],["Kannur","Kasaragod",55],
+  ["Kozhikode","Wayanad",75],
+  ["Kottayam","Idukki",75],["Idukki","Ernakulam",115],
+  ["Kottayam","Pathanamthitta",65],["Pathanamthitta","Kollam",65],
+  ["Coimbatore","Hosur",205],["Hosur","Bangalore",40],
+  ["Madurai","Sivakasi",70],["Sivakasi","Tirunelveli",80],
+  ["Chennai","Ambattur",15],["Ambattur","Chennai",15],
+  ["Ranipet","Vellore",25],["Ranipet","Chennai",115],
+  ["Cuddalore","Villupuram",45],
+
+  // ── MAHARASHTRA <-> KARNATAKA ──
+  ["Solapur","Gulbarga",140],["Nanded","Bidar",170],
+  ["Kolhapur","Hubli",80],["Kolhapur","Belgaum",80],
+
+  // ── WEST BENGAL & ODISHA ──
+  ["Kolkata","Howrah",5],["Howrah","Kharagpur",120],["Kharagpur","Bhubaneswar",230],
+  ["Kolkata","Bardhaman",110],["Bardhaman","Durgapur",55],["Durgapur","Asansol",40],
+  ["Asansol","Dhanbad",50],["Dhanbad","Ranchi",160],["Ranchi","Jamshedpur",130],
+  ["Jamshedpur","Kharagpur",155],["Jamshedpur","Rourkela",130],
+  ["Rourkela","Sambalpur",130],["Sambalpur","Cuttack",230],
+  ["Cuttack","Bhubaneswar",25],["Bhubaneswar","Berhampur",170],
+  ["Berhampur","Visakhapatnam",200],
+  ["Bhubaneswar","Paradip",90],["Bhubaneswar","Balasore",200],
+  ["Balasore","Kolkata",230],["Balasore","Kharagpur",100],
+  ["Kolkata","Malda",350],["Malda","Siliguri",170],["Siliguri","Jalpaiguri",35],
+  ["Jalpaiguri","Cooch Behar",55],["Siliguri","Gangtok",115],
+  ["Siliguri","Guwahati",355],
+  ["Kolkata","Shantipur",100],["Kolkata","Barasat",25],["Kolkata","Midnapore",125],
+  ["Midnapore","Kharagpur",55],
+  ["Bhubaneswar","Sambalpur",310],["Sambalpur","Jharsuguda",60],
+  ["Jharsuguda","Raigarh",75],["Raigarh","Bilaspur",80],
+  ["Sambalpur","Angul",120],["Angul","Rourkela",175],["Angul","Jajpur",110],
+  ["Jajpur","Cuttack",70],["Jajpur","Kalinganagar",55],
+  ["Bhubaneswar","Jagatsinghpur",70],["Bhubaneswar","Jajpur",100],
+  ["Berhampur","Jeypore",250],["Baripada","Balasore",55],
+  ["Baripada","Bhubaneswar",230],["Kharagpur","Midnapore",55],
+  // Jharkhand
+  ["Dhanbad","Giridih",65],["Giridih","Koderma",75],["Koderma","Gaya",110],
+  ["Gaya","Patna",100],["Ranchi","Hazaribagh",60],["Hazaribagh","Giridih",55],
+  ["Ranchi","Deoghar",220],["Deoghar","Dumka",70],
+  ["Bokaro","Dhanbad",45],["Bokaro","Ranchi",75],
+  ["Jamshedpur","Baipara",10],
+
+  // ── CHHATTISGARH ──
+  ["Raipur","Durg",25],["Durg","Bhilai",5],["Bhilai","Rajnandgaon",60],
+  ["Raipur","Bilaspur",115],["Bilaspur","Korba",80],["Bilaspur","Raigarh",115],
+  ["Raipur","Jagdalpur",300],["Jagdalpur","Jeypore",165],
+  ["Raipur","Ambikapur",225],["Ambikapur","Bilaspur",185],
+  ["Raipur","Nagpur",290],
+
+  // ── BIHAR ──
+  ["Patna","Hajipur",10],["Hajipur","Muzaffarpur",70],["Muzaffarpur","Darbhanga",65],
+  ["Darbhanga","Motihari",70],["Motihari","Bettiah",55],
+  ["Muzaffarpur","Purnia",200],["Purnia","Bhagalpur",145],
+  ["Bhagalpur","Patna",230],["Patna","Bihar Sharif",80],
+  ["Bihar Sharif","Gaya",80],["Gaya","Sasaram",110],["Sasaram","Buxar",65],
+  ["Buxar","Arrah",35],["Arrah","Patna",55],
+  ["Siwan","Muzaffarpur",115],["Siwan","Gorakhpur",85],
+  ["Patna","Arrah",55],["Patna","Siwan",135],
+
+  // ── ASSAM & NE ──
+  ["Guwahati","Bongaigaon",190],["Bongaigaon","Dhubri",55],
+  ["Guwahati","Nagaon",115],["Nagaon","Jorhat",150],["Jorhat","Dibrugarh",55],
+  ["Guwahati","Tezpur",180],["Tezpur","Nagaon",55],
+  ["Guwahati","Silchar",395],["Silchar","Agartala",290],["Agartala","Kolkata",1650],
+  ["Guwahati","Shillong",100],["Shillong","Silchar",290],
+  ["Guwahati","Imphal",610],["Guwahati","Itanagar",360],
+  ["Siliguri","Gangtok",115],["Siliguri","Imphal",850],
+  ["Guwahati","Kohima",270],["Kohima","Imphal",75],
+  ["Kamrup","Guwahati",25],
+
+  // ── HIMACHAL / J&K ──
+  ["Ambala","Shimla",200],["Parwanoo","Shimla",100],
+  ["Jammu","Pathankot",105],["Pathankot","Amritsar",110],
+
+  // ── LONG HAUL CORRIDORS (logical connections) ──
+  ["Delhi","Mumbai",1400],["Delhi","Chennai",2200],["Delhi","Kolkata",1450],
+  ["Delhi","Hyderabad",1560],["Delhi","Bangalore",2100],
+  ["Mumbai","Chennai",1330],["Mumbai","Hyderabad",710],["Mumbai","Bangalore",980],
+  ["Mumbai","Kolkata",1980],["Chennai","Kolkata",1670],["Bangalore","Chennai",345],
+  ["Hyderabad","Chennai",615],["Kolkata","Patna",580],["Kolkata","Bhubaneswar",440],
+  ["Bhubaneswar","Hyderabad",790],["Hyderabad","Bangalore",565],
+  ["Delhi","Lucknow",510],["Delhi","Patna",990],["Mumbai","Pune",150],
+  ["Ahmedabad","Mumbai",530],["Surat","Mumbai",280],
+];
+
+/* Build adjacency list */
+const GRAPH = {};
+function addEdge(a, b, km) {
+  const au = a.toUpperCase(), bu = b.toUpperCase();
+  if (!GRAPH[au]) GRAPH[au] = [];
+  if (!GRAPH[bu]) GRAPH[bu] = [];
+  GRAPH[au].push({ city: bu, km });
+  GRAPH[bu].push({ city: au, km });
+}
+EDGES.forEach(([a, b, km]) => addEdge(a, b, km));
+
+/* Normalize city name to canonical casing from CITY_DATA */
+const CITY_CANON = {};
+Object.keys(CITY_DATA).forEach(c => { CITY_CANON[c.toUpperCase()] = c; });
+
+/* All known cities (from CITY_DATA) for autocomplete */
+const ALL_CITIES = Object.keys(CITY_DATA).sort();
+
+/* ---------- DIJKSTRA PATH FINDING ---------- */
+function findPath(originRaw, destRaw) {
+  const src = originRaw.toUpperCase();
+  const dst = destRaw.toUpperCase();
+  if (src === dst) return null;
+  if (!GRAPH[src] || !GRAPH[dst]) return null;
+
+  const dist = {}, prev = {}, visited = new Set();
+  dist[src] = 0;
+  // Min-heap via sorted array (sufficient for this size graph)
+  const queue = [{ city: src, d: 0 }];
+
+  while (queue.length) {
+    queue.sort((a, b) => a.d - b.d);
+    const { city, d } = queue.shift();
+    if (visited.has(city)) continue;
+    visited.add(city);
+    if (city === dst) break;
+    for (const nb of (GRAPH[city] || [])) {
+      const nd = d + nb.km;
+      if (nd < (dist[nb.city] ?? Infinity)) {
+        dist[nb.city] = nd;
+        prev[nb.city] = city;
+        queue.push({ city: nb.city, d: nd });
+      }
+    }
+  }
+
+  if (!prev[dst] && src !== dst) return null;
+  // Reconstruct
+  const path = [];
+  let cur = dst;
+  while (cur) { path.unshift(cur); cur = prev[cur]; }
+  if (path[0] !== src) return null;
+  return { path, totalKm: dist[dst] };
+}
+
+/* ---------- ASSEMBLE ROUTE RESULT ---------- */
+function buildRoute(originRaw, destRaw) {
+  const result = findPath(originRaw, destRaw);
+  if (!result) return null;
+
+  const { path, totalKm } = result;
+
+  // Canonical names
+  const stops = path.map(u => CITY_CANON[u] || u.split(' ').map(w=>w[0].toUpperCase()+w.slice(1).toLowerCase()).join(' '));
+
+  // Major hubs = cities in CITY_DATA with major:true that are on path
+  const majorHubs = stops.filter(s => {
+    const u = s.toUpperCase();
+    return CITY_DATA[CITY_CANON[u] || s]?.major === true;
+  });
+
+  // Loads — only show cities that have loads
+  const loads = {};
+  stops.forEach(s => {
+    const d = CITY_DATA[s] || CITY_DATA[CITY_CANON[s.toUpperCase()]];
+    if (d && d.loads && d.loads.length) loads[s] = d.loads;
+  });
+
+  const dist = totalKm > 5000 ? ">4000 km" : `~${Math.round(totalKm / 50) * 50} km`;
+
+  return { stops, majorHubs, distance: dist, loads };
+}
+
+/* Legacy ROUTES stub — keeps render logic unchanged */
+const ROUTES = {};
+
+/* ============================================================
+   BUILD BIDIRECTIONAL INDEX  (not needed — graph handles it)
+============================================================ */
+const ROUTE_INDEX = {};
+
+
+/* ============================================================
+   THEME
+============================================================ */
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('themeBtn').textContent = t === 'dark' ? 'Light' : 'Dark';
+}
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  try { localStorage.setItem('rp-theme', next); } catch(e) {}
+}
+(function(){
+  let s = 'dark';
+  try { s = localStorage.getItem('rp-theme') || 'dark'; } catch(e) {}
+  applyTheme(s);
+})();
+
+/* ============================================================
+   AUTOCOMPLETE
+============================================================ */
+function setupAutocomplete(inputId, sugId) {
+  const inp = document.getElementById(inputId);
+  const sug = document.getElementById(sugId);
+  let activeIdx = -1;
+  let items = [];
+
+  inp.addEventListener('input', function() {
+    const val = this.value.trim().toUpperCase();
+    sug.innerHTML = '';
+    activeIdx = -1;
+    if (!val) { sug.classList.remove('open'); return; }
+    items = ALL_CITIES.filter(c => c.toUpperCase().startsWith(val));
+    if (!items.length) { sug.classList.remove('open'); return; }
+    items.forEach((city, i) => {
+      const div = document.createElement('div');
+      div.className = 'sug-item';
+      div.textContent = city;
+      div.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        inp.value = city;
+        sug.classList.remove('open');
+      });
+      sug.appendChild(div);
+    });
+    sug.classList.add('open');
+  });
+
+  inp.addEventListener('keydown', function(e) {
+    const divs = sug.querySelectorAll('.sug-item');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeIdx = Math.min(activeIdx + 1, divs.length - 1);
+      divs.forEach((d,i) => d.classList.toggle('active', i === activeIdx));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeIdx = Math.max(activeIdx - 1, -1);
+      divs.forEach((d,i) => d.classList.toggle('active', i === activeIdx));
+    } else if (e.key === 'Enter') {
+      if (activeIdx >= 0 && divs[activeIdx]) {
+        inp.value = divs[activeIdx].textContent;
+        sug.classList.remove('open');
+      } else {
+        generateRoute();
+      }
+    } else if (e.key === 'Escape') {
+      sug.classList.remove('open');
+    }
+  });
+
+  inp.addEventListener('blur', function() {
+    setTimeout(() => sug.classList.remove('open'), 150);
+  });
+}
+
+setupAutocomplete('origin', 'origin-sug');
+setupAutocomplete('dest', 'dest-sug');
+
+// Enter key on dest triggers generate
+document.getElementById('dest').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') generateRoute();
+});
+
+/* ============================================================
+   GENERATE ROUTE
+============================================================ */
+function generateRoute() {
+  const origin = document.getElementById('origin').value.trim();
+  const dest = document.getElementById('dest').value.trim();
+  const errorBox = document.getElementById('errorBox');
+  const result = document.getElementById('result');
+
+  errorBox.classList.remove('visible');
+  result.classList.remove('visible');
+
+  if (!origin || !dest) {
+    showError('Please enter both origin and destination.', []);
+    return;
+  }
+
+  // Fuzzy match input to known city names
+  const matchCity = (input) => {
+    const u = input.toUpperCase().trim();
+    // exact match
+    if (CITY_CANON[u]) return u;
+    // startswith match
+    const sw = Object.keys(CITY_CANON).find(k => k.startsWith(u));
+    if (sw) return sw;
+    // contains match
+    const cn = Object.keys(CITY_CANON).find(k => k.includes(u));
+    if (cn) return cn;
+    return null;
+  };
+
+  const orgKey = matchCity(origin);
+  const dstKey = matchCity(dest);
+
+  if (!orgKey) {
+    showError(`City not found: <strong>${origin}</strong>. Please check the spelling or try a nearby major city.`, []);
+    return;
+  }
+  if (!dstKey) {
+    showError(`City not found: <strong>${dest}</strong>. Please check the spelling or try a nearby major city.`, []);
+    return;
+  }
+  if (orgKey === dstKey) {
+    showError('Origin and destination cannot be the same city.', []);
+    return;
+  }
+
+  const data = buildRoute(orgKey, dstKey);
+
+  if (!data) {
+    // Suggest nearby known cities
+    const suggestions = Object.keys(CITY_CANON)
+      .filter(k => k.startsWith(orgKey.slice(0,3)) || k.startsWith(dstKey.slice(0,3)))
+      .slice(0,6)
+      .map(k => CITY_CANON[k] + " to Delhi");
+    showError(
+      `No road path found between <strong>${CITY_CANON[orgKey]||origin}</strong> and <strong>${CITY_CANON[dstKey]||dest}</strong>. The cities may not be connected in the current road network. Try a major hub city nearby.`,
+      []
+    );
+    return;
+  }
+
+  renderResult(CITY_CANON[orgKey] || origin, CITY_CANON[dstKey] || dest, data);
+}
+
+function showError(msg, suggestions) {
+  const errorBox = document.getElementById('errorBox');
+  const altRoutes = document.getElementById('altRoutes');
+  errorBox.innerHTML = msg;
+  if (suggestions.length) {
+    const div = document.createElement('div');
+    div.className = 'alt-routes';
+    const lbl = document.createElement('div');
+    lbl.className = 'alt-label';
+    lbl.textContent = 'Available routes:';
+    div.appendChild(lbl);
+    suggestions.forEach(s => {
+      const btn = document.createElement('button');
+      btn.className = 'alt-route-btn';
+      btn.textContent = s;
+      btn.onclick = function() {
+        const parts = s.split(' to ');
+        document.getElementById('origin').value = capitalize(parts[0]);
+        document.getElementById('dest').value = capitalize(parts[1]);
+        generateRoute();
+      };
+      div.appendChild(btn);
+    });
+    errorBox.appendChild(div);
+  }
+  errorBox.classList.add('visible');
+}
+
+function renderResult(origin, dest, data) {
+  const result = document.getElementById('result');
+
+  // Meta
+  document.getElementById('routeBadge').textContent = data.stops.length + " Stops \u00B7 " + data.distance;
+
+  // Stats
+  const loadsCount = Object.values(data.loads).filter(l => l && l.length > 0).length;
+  document.getElementById('statStops').textContent = data.stops.length;
+  document.getElementById('statDist').textContent = data.distance;
+  document.getElementById('statHubs').textContent = data.majorHubs.length;
+  document.getElementById('statLoads').textContent = loadsCount;
+  document.getElementById('routeName').textContent = capitalize(data.stops[0]) + " \u2192 " + capitalize(data.stops[data.stops.length-1]);
+
+  // Route Flow
+  const flowEl = document.getElementById('routeFlow');
+  flowEl.innerHTML = '';
+  data.stops.forEach((stop, i) => {
+    const isMajor = data.majorHubs.includes(stop);
+    const div = document.createElement('div');
+    div.className = 'flow-stop';
+    const span = document.createElement('span');
+    span.className = 'flow-city' + (isMajor ? ' major' : '');
+    span.textContent = stop;
+    div.appendChild(span);
+    if (i < data.stops.length - 1) {
+      const arr = document.createElement('span');
+      arr.className = 'flow-arrow';
+      arr.textContent = '→';
+      div.appendChild(arr);
+    }
+    flowEl.appendChild(div);
+  });
+
+  // Hubs Grid
+  const hubsEl = document.getElementById('hubsGrid');
+  hubsEl.innerHTML = '';
+  data.stops.forEach(stop => {
+    const isMajor = data.majorHubs.includes(stop);
+    const chip = document.createElement('div');
+    chip.className = 'hub-chip ' + (isMajor ? 'major' : 'minor');
+    const dot = document.createElement('span');
+    dot.className = 'hub-dot';
+    const label = document.createElement('span');
+    label.textContent = stop;
+    chip.appendChild(dot);
+    chip.appendChild(label);
+    hubsEl.appendChild(chip);
+  });
+
+  // Load Opportunities
+  const loadEl = document.getElementById('loadGrid');
+  loadEl.innerHTML = '';
+  data.stops.forEach(stop => {
+    const loads = data.loads[stop];
+    if (!loads || !loads.length) return;
+    const isMajor = data.majorHubs.includes(stop);
+    const card = document.createElement('div');
+    card.className = 'load-card';
+    const cityName = document.createElement('div');
+    cityName.className = 'load-city-name';
+    if (isMajor) {
+      const dot = document.createElement('span');
+      dot.className = 'major-dot';
+      cityName.appendChild(dot);
+    }
+    cityName.appendChild(document.createTextNode(stop));
+    const tags = document.createElement('div');
+    tags.className = 'load-tags';
+    loads.forEach(l => {
+      const tag = document.createElement('span');
+      tag.className = 'load-tag';
+      tag.textContent = l;
+      tags.appendChild(tag);
+    });
+    card.appendChild(cityName);
+    card.appendChild(tags);
+    loadEl.appendChild(card);
+  });
+
+  result.classList.add('visible');
+
+  // Smooth scroll to result
+  setTimeout(() => {
+    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 60);
+}
+
+function capitalize(str) {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+// Allow Enter on origin to move to dest
+document.getElementById('origin').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const sug = document.getElementById('origin-sug');
+    if (!sug.classList.contains('open')) {
+      document.getElementById('dest').focus();
+    }
+  }
+});
+</script>
 </body>
 </html>
