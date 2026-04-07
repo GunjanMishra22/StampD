@@ -1,1781 +1,1977 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Route Planner — Part Load Logistics Tool</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Stampbook</title>
 <style>
-/* ===================== THEME ===================== */
-[data-theme="dark"] {
-  --bg-base: #16100A;
-  --bg-alt: #1B1309;
-  --bg-card: rgba(255,255,255,0.028);
-  --bg-card-hover: rgba(255,255,255,0.05);
-  --bg-input: rgba(255,255,255,0.04);
-  --bg-header: rgba(22,16,10,0.92);
-  --text-primary: #F0E6D2;
-  --text-muted: #B8956A;
-  --text-heading: #F8F0E2;
-  --border-s: rgba(237,206,77,0.09);
-  --border-card: rgba(237,206,77,0.10);
-  --border-input: rgba(237,206,77,0.16);
-  --border-hover: rgba(237,206,77,0.34);
-  --accent: #E3B209;
-  --accent-dim: rgba(227,178,9,0.12);
-  --accent-glow: rgba(227,178,9,0.07);
-  --hub-major-bg: rgba(227,178,9,0.13);
-  --hub-major-border: rgba(227,178,9,0.30);
-  --hub-minor-bg: rgba(255,255,255,0.04);
-  --hub-minor-border: rgba(237,206,77,0.10);
-  --tag-bg: rgba(163,107,35,0.14);
-  --tag-border: rgba(163,107,35,0.24);
-  --scrollbar: #16100A;
-  --grid-line: rgba(237,206,77,0.032);
-  --section-label: #E3B209;
-  --error-bg: rgba(220,60,40,0.10);
-  --error-border: rgba(220,60,40,0.24);
-  --error-text: #F87060;
-  --btn-bg: #E3B209;
-  --btn-text: #16100A;
-  --btn-hover: #F0C420;
-  --divider: rgba(237,206,77,0.10);
-  --noise-op: 0.28;
-}
-[data-theme="light"] {
-  --bg-base: #F8F0E2;
-  --bg-alt: #EDE2CA;
-  --bg-card: rgba(163,107,35,0.045);
-  --bg-card-hover: rgba(163,107,35,0.08);
-  --bg-input: rgba(163,107,35,0.05);
-  --bg-header: rgba(248,240,226,0.94);
-  --text-primary: #2C1F0A;
-  --text-muted: #6B4415;
-  --text-heading: #1A1208;
-  --border-s: rgba(163,107,35,0.14);
-  --border-card: rgba(163,107,35,0.14);
-  --border-input: rgba(163,107,35,0.22);
-  --border-hover: rgba(163,107,35,0.40);
-  --accent: #A36B23;
-  --accent-dim: rgba(163,107,35,0.11);
-  --accent-glow: rgba(163,107,35,0.06);
-  --hub-major-bg: rgba(163,107,35,0.11);
-  --hub-major-border: rgba(163,107,35,0.30);
-  --hub-minor-bg: rgba(163,107,35,0.04);
-  --hub-minor-border: rgba(163,107,35,0.12);
-  --tag-bg: rgba(163,107,35,0.09);
-  --tag-border: rgba(163,107,35,0.20);
-  --scrollbar: #F8F0E2;
-  --grid-line: rgba(163,107,35,0.055);
-  --section-label: #7A4F10;
-  --error-bg: rgba(180,40,20,0.07);
-  --error-border: rgba(180,40,20,0.20);
-  --error-text: #C0391B;
-  --btn-bg: #A36B23;
-  --btn-text: #F8F0E2;
-  --btn-hover: #8A5A1C;
-  --divider: rgba(163,107,35,0.14);
-  --noise-op: 0.12;
-}
+  /* =============================================
+     DESIGN TOKENS & RESET
+  ============================================= */
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-/* ===================== BASE ===================== */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;font-size:16px}
-body{
-  font-family:'Poppins',sans-serif;
-  background:var(--bg-base);
-  color:var(--text-primary);
-  overflow-x:hidden;
-  line-height:1.65;
-  transition:background .35s,color .35s;
-  min-height:100vh;
-}
-body::before{
-  content:'';
-  position:fixed;inset:0;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events:none;z-index:9999;
-  opacity:var(--noise-op);
-}
+  :root {
+    --bg: #F5F2EE;
+    --surface: #FDFBF8;
+    --surface2: #F0EDE8;
+    --border: #E2DDD6;
+    --text-primary: #1A1714;
+    --text-secondary: #7A7470;
+    --text-muted: #B0AAA4;
+    --accent: #2C2420;
+    --accent-warm: #C4593A;
+    --accent-sage: #5A7A65;
+    --accent-blue: #3A5A7A;
+    --stamp-bg: #FDFAF6;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --font-display: 'DM Serif Display', serif;
+    --font-body: 'DM Sans', sans-serif;
+    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 
-/* Grid bg */
-body::after{
-  content:'';
-  position:fixed;inset:0;
-  background-image:
-    linear-gradient(var(--grid-line) 1px,transparent 1px),
-    linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);
-  background-size:52px 52px;
-  pointer-events:none;z-index:0;
-}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:var(--scrollbar)}
-::-webkit-scrollbar-thumb{background:var(--accent);border-radius:10px}
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    font-family: var(--font-body);
+    color: var(--text-primary);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-/* ===================== HEADER ===================== */
-header{
-  position:sticky;top:0;z-index:100;
-  background:var(--bg-header);
-  backdrop-filter:blur(16px);
-  -webkit-backdrop-filter:blur(16px);
-  border-bottom:1px solid var(--border-s);
-  padding:0 2rem;
-  height:62px;
-  display:flex;align-items:center;justify-content:space-between;
-}
-.logo{
-  display:flex;align-items:center;gap:.7rem;
-}
-.logo-mark{
-  width:36px;height:36px;
-  background:#0A0A0A;
-  border:2px solid var(--accent);
-  border-radius:5px;
-  display:flex;align-items:center;justify-content:center;
-  position:relative;
-  overflow:hidden;
-  flex-shrink:0;
-}
-.logo-mark::before{
-  content:'';
-  position:absolute;inset:0;
-  background:transparent;
-}
-.logo-mark svg{position:relative;z-index:1;}
-.logo-title{
-  font-size:.82rem;
-  font-family:'Poppins',sans-serif;
-  letter-spacing:.06em;
-  color:var(--text-heading);
-  font-weight:normal;
-}
-.logo-sub{
-  font-size:.65rem;
-  color:var(--text-muted);
-  letter-spacing:.10em;
-  text-transform:uppercase;
-  display:block;
-  margin-top:.1rem;
-}
-.header-right{
-  display:flex;align-items:center;gap:1rem;
-}
-.theme-btn{
-  background:none;
-  border:1px solid var(--border-input);
-  color:var(--text-muted);
-  font-size:.72rem;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  padding:.32rem .75rem;
-  border-radius:3px;
-  cursor:pointer;
-  transition:border-color .2s,color .2s;
-  font-family:inherit;
-}
-.theme-btn:hover{border-color:var(--accent);color:var(--accent);}
+  /* =============================================
+     SCREEN SYSTEM
+  ============================================= */
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    transform: translateY(12px);
+    overflow: hidden;
+  }
+  .screen.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
+  }
+  .screen.exit {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
 
-/* ===================== MAIN LAYOUT ===================== */
-main{
-  position:relative;z-index:1;
-  max-width:900px;
-  margin:0 auto;
-  padding:3.5rem 1.5rem 6rem;
-}
+  /* =============================================
+     NAV BAR
+  ============================================= */
+  .nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 12px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+  }
+  .nav-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+  }
+  .nav-btn {
+    width: 36px; height: 36px;
+    border: none;
+    background: var(--surface2);
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-primary);
+    transition: var(--transition);
+  }
+  .nav-btn:hover { background: var(--border); }
+  .nav-btn:active { transform: scale(0.94); }
+  .nav-btn svg { width: 18px; height: 18px; }
 
-/* ===================== PAGE HEADER ===================== */
-.page-header{
-  margin-bottom:3rem;
-}
-.page-label{
-  font-size:.65rem;
-  letter-spacing:.18em;
-  text-transform:uppercase;
-  color:var(--section-label);
-  margin-bottom:.7rem;
-  display:block;
-}
-.page-title{
-  font-size:2rem;
-  font-family:'Poppins',sans-serif;
-  font-weight:normal;
-  color:var(--text-heading);
-  line-height:1.25;
-  margin-bottom:.7rem;
-}
-.page-desc{
-  font-size:.87rem;
-  color:var(--text-muted);
-  max-width:520px;
-  line-height:1.7;
-}
+  /* =============================================
+     BOTTOM TAB BAR
+  ============================================= */
+  .tab-bar {
+    display: flex;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 0 14px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    transition: var(--transition);
+  }
+  .tab-item.active { color: var(--accent); }
+  .tab-item svg { width: 20px; height: 20px; }
+  .tab-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--accent-warm);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .tab-item.active .tab-dot { opacity: 1; }
 
-/* ===================== INPUT SECTION ===================== */
-.input-section{
-  background:var(--bg-card);
-  border:1px solid var(--border-card);
-  border-radius:6px;
-  padding:1.75rem;
-  margin-bottom:2.5rem;
-}
-.input-row{
-  display:grid;
-  grid-template-columns:1fr auto 1fr;
-  gap:.75rem;
-  align-items:end;
-  margin-bottom:1.25rem;
-}
-.input-group{
-  display:flex;flex-direction:column;gap:.35rem;
-}
-.input-label{
-  font-size:.65rem;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  color:var(--text-muted);
-}
-.input-field{
-  background:var(--bg-input);
-  border:1px solid var(--border-input);
-  color:var(--text-primary);
-  font-family:'Poppins',sans-serif;
-  font-size:.92rem;
-  padding:.65rem .85rem;
-  border-radius:4px;
-  outline:none;
-  transition:border-color .2s,background .2s;
-  width:100%;
-}
-.input-field::placeholder{color:var(--text-muted);opacity:.55;}
-.input-field:focus{border-color:var(--accent);background:var(--accent-glow);}
-.input-sep{
-  display:flex;align-items:center;justify-content:center;
-  padding-bottom:.1rem;
-}
-.sep-arrow{
-  color:var(--accent);
-  font-size:1rem;
-  opacity:.7;
-  user-select:none;
-}
-.btn-generate{
-  display:flex;align-items:center;justify-content:center;gap:.55rem;
-  background:var(--btn-bg);
-  color:var(--btn-text);
-  border:none;
-  font-family:'Poppins',sans-serif;
-  font-size:.85rem;
-  letter-spacing:.06em;
-  padding:.7rem 1.75rem;
-  border-radius:4px;
-  cursor:pointer;
-  transition:background .2s,transform .1s;
-  width:100%;
-  font-weight:bold;
-}
-.btn-generate:hover{background:var(--btn-hover);}
-.btn-generate:active{transform:scale(.99);}
-.btn-generate svg{flex-shrink:0;}
+  /* =============================================
+     BUTTONS
+  ============================================= */
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-weight: 500;
+    letter-spacing: -0.1px;
+    transition: var(--transition);
+    border-radius: var(--radius-md);
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    padding: 14px 24px;
+    font-size: 15px;
+  }
+  .btn-primary:hover { background: #2f2823; }
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text-primary);
+    padding: 14px 24px;
+    font-size: 15px;
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-accent {
+    background: var(--accent-warm);
+    color: white;
+    padding: 14px 24px;
+    font-size: 15px;
+  }
+  .btn-lg { padding: 16px 28px; font-size: 16px; border-radius: var(--radius-lg); }
+  .btn svg { width: 18px; height: 18px; }
+  .btn-full { width: 100%; }
 
-/* Suggestions dropdown */
-.input-wrap{position:relative;}
-.suggestions{
-  position:absolute;top:calc(100% + 4px);left:0;right:0;
-  background:var(--bg-base);
-  border:1px solid var(--border-input);
-  border-radius:4px;
-  z-index:50;
-  max-height:200px;
-  overflow-y:auto;
-  display:none;
-  box-shadow:0 8px 24px rgba(0,0,0,.3);
-}
-.suggestions.open{display:block;}
-.sug-item{
-  padding:.5rem .85rem;
-  font-size:.85rem;
-  color:var(--text-primary);
-  cursor:pointer;
-  transition:background .15s;
-}
-.sug-item:hover,.sug-item.active{background:var(--accent-dim);color:var(--accent);}
+  /* =============================================
+     SCREEN 1: HOME
+  ============================================= */
+  #screen-home {
+    background: var(--bg);
+  }
+  .home-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0 24px 24px;
+    overflow-y: auto;
+  }
+  .home-hero {
+    padding: 36px 0 32px;
+    text-align: left;
+  }
+  .home-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+  .home-headline {
+    font-family: var(--font-display);
+    font-size: 38px;
+    line-height: 1.1;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+    margin-bottom: 12px;
+  }
+  .home-sub {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    font-weight: 300;
+  }
 
-/* ===================== RESULT SECTION ===================== */
-#result{display:none;}
-#result.visible{display:block;}
+  .home-stamp-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 0 28px;
+    position: relative;
+  }
+  .stamp-decoration {
+    display: flex;
+    gap: 12px;
+  }
+  .deco-stamp {
+    border-radius: 6px;
+    background: var(--surface);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+  }
+  .deco-stamp::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+  }
 
-.result-meta{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:1.75rem;
-  flex-wrap:wrap;gap:.75rem;
-}
-.result-route-name{
-  font-size:1.1rem;
-  color:var(--text-heading);
-  font-family:'Poppins',sans-serif;
-}
-.result-badge{
-  font-size:.65rem;
-  letter-spacing:.10em;
-  text-transform:uppercase;
-  background:var(--accent-dim);
-  border:1px solid var(--hub-major-border);
-  color:var(--accent);
-  padding:.25rem .65rem;
-  border-radius:3px;
-}
+  .home-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+  }
+  .action-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+    text-align: left;
+  }
+  .action-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--text-muted);
+    transform: translateY(-1px);
+  }
+  .action-card:active { transform: scale(0.98); }
+  .action-icon {
+    width: 52px; height: 52px;
+    border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .action-icon svg { width: 24px; height: 24px; }
+  .action-icon.warm { background: #FBE8E3; color: var(--accent-warm); }
+  .action-icon.sage { background: #E3EDE6; color: var(--accent-sage); }
+  .action-icon.blue { background: #E3ECF3; color: var(--accent-blue); }
+  .action-text h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+  }
+  .action-text p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 300;
+  }
+  .action-arrow {
+    margin-left: auto;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .action-arrow svg { width: 16px; height: 16px; }
 
-/* ========== ROUTE FLOW ========== */
-.section-block{
-  margin-bottom:2rem;
-}
-.section-label{
-  font-size:.63rem;
-  letter-spacing:.18em;
-  text-transform:uppercase;
-  color:var(--section-label);
-  margin-bottom:1rem;
-  display:flex;align-items:center;gap:.6rem;
-}
-.section-label::after{
-  content:'';
-  flex:1;
-  height:1px;
-  background:var(--divider);
-}
-.route-flow{
-  display:flex;
-  flex-wrap:wrap;
-  align-items:center;
-  gap:0;
-  background:var(--bg-card);
-  border:1px solid var(--border-card);
-  border-radius:6px;
-  padding:1.25rem 1.5rem;
-  row-gap:.6rem;
-}
-.flow-stop{
-  display:flex;align-items:center;gap:0;
-}
-.flow-city{
-  font-size:.83rem;
-  color:var(--text-primary);
-  letter-spacing:.02em;
-  white-space:nowrap;
-  transition:color .15s;
-}
-.flow-city.major{
-  color:var(--accent);
-  font-weight:bold;
-}
-.flow-arrow{
-  color:var(--text-muted);
-  font-size:.75rem;
-  padding:0 .5rem;
-  opacity:.55;
-  user-select:none;
-}
+  .home-stats {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .stat-card {
+    flex: 1;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+  }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 28px;
+    color: var(--text-primary);
+    display: block;
+    margin-bottom: 4px;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
 
-/* ========== HUBS GRID ========== */
-.hubs-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
-  gap:.65rem;
-}
-.hub-chip{
-  border-radius:4px;
-  padding:.55rem .9rem;
-  font-size:.8rem;
-  letter-spacing:.02em;
-  display:flex;align-items:center;gap:.5rem;
-  transition:border-color .2s,background .2s;
-  cursor:default;
-}
-.hub-chip.major{
-  background:var(--hub-major-bg);
-  border:1px solid var(--hub-major-border);
-  color:var(--accent);
-}
-.hub-chip.minor{
-  background:var(--hub-minor-bg);
-  border:1px solid var(--hub-minor-border);
-  color:var(--text-primary);
-}
-.hub-chip:hover{border-color:var(--border-hover);}
-.hub-dot{
-  width:5px;height:5px;
-  border-radius:50%;
-  flex-shrink:0;
-}
-.hub-chip.major .hub-dot{background:var(--accent);}
-.hub-chip.minor .hub-dot{background:var(--text-muted);opacity:.5;}
+  /* =============================================
+     SCREEN 2: EDITOR
+  ============================================= */
+  #screen-editor {
+    background: #111;
+  }
+  .editor-nav {
+    background: rgba(17,17,17,0.95);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(8px);
+  }
+  .editor-nav .nav-title { color: white; }
+  .editor-nav .nav-btn {
+    background: rgba(255,255,255,0.1);
+    color: white;
+  }
+  .editor-nav .nav-btn:hover { background: rgba(255,255,255,0.18); }
 
-/* ========== LOAD OPPORTUNITIES ========== */
-.load-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
-  gap:.75rem;
-}
-.load-card{
-  background:var(--bg-card);
-  border:1px solid var(--border-card);
-  border-radius:5px;
-  padding:1rem 1.1rem;
-  transition:border-color .2s,background .2s;
-}
-.load-card:hover{
-  border-color:var(--border-hover);
-  background:var(--bg-card-hover);
-}
-.load-city-name{
-  font-size:.82rem;
-  color:var(--text-heading);
-  margin-bottom:.55rem;
-  display:flex;align-items:center;gap:.5rem;
-}
-.load-city-name .major-dot{
-  width:5px;height:5px;
-  border-radius:50%;
-  background:var(--accent);
-  flex-shrink:0;
-  display:inline-block;
-}
-.load-tags{
-  display:flex;flex-wrap:wrap;gap:.35rem;
-}
-.load-tag{
-  font-size:.68rem;
-  letter-spacing:.04em;
-  background:var(--tag-bg);
-  border:1px solid var(--tag-border);
-  color:var(--text-muted);
-  padding:.2rem .5rem;
-  border-radius:3px;
-  white-space:nowrap;
-}
-.no-loads{
-  font-size:.78rem;
-  color:var(--text-muted);
-  opacity:.6;
-  font-style:italic;
-}
+  .editor-canvas-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #editor-canvas {
+    display: block;
+    touch-action: none;
+  }
 
-/* ========== DIVIDER ========== */
-.section-divider{
-  height:1px;
-  background:var(--divider);
-  margin:1.75rem 0;
-}
+  .editor-controls {
+    background: rgba(17,17,17,0.95);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 16px 20px;
+    backdrop-filter: blur(8px);
+  }
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .slider-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    width: 44px;
+    flex-shrink: 0;
+  }
+  .slider-label svg { width: 16px; height: 16px; }
+  input[type="range"] {
+    flex: 1;
+    height: 3px;
+    appearance: none;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+  .slider-value {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    width: 36px;
+    text-align: right;
+    flex-shrink: 0;
+  }
 
-/* ========== ERROR ========== */
-.error-box{
-  background:var(--error-bg);
-  border:1px solid var(--error-border);
-  color:var(--error-text);
-  border-radius:4px;
-  padding:1rem 1.25rem;
-  font-size:.83rem;
-  display:none;
-}
-.error-box.visible{display:block;}
+  .editor-btn-row {
+    display: flex;
+    gap: 10px;
+  }
+  .editor-btn-row .btn-primary {
+    flex: 1;
+    background: white;
+    color: #111;
+  }
+  .editor-btn-row .btn-primary:hover { background: #eee; }
 
-/* ========== ROUTE NOT FOUND SUGGESTIONS ========== */
-.alt-routes{
-  margin-top:1rem;
-}
-.alt-label{
-  font-size:.72rem;
-  color:var(--text-muted);
-  margin-bottom:.5rem;
-}
-.alt-route-btn{
-  background:none;
-  border:1px solid var(--border-input);
-  color:var(--text-muted);
-  font-family:'Poppins',sans-serif;
-  font-size:.78rem;
-  padding:.28rem .65rem;
-  border-radius:3px;
-  cursor:pointer;
-  margin:.2rem .25rem .2rem 0;
-  transition:border-color .2s,color .2s;
-}
-.alt-route-btn:hover{border-color:var(--accent);color:var(--accent);}
+  /* Shape selector */
+  .shape-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .shape-btn {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.6);
+    font-size: 11px;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .shape-btn svg { width: 18px; height: 18px; }
+  .shape-btn.active {
+    border-color: white;
+    background: rgba(255,255,255,0.15);
+    color: white;
+  }
 
-/* ========== DISTANCE / TIME ROW ========== */
-.route-stats{
-  display:flex;gap:1.5rem;flex-wrap:wrap;
-  margin-bottom:1.75rem;
-}
-.route-stat{
-  display:flex;flex-direction:column;gap:.15rem;
-}
-.stat-value{
-  font-size:1.05rem;
-  color:var(--text-heading);
-  font-family:'Poppins',sans-serif;
-}
-.stat-key{
-  font-size:.62rem;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  color:var(--text-muted);
-}
+  /* =============================================
+     SCREEN 3: PREVIEW
+  ============================================= */
+  #screen-preview {
+    background: var(--bg);
+  }
+  .preview-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow: hidden;
+  }
+  .preview-stamp-wrap {
+    perspective: 800px;
+    margin-bottom: 32px;
+  }
+  #preview-canvas {
+    display: block;
+    border-radius: 4px;
+    transition: transform 0.15s ease;
+    transform-style: preserve-3d;
+    cursor: pointer;
+  }
+  .preview-label {
+    font-family: var(--font-display);
+    font-size: 26px;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    text-align: center;
+    letter-spacing: -0.3px;
+  }
+  .preview-sub {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+    text-align: center;
+    font-weight: 300;
+  }
+  .preview-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 320px;
+  }
 
-/* ========== FOOTER ========== */
-footer{
-  position:relative;z-index:1;
-  border-top:1px solid var(--border-s);
-  padding:1.5rem 2rem;
-  text-align:center;
-  font-size:.72rem;
-  color:var(--text-muted);
-  letter-spacing:.04em;
-}
+  /* =============================================
+     SCREEN 4: GALLERY
+  ============================================= */
+  #screen-gallery {
+    background: var(--bg);
+  }
+  .gallery-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    -webkit-overflow-scrolling: touch;
+  }
 
-/* ===================== ANIMATE ===================== */
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.animate-in{animation:fadeUp .28s ease both;}
-.d1{animation-delay:.04s}
-.d2{animation-delay:.08s}
-.d3{animation-delay:.12s}
+  .book-page {
+    background: var(--stamp-bg);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    border: 1px solid var(--border);
+  }
+  .book-page::before {
+    content: '';
+    position: absolute;
+    left: 28px; top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(196,89,58,0.15) 20%, rgba(196,89,58,0.15) 80%, transparent);
+  }
+  .book-page.full::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-lg);
+    border: 2px solid transparent;
+    background: linear-gradient(var(--stamp-bg), var(--stamp-bg)) padding-box,
+                linear-gradient(135deg, #C4593A, #5A7A65, #3A5A7A, #C4593A) border-box;
+    animation: shimmer-border 3s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes shimmer-border {
+    0% { filter: hue-rotate(0deg); opacity: 0.7; }
+    50% { filter: hue-rotate(30deg); opacity: 1; }
+    100% { filter: hue-rotate(0deg); opacity: 0.7; }
+  }
 
-/* ===================== RESPONSIVE ===================== */
-@media(max-width:600px){
-  main{padding:2rem 1rem 4rem;}
-  .input-row{grid-template-columns:1fr;gap:.6rem;}
-  .input-sep{display:none;}
-  .page-title{font-size:1.5rem;}
-  .hubs-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));}
-  .load-grid{grid-template-columns:1fr;}
-}
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-left: 20px;
+  }
+  .page-title {
+    font-family: var(--font-display);
+    font-size: 17px;
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+  .page-num {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+
+  .stamp-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    padding-left: 20px;
+  }
+  .stamp-slot {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    background: var(--surface2);
+    border: 1.5px dashed var(--border);
+    transition: var(--transition);
+  }
+  .stamp-slot.filled {
+    border: none;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+  }
+  .stamp-slot.filled:hover {
+    transform: scale(1.04) rotate(-0.5deg);
+    box-shadow: var(--shadow-md);
+    z-index: 2;
+  }
+  .stamp-slot.filled canvas,
+  .stamp-slot.filled img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .stamp-slot.empty-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--border);
+  }
+  .stamp-slot.empty-hint svg { width: 20px; height: 20px; }
+
+  /* stamp slot delete button */
+  .stamp-slot.filled .stamp-del {
+    position: absolute;
+    top: 4px; right: 4px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.55);
+    border: none;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+  .stamp-slot.filled:hover .stamp-del { display: flex; }
+  .stamp-slot.filled .stamp-del svg { width: 12px; height: 12px; }
+
+  .gallery-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px;
+    text-align: center;
+  }
+  .gallery-empty-icon {
+    width: 64px; height: 64px;
+    background: var(--surface2);
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px;
+    color: var(--text-muted);
+  }
+  .gallery-empty-icon svg { width: 28px; height: 28px; }
+  .gallery-empty h3 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+  .gallery-empty p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 300;
+    line-height: 1.5;
+    max-width: 240px;
+  }
+
+  /* =============================================
+     MODALS & OVERLAYS
+  ============================================= */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    display: flex;
+    align-items: flex-end;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .modal-sheet {
+    width: 100%;
+    background: var(--surface);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 20px;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .modal-overlay.open .modal-sheet { transform: translateY(0); }
+  .modal-handle {
+    width: 36px; height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    margin: 0 auto 20px;
+  }
+  .modal-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+  .modal-sub {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    font-weight: 300;
+  }
+  .modal-actions { display: flex; flex-direction: column; gap: 10px; }
+
+  /* =============================================
+     TOAST
+  ============================================= */
+  #toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--accent);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 200;
+    white-space: nowrap;
+    box-shadow: var(--shadow-md);
+  }
+  #toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* =============================================
+     LOADING STATE
+  ============================================= */
+  .loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+  }
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+  .loader-logo {
+    font-family: var(--font-display);
+    font-size: 32px;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+  .loader-tagline {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+  .loader-bar {
+    width: 120px; height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+  .loader-fill {
+    width: 0%;
+    height: 100%;
+    background: var(--accent);
+    border-radius: 1px;
+    animation: load-progress 1.2s ease forwards;
+  }
+  @keyframes load-progress {
+    0% { width: 0%; }
+    100% { width: 100%; }
+  }
+
+  /* =============================================
+     PAPER TEXTURE OVERLAY
+  ============================================= */
+  .paper-texture {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* =============================================
+     EXPORT PAGE STYLES
+  ============================================= */
+  .export-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 320px;
+  }
+  .export-row .btn { flex: 1; font-size: 13px; padding: 12px 16px; }
+
+  /* =============================================
+     SCROLLBAR
+  ============================================= */
+  ::-webkit-scrollbar { width: 0; }
+
+  /* =============================================
+     HIDE FILE INPUT
+  ============================================= */
+  #file-input, #camera-input { display: none; }
+
+  /* =============================================
+     HELP HINT IN EDITOR
+  ============================================= */
+  .editor-hint {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    color: rgba(255,255,255,0.8);
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    pointer-events: none;
+    white-space: nowrap;
+    font-family: var(--font-body);
+    backdrop-filter: blur(4px);
+    opacity: 1;
+    transition: opacity 1s ease;
+  }
+  .editor-hint.hidden { opacity: 0; }
+
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header>
-  <div class="logo">
-    <div class="logo-mark">
-      <svg width="22" height="22" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <!-- Bold stylised R with diagonal speed slash, matching brand logo -->
-        <path d="M18 12 L18 88 L34 88 L34 58 L52 58 L68 88 L86 88 L68 55 C76 51 82 44 82 33 C82 20 72 12 56 12 Z M34 24 L54 24 C63 24 68 28 68 35 C68 42 63 46 54 46 L34 46 Z" fill="#E3B209"/>
-        <!-- Speed diagonal slash overlay -->
-        <polygon points="10,18 24,18 52,82 38,82" fill="#E3B209" opacity="0.22"/>
+<!-- LOADING -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loader-logo">Stampbook</div>
+  <div class="loader-tagline">Your personal stamp collection</div>
+  <div class="loader-bar"><div class="loader-fill"></div></div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- FILE INPUTS -->
+<input type="file" id="file-input" accept="image/*">
+<input type="file" id="camera-input" accept="image/*" capture="environment">
+
+<!-- ============================================================
+     SCREEN 1: HOME
+============================================================ -->
+<div class="screen active" id="screen-home">
+  <div class="nav-bar">
+    <div class="nav-title">Stampbook</div>
+    <button class="nav-btn" onclick="switchScreen('gallery')" title="Collection">
+      <!-- Grid/collection icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+        <rect x="14" y="14" width="7" height="7" rx="1.5"/>
       </svg>
-    </div>
-    <div>
-      <span class="logo-title">Route Planner</span>
-      <span class="logo-sub">Part Load Logistics</span>
-    </div>
-  </div>
-  <div class="header-right">
-    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">Light</button>
-  </div>
-</header>
-
-<!-- MAIN -->
-<main>
-
-  <!-- PAGE HEADER -->
-  <div class="page-header animate-in">
-    <span class="page-label">Logistics Intelligence</span>
-    <h1 class="page-title">Part Load Route Planner</h1>
-    <p class="page-desc">Enter origin and destination to generate a full route plan — intermediate hubs, district-level stops, and load opportunities mapped to each point.</p>
-  </div>
-
-  <!-- INPUT -->
-  <div class="input-section animate-in d1">
-    <div class="input-row">
-      <div class="input-group">
-        <label class="input-label" for="origin">Origin</label>
-        <div class="input-wrap">
-          <input class="input-field" id="origin" placeholder="e.g. Ajmer" autocomplete="off" spellcheck="false" />
-          <div class="suggestions" id="origin-sug"></div>
-        </div>
-      </div>
-      <div class="input-sep">
-        <span class="sep-arrow">&#8594;</span>
-      </div>
-      <div class="input-group">
-        <label class="input-label" for="dest">Destination</label>
-        <div class="input-wrap">
-          <input class="input-field" id="dest" placeholder="e.g. Delhi" autocomplete="off" spellcheck="false" />
-          <div class="suggestions" id="dest-sug"></div>
-        </div>
-      </div>
-    </div>
-    <button class="btn-generate" onclick="generateRoute()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-      Generate Route Plan
     </button>
   </div>
 
-  <!-- ERROR -->
-  <div class="error-box animate-in" id="errorBox">
-    <strong>Route not found.</strong> No predefined route exists for this origin-destination pair.
-    <div class="alt-routes" id="altRoutes"></div>
+  <div class="home-body">
+    <div class="home-hero">
+      <div class="home-eyebrow">Digital Stamp Creator</div>
+      <h1 class="home-headline">Create &amp;<br>Collect Stamps</h1>
+      <p class="home-sub">Turn your photos into beautiful postage stamps. Build a personal collection.</p>
+    </div>
+
+    <div id="home-deco" class="home-stamp-preview"></div>
+
+    <div class="home-actions">
+      <div class="action-card" onclick="document.getElementById('file-input').click()">
+        <div class="action-icon warm">
+          <!-- Upload icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
+        <div class="action-text">
+          <h3>Upload Image</h3>
+          <p>Choose from your device library</p>
+        </div>
+        <div class="action-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="action-card" onclick="document.getElementById('camera-input').click()">
+        <div class="action-icon sage">
+          <!-- Camera icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </div>
+        <div class="action-text">
+          <h3>Take Photo</h3>
+          <p>Use camera to capture a moment</p>
+        </div>
+        <div class="action-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="home-stats">
+      <div class="stat-card">
+        <span class="stat-num" id="stat-total">0</span>
+        <span class="stat-label">Stamps</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num" id="stat-pages">0</span>
+        <span class="stat-label">Pages</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num" id="stat-full">0</span>
+        <span class="stat-label">Full Pages</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 2: EDITOR
+============================================================ -->
+<div class="screen" id="screen-editor">
+  <div class="nav-bar editor-nav">
+    <button class="nav-btn" onclick="switchScreen('home')" title="Back">
+      <!-- Back/chevron-left icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <div class="nav-title" style="color:white;">Frame &amp; Cut</div>
+    <button class="nav-btn" id="btn-reset-stencil" title="Reset position">
+      <!-- Crosshair / center icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/>
+        <line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/>
+      </svg>
+    </button>
   </div>
 
-  <!-- RESULT -->
-  <div id="result">
-
-    <div class="result-meta animate-in">
-      <span class="result-route-name" id="routeName"></span>
-      <span class="result-badge" id="routeBadge"></span>
-    </div>
-
-    <div class="route-stats animate-in d1">
-      <div class="route-stat">
-        <span class="stat-value" id="statStops"></span>
-        <span class="stat-key">Total Stops</span>
-      </div>
-      <div class="route-stat">
-        <span class="stat-value" id="statDist"></span>
-        <span class="stat-key">Approx. Distance</span>
-      </div>
-      <div class="route-stat">
-        <span class="stat-value" id="statHubs"></span>
-        <span class="stat-key">Major Hubs</span>
-      </div>
-      <div class="route-stat">
-        <span class="stat-value" id="statLoads"></span>
-        <span class="stat-key">Load Points</span>
-      </div>
-    </div>
-
-    <div class="section-divider"></div>
-
-    <!-- Route Flow -->
-    <div class="section-block animate-in d1">
-      <div class="section-label">Route Flow</div>
-      <div class="route-flow" id="routeFlow"></div>
-    </div>
-
-    <!-- Hubs -->
-    <div class="section-block animate-in d2">
-      <div class="section-label">Hubs & Districts</div>
-      <div class="hubs-grid" id="hubsGrid"></div>
-    </div>
-
-    <!-- Load Opportunities -->
-    <div class="section-block animate-in d3">
-      <div class="section-label">Load Opportunities</div>
-      <div class="load-grid" id="loadGrid"></div>
-    </div>
-
+  <div class="editor-canvas-container">
+    <canvas id="editor-canvas"></canvas>
+    <div class="editor-hint" id="editor-hint">Drag to move &bull; Pinch or slide to scale</div>
   </div>
 
-</main>
+  <div class="editor-controls">
+    <!-- Shape chooser -->
+    <div class="shape-row">
+      <button class="shape-btn active" data-shape="square" onclick="setShape('square')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+        Square
+      </button>
+      <button class="shape-btn" data-shape="tall" onclick="setShape('tall')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/></svg>
+        Portrait
+      </button>
+      <button class="shape-btn" data-shape="wide" onclick="setShape('wide')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/></svg>
+        Landscape
+      </button>
+      <button class="shape-btn" data-shape="circle" onclick="setShape('circle')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+        Round
+      </button>
+    </div>
 
-<footer>
-  Route Planner &mdash; Part Load Logistics Tool &mdash; Pan India Freight Corridors
-</footer>
+    <!-- Scale slider -->
+    <div class="slider-row">
+      <span class="slider-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          <line x1="8" y1="11" x2="14" y2="11"/><line x1="11" y1="8" x2="11" y2="14"/>
+        </svg>
+      </span>
+      <input type="range" id="scale-slider" min="50" max="200" value="100">
+      <span class="slider-value" id="scale-val">100%</span>
+    </div>
+
+    <!-- Rotation slider -->
+    <div class="slider-row">
+      <span class="slider-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.5 2v6h-6"/><path d="M2.5 12a10 10 0 0 1 17.8-6.3L21.5 8M2.5 22v-6h6"/><path d="M21.5 12a10 10 0 0 1-17.8 6.3L2.5 16"/>
+        </svg>
+      </span>
+      <input type="range" id="rotate-slider" min="-30" max="30" value="0">
+      <span class="slider-value" id="rotate-val">0°</span>
+    </div>
+
+    <div class="editor-btn-row">
+      <button class="btn btn-primary btn-lg" onclick="createStamp()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+        Create Stamp
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 3: PREVIEW
+============================================================ -->
+<div class="screen" id="screen-preview">
+  <div class="nav-bar">
+    <button class="nav-btn" onclick="switchScreen('editor')" title="Back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <div class="nav-title">Your Stamp</div>
+    <button class="nav-btn" id="btn-export-single" title="Download stamp">
+      <!-- Download icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="preview-body">
+    <div class="preview-stamp-wrap" id="preview-stamp-wrap">
+      <canvas id="preview-canvas" width="260" height="300"></canvas>
+    </div>
+    <div class="preview-label">Stamp Ready</div>
+    <div class="preview-sub">Move your finger over the stamp to inspect it</div>
+
+    <div class="preview-actions">
+      <button class="btn btn-primary btn-lg btn-full" onclick="saveToCollection()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+          <polyline points="17 21 17 13 7 13 7 21"/>
+          <polyline points="7 3 7 8 15 8"/>
+        </svg>
+        Save to Collection
+      </button>
+      <button class="btn btn-secondary btn-lg btn-full" onclick="switchScreen('editor')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+        Adjust Frame
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 4: GALLERY
+============================================================ -->
+<div class="screen" id="screen-gallery">
+  <div class="nav-bar">
+    <button class="nav-btn" onclick="switchScreen('home')" title="Back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <div class="nav-title">Collection</div>
+    <button class="nav-btn" id="btn-export-page" title="Export page">
+      <!-- Share icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="gallery-body" id="gallery-body">
+    <!-- rendered by JS -->
+  </div>
+</div>
+
+<!-- ============================================================
+     EXPORT MODAL
+============================================================ -->
+<div class="modal-overlay" id="export-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Export</div>
+    <div class="modal-sub">Save or share your stamp collection</div>
+    <div class="modal-actions">
+      <button class="btn btn-primary btn-full" onclick="exportCurrentPage()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Save Page as Image
+      </button>
+      <button class="btn btn-secondary btn-full" onclick="closeModal('export-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
 
 <script>
-/* ============================================================
-   PAN INDIA LOGISTICS ENGINE
-   Graph-based pathfinding across all major Indian freight corridors.
-   CITY_DATA: commodity loads per city
-   GRAPH: adjacency list (city -> [{city, km}])
-   Route is found via BFS/Dijkstra, then stops + loads assembled.
-============================================================ */
+/* ================================================================
+   GLOBALS & STATE
+================================================================ */
+const STAMPS_PER_PAGE = 12;
+let stamps = [];        // array of base64 dataURLs
+let sourceImage = null; // HTMLImageElement
+let currentScreen = 'home';
 
-/* ---------- CITY COMMODITY DATA ----------
-   Only cities with meaningful freight/load potential included.
-   Excluded: pure tourist towns, small hamlets with no industry.
----------- */
-const CITY_DATA = {
-  // ── DELHI NCR ──
-  "Delhi":         { loads: ["FMCG","Electronics","Pharma","Textiles","Auto parts","E-commerce","Industrial goods","Steel","Packaging"], major: true },
-  "Gurgaon":       { loads: ["FMCG","E-commerce","Auto parts","Electronics","Pharma","IT equipment"], major: true },
-  "Faridabad":     { loads: ["Auto parts","Industrial goods","Steel","Machinery"], major: false },
-  "Noida":         { loads: ["Electronics","IT equipment","FMCG","Pharma","E-commerce"], major: true },
-  "Ghaziabad":     { loads: ["Industrial goods","FMCG","Auto parts","Steel"], major: false },
-  "Ballabhgarh":   { loads: ["Steel","Industrial goods","Agri produce"], major: false },
-  "Sonipat":       { loads: ["Auto parts","Industrial goods","Agri produce","Steel"], major: false },
+// Stencil state
+let stencil = { x: 0, y: 0, w: 160, h: 160, shape: 'square', rotation: 0, baseW: 160, baseH: 160 };
+let drag = { active: false, startX: 0, startY: 0, origX: 0, origY: 0 };
+let pinch = { active: false, startDist: 0, startScale: 1 };
+let editorCanvas, editorCtx, editorRAF;
 
-  // ── HARYANA ──
-  "Panipat":       { loads: ["Textiles","Recycled goods","Steel","Agri produce"], major: true },
-  "Karnal":        { loads: ["Dairy products","Agri produce","Rice","FMCG"], major: false },
-  "Kurukshetra":   { loads: ["Agri produce","Basmati rice","FMCG"], major: false },
-  "Ambala":        { loads: ["Electronics","Scientific instruments","FMCG","Agri produce"], major: true },
-  "Rohtak":        { loads: ["Agri produce","Auto parts","Steel","FMCG"], major: false },
-  "Hisar":         { loads: ["Steel","Agri produce","Cotton","Cattle feed"], major: true },
-  "Bhiwani":       { loads: ["Agri produce","Cotton","FMCG"], major: false },
-  "Rewari":        { loads: ["Agricultural goods","Building material","Industrial goods"], major: false },
-  "Narnaul":       { loads: ["Agri produce","Building material"], major: false },
-  "Dharuhera":     { loads: ["Auto components","Industrial goods","FMCG"], major: false },
-  "Neemrana":      { loads: ["Industrial machinery","Auto parts","Electronics","FMCG"], major: true },
-  "Palwal":        { loads: ["Agri produce","Industrial goods","FMCG"], major: false },
-  "Zirakpur":      { loads: ["FMCG","Building material","Consumer goods"], major: false },
-  "Sirsa":         { loads: ["Cotton","Agri produce","FMCG"], major: false },
+// Generated stamp
+let stampDataURL = null;
 
-  // ── PUNJAB ──
-  "Chandigarh":    { loads: ["FMCG","Electronics","Pharma","Consumer goods"], major: true },
-  "Ludhiana":      { loads: ["Hosiery","Woolen goods","Bicycles","Auto parts","Machine parts","Steel"], major: true },
-  "Amritsar":      { loads: ["Textiles","FMCG","Agri produce","Pharma","Spices"], major: true },
-  "Jalandhar":     { loads: ["Sports goods","Leather goods","Textiles","FMCG"], major: true },
-  "Patiala":       { loads: ["Agri produce","Dairy","FMCG","Textiles"], major: false },
-  "Bathinda":      { loads: ["Agri produce","Fertilizers","Oil refinery products","Cotton"], major: true },
-  "Pathankot":     { loads: ["Agri produce","FMCG","Building material"], major: false },
-  "Sirhind":       { loads: ["Agri produce","FMCG"], major: false },
-  "Rajpura":       { loads: ["Industrial goods","Building material","Auto parts"], major: false },
-  "Moga":          { loads: ["FMCG","Dairy products","Agri produce"], major: false },
-  "Firozpur":      { loads: ["Agri produce","Cotton","FMCG"], major: false },
+/* ================================================================
+   SCREEN MANAGEMENT
+================================================================ */
+function switchScreen(name) {
+  const prev = document.getElementById('screen-' + currentScreen);
+  const next = document.getElementById('screen-' + name);
+  if (!next || currentScreen === name) return;
+  prev.classList.remove('active');
+  prev.classList.add('exit');
+  setTimeout(() => prev.classList.remove('exit'), 400);
+  next.classList.add('active');
+  currentScreen = name;
 
-  // ── HIMACHAL PRADESH ──
-  "Shimla":        { loads: ["Apples","Horticulture produce","FMCG"], major: true },
-  "Baddi":         { loads: ["Pharma","FMCG","Consumer goods","Packaging"], major: true },
-  "Nalagarh":      { loads: ["Industrial goods","Pharma","FMCG"], major: false },
-  "Paonta Sahib":  { loads: ["Pharma","Industrial goods","FMCG"], major: false },
-  "Parwanoo":      { loads: ["Industrial goods","Pharma","Consumer goods"], major: false },
-
-  // ── JAMMU & KASHMIR ──
-  "Jammu":         { loads: ["FMCG","Agri produce","Pharma","Textiles"], major: true },
-  "Pathankot":     { loads: ["FMCG","Agri produce"], major: false },
-
-  // ── RAJASTHAN ──
-  "Jaipur":        { loads: ["Textiles","FMCG","Chemicals","Gems","Auto parts","Pharma"], major: true },
-  "Ajmer":         { loads: ["Textiles","Dyes","Chemicals","FMCG"], major: true },
-  "Kishangarh":    { loads: ["Marble","Granite","Stone products"], major: false },
-  "Jodhpur":       { loads: ["Agri produce","Spices","FMCG","Cement"], major: true },
-  "Bikaner":       { loads: ["FMCG","Snack foods","Agri produce","Wool"], major: true },
-  "Kota":          { loads: ["Chemicals","Fertilizers","Industrial goods","Agri produce","Cement"], major: true },
-  "Udaipur":       { loads: ["Zinc","Chemicals","FMCG","Agri produce"], major: true },
-  "Alwar":         { loads: ["Auto parts","Industrial goods","Agri produce","FMCG"], major: true },
-  "Bharatpur":     { loads: ["Agri produce","Dairy","FMCG"], major: false },
-  "Sikar":         { loads: ["Agri produce","FMCG","Cotton"], major: false },
-  "Churu":         { loads: ["Agri produce","Guar gum","Wool"], major: false },
-  "Nagaur":        { loads: ["Agri produce","Cattle","FMCG"], major: false },
-  "Pali":          { loads: ["Textiles","Dyes","Chemicals"], major: false },
-  "Beawar":        { loads: ["Chemicals","Textiles","Cement"], major: false },
-  "Bhilwara":      { loads: ["Textiles","Synthetic fibre","Agri produce"], major: true },
-  "Bundi":         { loads: ["Agri produce","Cement","FMCG"], major: false },
-  "Chittorgarh":   { loads: ["Zinc","Cement","Agri produce"], major: false },
-  "Banswara":      { loads: ["Agri produce","Textiles","FMCG"], major: false },
-  "Baran":         { loads: ["Agri produce","FMCG","Industrial goods"], major: false },
-  "Behror":        { loads: ["FMCG","Packaging goods","Industrial goods"], major: false },
-  "Neemrana":      { loads: ["Auto parts","Electronics","Industrial machinery","FMCG"], major: true },
-  "Dudu":          { loads: ["Agri produce","Cattle feed"], major: false },
-  "Phulera":       { loads: ["Agri produce","Salt"], major: false },
-  "Chomu":         { loads: ["Agricultural goods","Building material"], major: false },
-  "Shahpura":      { loads: ["Building material","Industrial goods"], major: false },
-  "Fatehpur":      { loads: ["Agri produce","Guar gum"], major: false },
-  "Ratangarh":     { loads: ["Agri produce","Building material"], major: false },
-  "Nokha":         { loads: ["Agri produce","Guar"], major: false },
-  "Merta":         { loads: ["Agri produce","Guar gum"], major: false },
-  "Hanumangarh":   { loads: ["Agri produce","Cotton","Guar","Dairy"], major: false },
-  "Ganganagar":    { loads: ["Agri produce","Cotton","FMCG","Sugar"], major: true },
-
-  // ── UTTAR PRADESH ──
-  "Lucknow":       { loads: ["Textiles","FMCG","Pharma","Handicrafts","Consumer goods"], major: true },
-  "Kanpur":        { loads: ["Leather goods","Textiles","FMCG","Chemicals","Fertilizers"], major: true },
-  "Agra":          { loads: ["Leather goods","Footwear","Textiles","Chemicals"], major: true },
-  "Meerut":        { loads: ["Sports goods","Agricultural machinery","Scissors","Musical instruments","FMCG"], major: true },
-  "Varanasi":      { loads: ["Silk textiles","Carpets","FMCG","Agri produce"], major: true },
-  "Allahabad":     { loads: ["FMCG","Agri produce","Chemicals","Pharma"], major: true },
-  "Mathura":       { loads: ["Agri produce","FMCG","Dairy","Refinery products"], major: false },
-  "Aligarh":       { loads: ["Locks","Hardware","Brass goods","Electrical goods"], major: true },
-  "Moradabad":     { loads: ["Brass goods","Metal wares","Handicrafts","FMCG"], major: true },
-  "Bareilly":      { loads: ["FMCG","Agri produce","Furniture","Building material"], major: true },
-  "Ghazipur":      { loads: ["Agri produce","FMCG","Chemicals"], major: false },
-  "Gorakhpur":     { loads: ["FMCG","Agri produce","Fertilizers","Pharma"], major: true },
-  "Jhansi":        { loads: ["Agri produce","Industrial goods","FMCG","Building material"], major: true },
-  "Firozabad":     { loads: ["Glass products","Bangles","Agri produce"], major: false },
-  "Hapur":         { loads: ["Agri produce","Building material","Paper"], major: false },
-  "Bulandshahr":   { loads: ["Agri produce","Sugar","Dairy"], major: false },
-  "Etawah":        { loads: ["Agri produce","Dairy","FMCG"], major: false },
-  "Hathras":       { loads: ["Agri produce","Footwear"], major: false },
-  "Muzaffarnagar": { loads: ["Sugar","Agri produce","Jaggery","FMCG"], major: false },
-  "Saharanpur":    { loads: ["Furniture","Wood products","FMCG","Agri produce"], major: true },
-  "Shahjahanpur":  { loads: ["Agri produce","Sugar","FMCG"], major: false },
-  "Rampur":        { loads: ["Agri produce","FMCG"], major: false },
-  "Unnao":         { loads: ["Leather goods","Agri produce","FMCG"], major: false },
-  "Rae Bareli":    { loads: ["Agri produce","FMCG","Industrial goods"], major: false },
-  "Sitapur":       { loads: ["Agri produce","FMCG"], major: false },
-  "Hardoi":        { loads: ["Agri produce","FMCG"], major: false },
-  "Sultanpur":     { loads: ["Agri produce","FMCG"], major: false },
-  "Faizabad":      { loads: ["Agri produce","FMCG","Textiles"], major: false },
-  "Basti":         { loads: ["Agri produce","FMCG","Sugar"], major: false },
-  "Azamgarh":      { loads: ["Agri produce","Pottery","FMCG"], major: false },
-  "Mirzapur":      { loads: ["Carpets","Brassware","Agri produce"], major: false },
-  "Jaunpur":       { loads: ["Agri produce","FMCG","Textiles"], major: false },
-  "Gonda":         { loads: ["Agri produce","Sugar","FMCG"], major: false },
-  "Deoria":        { loads: ["Sugar","Agri produce","FMCG"], major: false },
-  "Modinagar":     { loads: ["Paper","FMCG","Industrial goods"], major: false },
-  "Kosi Kalan":    { loads: ["Agri produce","FMCG"], major: false },
-
-  // ── UTTARAKHAND ──
-  "Dehradun":      { loads: ["FMCG","Pharma","Consumer goods","Agri produce"], major: true },
-  "Haridwar":      { loads: ["FMCG","Pharma","Consumer goods","Religious goods"], major: true },
-  "Roorkee":       { loads: ["FMCG","Industrial goods","Agri produce"], major: false },
-  "Rudrapur":      { loads: ["Auto parts","Industrial goods","FMCG","Pharma"], major: true },
-  "Haldwani":      { loads: ["Agri produce","FMCG","Building material"], major: false },
-  "Kashipur":      { loads: ["Industrial goods","FMCG","Agri produce"], major: false },
-
-  // ── BIHAR ──
-  "Patna":         { loads: ["Agri produce","FMCG","Textiles","Consumer goods","Pharma"], major: true },
-  "Gaya":          { loads: ["Agri produce","FMCG","Cement"], major: false },
-  "Muzaffarpur":   { loads: ["Agri produce","Litchi","FMCG","Sugar"], major: true },
-  "Bhagalpur":     { loads: ["Silk textiles","Agri produce","FMCG"], major: true },
-  "Darbhanga":     { loads: ["Agri produce","FMCG","Jute"], major: false },
-  "Purnia":        { loads: ["Agri produce","Jute","FMCG"], major: false },
-  "Hajipur":       { loads: ["FMCG","Industrial goods","Agri produce"], major: false },
-  "Bihar Sharif":  { loads: ["Agri produce","FMCG"], major: false },
-  "Arrah":         { loads: ["Agri produce","Sugar","FMCG"], major: false },
-  "Sasaram":       { loads: ["Agri produce","Building material","FMCG"], major: false },
-  "Buxar":         { loads: ["Agri produce","FMCG","Sugar"], major: false },
-  "Siwan":         { loads: ["Agri produce","FMCG","Sugar"], major: false },
-  "Motihari":      { loads: ["Agri produce","Sugar","FMCG"], major: false },
-
-  // ── JHARKHAND ──
-  "Ranchi":        { loads: ["Steel","Minerals","FMCG","Consumer goods","Coal"], major: true },
-  "Jamshedpur":    { loads: ["Steel","Auto parts","Industrial goods","FMCG"], major: true },
-  "Dhanbad":       { loads: ["Coal","Mining equipment","Industrial goods"], major: true },
-  "Bokaro":        { loads: ["Steel","Industrial goods","FMCG"], major: true },
-  "Hazaribagh":    { loads: ["Coal","Agri produce","FMCG"], major: false },
-  "Giridih":       { loads: ["Coal","Agri produce","Mica"], major: false },
-  "Koderma":       { loads: ["Mica","Minerals","Agri produce"], major: false },
-  "Deoghar":       { loads: ["FMCG","Agri produce"], major: false },
-  "Dumka":         { loads: ["Agri produce","FMCG","Minerals"], major: false },
-
-  // ── WEST BENGAL ──
-  "Kolkata":       { loads: ["Jute","Textiles","FMCG","Electronics","Steel","Pharma","Chemicals"], major: true },
-  "Howrah":        { loads: ["Steel","Engineering goods","Industrial goods","FMCG"], major: true },
-  "Durgapur":      { loads: ["Steel","Industrial goods","FMCG","Chemicals"], major: true },
-  "Asansol":       { loads: ["Coal","Steel","Industrial goods","Agri produce"], major: true },
-  "Siliguri":      { loads: ["Tea","Agri produce","FMCG","Building material"], major: true },
-  "Bardhaman":     { loads: ["Agri produce","Rice","FMCG","Steel"], major: false },
-  "Kharagpur":     { loads: ["Industrial goods","FMCG","Agri produce"], major: false },
-  "Haldia":        { loads: ["Petrochemicals","Chemicals","Fertilizers","Industrial goods"], major: true },
-  "Shantipur":     { loads: ["Textiles","Agri produce"], major: false },
-  "Jalpaiguri":    { loads: ["Tea","Timber","Agri produce","FMCG"], major: false },
-  "Cooch Behar":   { loads: ["Agri produce","FMCG","Jute"], major: false },
-  "Malda":         { loads: ["Agri produce","Mango","FMCG","Silk"], major: false },
-  "Midnapore":     { loads: ["Agri produce","Building material","FMCG"], major: false },
-  "Barasat":       { loads: ["FMCG","Agri produce","Consumer goods"], major: false },
-
-  // ── ODISHA ──
-  "Bhubaneswar":   { loads: ["FMCG","Pharma","Consumer goods","Steel"], major: true },
-  "Cuttack":       { loads: ["Textiles","FMCG","Agri produce","Silver goods"], major: true },
-  "Rourkela":      { loads: ["Steel","Industrial goods","Chemicals"], major: true },
-  "Berhampur":     { loads: ["Textiles","Agri produce","FMCG"], major: false },
-  "Sambalpur":     { loads: ["Textiles","Steel","Agri produce","Coal"], major: false },
-  "Jharsuguda":    { loads: ["Coal","Aluminium","Industrial goods"], major: false },
-  "Angul":         { loads: ["Aluminium","Coal","Steel","Industrial goods"], major: false },
-  "Paradip":       { loads: ["Fertilizers","Petrochemicals","Industrial goods"], major: true },
-  "Jajpur":        { loads: ["Steel","Industrial goods","Chromite"], major: false },
-  "Kalinganagar":  { loads: ["Steel","Industrial goods"], major: false },
-  "Balasore":      { loads: ["Agri produce","FMCG","Chemicals"], major: false },
-  "Baripada":      { loads: ["Agri produce","FMCG","Timber"], major: false },
-  "Jeypore":       { loads: ["Agri produce","FMCG","Timber"], major: false },
-
-  // ── CHHATTISGARH ──
-  "Raipur":        { loads: ["Steel","Rice","Agri produce","FMCG","Cement","Iron ore"], major: true },
-  "Durg":          { loads: ["Steel","Industrial goods","FMCG"], major: true },
-  "Bhilai":        { loads: ["Steel","Industrial goods","Agri produce"], major: true },
-  "Bilaspur":      { loads: ["Agri produce","FMCG","Coal","Steel"], major: true },
-  "Korba":         { loads: ["Coal","Aluminium","Power equipment"], major: true },
-  "Rajnandgaon":   { loads: ["Agri produce","FMCG","Steel"], major: false },
-  "Raigarh":       { loads: ["Coal","Agri produce","Steel","Textiles"], major: false },
-  "Jagdalpur":     { loads: ["Agri produce","Iron ore","Timber"], major: false },
-  "Ambikapur":     { loads: ["Coal","Agri produce","FMCG"], major: false },
-
-  // ── MADHYA PRADESH ──
-  "Indore":        { loads: ["FMCG","Agri produce","Pharma","Textiles","Auto parts","Soybean","Chemicals"], major: true },
-  "Bhopal":        { loads: ["FMCG","Consumer goods","Pharma","Industrial goods"], major: true },
-  "Jabalpur":      { loads: ["Agri produce","Industrial goods","FMCG","Defence goods","Cement"], major: true },
-  "Gwalior":       { loads: ["Agri produce","FMCG","Industrial goods","Chemicals"], major: true },
-  "Ujjain":        { loads: ["Agri produce","FMCG","Chemicals"], major: false },
-  "Pithampur":     { loads: ["Auto parts","Industrial machinery","FMCG","Pharma"], major: true },
-  "Dewas":         { loads: ["Auto parts","Textiles","FMCG","Industrial goods"], major: false },
-  "Ratlam":        { loads: ["Agri produce","Chemicals","FMCG","Soybean"], major: false },
-  "Sagar":         { loads: ["Agri produce","FMCG","Building material"], major: false },
-  "Satna":         { loads: ["Cement","Agri produce","FMCG"], major: false },
-  "Rewa":          { loads: ["Cement","Agri produce","Power equipment"], major: false },
-  "Katni":         { loads: ["Cement","Building material","Agri produce"], major: false },
-  "Chhindwara":    { loads: ["Agri produce","Coal","FMCG","Soybean"], major: false },
-  "Betul":         { loads: ["Agri produce","Coal","FMCG"], major: false },
-  "Hoshangabad":   { loads: ["Agri produce","FMCG","Wheat"], major: false },
-  "Vidisha":       { loads: ["Agri produce","FMCG"], major: false },
-  "Mandsaur":      { loads: ["Agri produce","Opium products","FMCG"], major: false },
-  "Morena":        { loads: ["Agri produce","Oil","FMCG"], major: false },
-  "Bhind":         { loads: ["Agri produce","FMCG"], major: false },
-  "Khandwa":       { loads: ["Agri produce","Cotton","FMCG"], major: false },
-  "Khargone":      { loads: ["Agri produce","Cotton","FMCG"], major: false },
-  "Burhanpur":     { loads: ["Textiles","Agri produce","FMCG"], major: false },
-
-  // ── GUJARAT ──
-  "Ahmedabad":     { loads: ["Textiles","Chemicals","Pharma","FMCG","Machinery","Diamonds","Auto parts"], major: true },
-  "Surat":         { loads: ["Textiles","Diamonds","FMCG","Chemicals","Plastics"], major: true },
-  "Vadodara":      { loads: ["Chemicals","Petrochemicals","Textiles","Machinery","Pharma"], major: true },
-  "Rajkot":        { loads: ["Engineering goods","Auto parts","Agri produce","FMCG","Steel"], major: true },
-  "Bhavnagar":     { loads: ["Ship breaking","Steel","Agri produce","FMCG"], major: true },
-  "Jamnagar":      { loads: ["Petrochemicals","Brass parts","Agri produce","FMCG"], major: true },
-  "Gandhinagar":   { loads: ["FMCG","Consumer goods","Pharma","Electronics"], major: false },
-  "Anand":         { loads: ["Dairy products","FMCG","Agri produce","Chemicals"], major: true },
-  "Nadiad":        { loads: ["Agri produce","Dairy","FMCG","Tobacco"], major: false },
-  "Mehsana":       { loads: ["Dairy products","Agri produce","FMCG","Tobacco"], major: false },
-  "Palanpur":      { loads: ["Marble","Cotton","Agri produce","FMCG"], major: false },
-  "Baruch":        { loads: ["Chemicals","Petrochemicals","Fertilizers","Textiles"], major: true },
-  "Surat":         { loads: ["Textiles","Diamonds","FMCG","Chemicals","Plastics"], major: true },
-  "Navsari":       { loads: ["Agri produce","FMCG","Textiles"], major: false },
-  "Vapi":          { loads: ["Chemicals","Industrial goods","Textiles","FMCG"], major: true },
-  "Valsad":        { loads: ["Agri produce","FMCG","Textiles"], major: false },
-  "Surendranagar": { loads: ["Cotton","Agri produce","Textiles","Salt"], major: false },
-  "Morbi":         { loads: ["Ceramics","Tiles","Agri produce","FMCG"], major: true },
-  "Bhuj":          { loads: ["Agri produce","Handicrafts","Salt","FMCG"], major: false },
-  "Amreli":        { loads: ["Agri produce","FMCG","Cotton"], major: false },
-  "Junagadh":      { loads: ["Agri produce","FMCG","Groundnut","Fruits"], major: false },
-  "Porbandar":     { loads: ["Agri produce","Chemicals","FMCG"], major: false },
-  "Botad":         { loads: ["Agri produce","FMCG","Groundnut"], major: false },
-  "Gondal":        { loads: ["Agri produce","FMCG","Oil"], major: false },
-  "Wankaner":      { loads: ["Engineering goods","Agri produce","FMCG"], major: false },
-
-  // ── MAHARASHTRA ──
-  "Mumbai":        { loads: ["FMCG","Electronics","Pharma","Textiles","E-commerce","Machinery","Chemicals"], major: true },
-  "Pune":          { loads: ["Auto parts","Electronics","FMCG","IT equipment","Pharma","Machinery"], major: true },
-  "Nashik":        { loads: ["Grapes","FMCG","Agri produce","Pharma","Auto parts","Wine"], major: true },
-  "Nagpur":        { loads: ["Agri produce","FMCG","Pharma","Oranges","Cement","Coal"], major: true },
-  "Aurangabad":    { loads: ["Auto parts","Industrial goods","FMCG","Agri produce","Pharma"], major: true },
-  "Solapur":       { loads: ["Textiles","Agri produce","FMCG","Bidi"], major: true },
-  "Kolhapur":      { loads: ["Agri produce","Sugar","Textiles","FMCG","Foundry goods"], major: true },
-  "Sangli":        { loads: ["Agri produce","Turmeric","Sugar","FMCG"], major: false },
-  "Satara":        { loads: ["Agri produce","Sugar","FMCG"], major: false },
-  "Latur":         { loads: ["Agri produce","FMCG","Soybean","Sugar"], major: false },
-  "Nanded":        { loads: ["Agri produce","Sugar","FMCG"], major: false },
-  "Osmanabad":     { loads: ["Agri produce","FMCG","Soybean"], major: false },
-  "Amravati":      { loads: ["Agri produce","Cotton","FMCG","Soybean"], major: false },
-  "Akola":         { loads: ["Agri produce","Cotton","FMCG","Soybean"], major: false },
-  "Yavatmal":      { loads: ["Cotton","Agri produce","FMCG"], major: false },
-  "Wardha":        { loads: ["Cotton","Agri produce","FMCG"], major: false },
-  "Chandrapur":    { loads: ["Coal","Cement","Steel","Agri produce"], major: false },
-  "Gadchiroli":    { loads: ["Agri produce","Timber","Minerals"], major: false },
-  "Dhule":         { loads: ["Agri produce","Textiles","FMCG"], major: false },
-  "Jalgaon":       { loads: ["Bananas","Cotton","Agri produce","FMCG"], major: true },
-  "Ahmednagar":    { loads: ["Agri produce","Sugar","FMCG","Chemicals"], major: false },
-  "Raigad":        { loads: ["Chemicals","FMCG","Steel","Industrial goods"], major: false },
-  "Ratnagiri":     { loads: ["Agri produce","Alphonso mangoes","Fish","FMCG"], major: false },
-  "Sindhudurg":    { loads: ["Agri produce","Fish","FMCG"], major: false },
-  "Thane":         { loads: ["FMCG","Industrial goods","Chemicals","Pharma"], major: true },
-  "Navi Mumbai":   { loads: ["FMCG","Chemicals","Industrial goods","Pharma"], major: true },
-  "Panvel":        { loads: ["Building material","FMCG","Industrial goods"], major: false },
-  "Khopoli":       { loads: ["Industrial goods","Agri produce"], major: false },
-  "Igatpuri":      { loads: ["Agri produce","FMCG"], major: false },
-  "Malegaon":      { loads: ["Textiles","Agri produce","FMCG"], major: false },
-  "Pimpri":        { loads: ["Auto parts","Industrial goods","FMCG","Pharma"], major: false },
-  "Bhosari":       { loads: ["Auto parts","Industrial goods","FMCG"], major: false },
-  "Hingoli":       { loads: ["Agri produce","Soybean","FMCG"], major: false },
-  "Parbhani":      { loads: ["Agri produce","FMCG","Soybean"], major: false },
-  "Buldhana":      { loads: ["Agri produce","Cotton","FMCG"], major: false },
-  "Beed":          { loads: ["Agri produce","Soybean","Sugar"], major: false },
-  "Jalna":         { loads: ["Agri produce","Seeds","FMCG"], major: false },
-  "Gondia":        { loads: ["Rice","Agri produce","FMCG","Timber"], major: false },
-  "Bhandara":      { loads: ["Rice","Agri produce","FMCG"], major: false },
-  "Washim":        { loads: ["Agri produce","Cotton","FMCG"], major: false },
-
-  // ── GOA ──
-  "Panaji":        { loads: ["FMCG","Consumer goods","Pharma","Agri produce"], major: true },
-  "Margao":        { loads: ["FMCG","Agri produce","Consumer goods"], major: false },
-  "Vasco da Gama": { loads: ["Iron ore","FMCG","Industrial goods"], major: false },
-  "Hubli":         { loads: ["Cotton","FMCG","Agri produce","Steel"], major: true },
-
-  // ── KARNATAKA ──
-  "Bangalore":     { loads: ["Electronics","IT equipment","FMCG","Pharma","E-commerce","Apparel","Machinery"], major: true },
-  "Mysore":        { loads: ["Agri produce","FMCG","Silk","Consumer goods"], major: true },
-  "Hubli":         { loads: ["Cotton","FMCG","Agri produce","Steel"], major: true },
-  "Dharwad":       { loads: ["Agri produce","Cotton","FMCG","Machinery"], major: false },
-  "Bellary":       { loads: ["Iron ore","Steel","Agri produce","FMCG"], major: true },
-  "Gulbarga":      { loads: ["Agri produce","Cement","FMCG","Cotton"], major: true },
-  "Mangalore":     { loads: ["Cashews","Fish","Chemicals","FMCG","Coffee"], major: true },
-  "Belgaum":       { loads: ["Agri produce","Sugar","FMCG","Cotton"], major: true },
-  "Tumkur":        { loads: ["Agri produce","FMCG","Consumer goods","Silk"], major: false },
-  "Shimoga":       { loads: ["Agri produce","Timber","FMCG","Iron ore"], major: false },
-  "Davangere":     { loads: ["Cotton","Agri produce","FMCG","Steel"], major: false },
-  "Bijapur":       { loads: ["Agri produce","Cotton","FMCG","Limestone"], major: false },
-  "Raichur":       { loads: ["Agri produce","Cotton","Fertilizers","FMCG"], major: false },
-  "Bidar":         { loads: ["Agri produce","FMCG","Handicrafts"], major: false },
-  "Kolar":         { loads: ["Agri produce","Tomato","FMCG"], major: false },
-  "Mandya":        { loads: ["Sugar","Agri produce","FMCG"], major: false },
-  "Hassan":        { loads: ["Agri produce","Coffee","FMCG"], major: false },
-  "Chikkamagalur": { loads: ["Coffee","Agri produce","FMCG"], major: false },
-  "Chitradurga":   { loads: ["Agri produce","Iron ore","FMCG"], major: false },
-  "Hosur":         { loads: ["Auto parts","Electronics","Industrial goods","FMCG"], major: true },
-  "Chikkaballapur":{ loads: ["Floriculture","Agri produce","FMCG"], major: false },
-  "Hindupur":      { loads: ["Textiles","Agri produce","FMCG"], major: false },
-  "Vijayapura":    { loads: ["Agri produce","Cotton","FMCG","Limestone"], major: false },
-  "Yadgir":        { loads: ["Agri produce","Limestone","FMCG"], major: false },
-  "Koppal":        { loads: ["Agri produce","Iron ore","FMCG"], major: false },
-  "Gadag":         { loads: ["Agri produce","Cotton","FMCG"], major: false },
-  "Bagalkot":      { loads: ["Agri produce","Sugar","FMCG","Limestone"], major: false },
-  "Udupi":         { loads: ["Fish","FMCG","Agri produce"], major: false },
-  "Kundapur":      { loads: ["Fish","Agri produce","Timber"], major: false },
-
-  // ── ANDHRA PRADESH ──
-  "Visakhapatnam": { loads: ["Steel","Agri produce","FMCG","Pharma","Chemicals","Fertilizers"], major: true },
-  "Vijayawada":    { loads: ["Agri produce","FMCG","Textiles","Pharma","Tobacco","Rice"], major: true },
-  "Guntur":        { loads: ["Cotton","Chillies","Agri produce","FMCG","Tobacco"], major: true },
-  "Tirupati":      { loads: ["FMCG","Consumer goods","Agri produce","Pharma"], major: true },
-  "Nellore":       { loads: ["Agri produce","Aquaculture","FMCG","Cement"], major: true },
-  "Kurnool":       { loads: ["Cotton","Chillies","Agri produce","FMCG","Cement"], major: false },
-  "Kadapa":        { loads: ["Cement","Agri produce","FMCG","Baryte"], major: false },
-  "Anantapur":     { loads: ["Groundnut","Agri produce","Cotton","FMCG","Cement"], major: false },
-  "Rajahmundry":   { loads: ["Agri produce","FMCG","Petroleum","Tobacco"], major: true },
-  "Eluru":         { loads: ["Agri produce","Textiles","FMCG"], major: false },
-  "Machilipatnam": { loads: ["Agri produce","Fish","FMCG"], major: false },
-  "Ongole":        { loads: ["Agri produce","Agri machinery","FMCG"], major: false },
-  "Bhimavaram":    { loads: ["Agri produce","Aquaculture","FMCG"], major: false },
-  "Srikakulam":    { loads: ["Agri produce","Fish","FMCG"], major: false },
-  "Vizianagaram":  { loads: ["Agri produce","FMCG","Textiles"], major: false },
-  "Kakinada":      { loads: ["Agri produce","Pharma","Chemicals","Fish","FMCG"], major: true },
-  "Proddatur":     { loads: ["Agri produce","Cement","FMCG"], major: false },
-  "Hindupur":      { loads: ["Textiles","Agri produce","FMCG"], major: false },
-  "Chittoor":      { loads: ["Agri produce","FMCG","Tomato","Dairy"], major: false },
-
-  // ── TELANGANA ──
-  "Hyderabad":     { loads: ["Pharma","IT equipment","FMCG","Textiles","Electronics","Chemicals","Agri produce"], major: true },
-  "Warangal":      { loads: ["Agri produce","Textiles","FMCG","Steel"], major: true },
-  "Karimnagar":    { loads: ["Agri produce","Textiles","FMCG","Steel"], major: false },
-  "Nizamabad":     { loads: ["Agri produce","Turmeric","FMCG","Sugar"], major: false },
-  "Khammam":       { loads: ["Coal","Agri produce","Tobacco","FMCG"], major: false },
-  "Nalgonda":      { loads: ["Agri produce","Cement","Fluorite","FMCG"], major: false },
-  "Mahbubnagar":   { loads: ["Agri produce","FMCG","Granite"], major: false },
-  "Adilabad":      { loads: ["Coal","Agri produce","FMCG","Textiles"], major: false },
-  "Suryapet":      { loads: ["Agri produce","FMCG","Cement"], major: false },
-  "Sangareddy":    { loads: ["FMCG","Industrial goods","Agri produce","Pharma"], major: false },
-  "Siddipet":      { loads: ["Agri produce","FMCG","Textiles"], major: false },
-  "Ramagundam":    { loads: ["Coal","Fertilizers","Agri produce","FMCG"], major: false },
-  "Zaheerabad":    { loads: ["FMCG","Agri produce","Pharma"], major: false },
-
-  // ── TAMIL NADU ──
-  "Chennai":       { loads: ["Auto parts","Electronics","Textiles","FMCG","Pharma","Leather","IT equipment"], major: true },
-  "Coimbatore":    { loads: ["Textiles","Engineering goods","FMCG","Machinery","Pumps"], major: true },
-  "Madurai":       { loads: ["Textiles","FMCG","Agri produce","Granite","Flowers"], major: true },
-  "Tiruchirappalli":{ loads: ["FMCG","Agri produce","Textiles","Engineering goods","Cement"], major: true },
-  "Salem":         { loads: ["Steel","Agri produce","Textiles","FMCG","Mangoes"], major: true },
-  "Tirunelveli":   { loads: ["Agri produce","FMCG","Cotton","Fish"], major: false },
-  "Erode":         { loads: ["Textiles","Cotton","Agri produce","FMCG","Turmeric"], major: true },
-  "Vellore":       { loads: ["Leather goods","Footwear","Agri produce","FMCG"], major: true },
-  "Kanchipuram":   { loads: ["Silk textiles","Agri produce","FMCG"], major: false },
-  "Tiruppur":      { loads: ["Hosiery","Knitwear","Textiles","Packaging","FMCG"], major: true },
-  "Krishnagiri":   { loads: ["Agri produce","Mango","Vegetables","FMCG"], major: false },
-  "Dindigul":      { loads: ["Agri produce","FMCG","Locks","Textiles"], major: false },
-  "Thanjavur":     { loads: ["Agri produce","Rice","FMCG","Dairy"], major: false },
-  "Kumbakonam":    { loads: ["Agri produce","Dairy","FMCG","Brassware"], major: false },
-  "Cuddalore":     { loads: ["Chemicals","Agri produce","FMCG","Textiles"], major: false },
-  "Puducherry":    { loads: ["FMCG","Consumer goods","Agri produce","Textiles"], major: false },
-  "Hosur":         { loads: ["Auto parts","Electronics","Industrial goods","FMCG"], major: true },
-  "Nagercoil":     { loads: ["Fish","Agri produce","FMCG","Consumer goods"], major: false },
-  "Tuticorin":     { loads: ["Salt","Agri produce","Chemicals","FMCG","Cotton"], major: true },
-  "Sivakasi":      { loads: ["Fireworks","Matches","Printing","FMCG"], major: false },
-  "Karur":         { loads: ["Textiles","Agri produce","FMCG"], major: false },
-  "Namakkal":      { loads: ["Agri produce","Poultry","FMCG","Textiles"], major: false },
-  "Villupuram":    { loads: ["Agri produce","Sugar","FMCG"], major: false },
-  "Ambattur":      { loads: ["Auto parts","Electronics","Textiles","FMCG"], major: false },
-  "Ranipet":       { loads: ["Leather goods","Auto parts","Chemical goods","FMCG"], major: false },
-
-  // ── KERALA ──
-  "Kochi":         { loads: ["Spices","Fish","FMCG","Agri produce","Chemicals","Rubber"], major: true },
-  "Thiruvananthapuram":{ loads: ["FMCG","Consumer goods","Agri produce","Pharma","Rubber"], major: true },
-  "Kozhikode":     { loads: ["Agri produce","FMCG","Spices","Timber","Fish"], major: true },
-  "Thrissur":      { loads: ["Agri produce","FMCG","Rubber","Gold","Textiles"], major: true },
-  "Kollam":        { loads: ["Cashews","Fish","Agri produce","FMCG","Coir"], major: true },
-  "Palakkad":      { loads: ["Agri produce","FMCG","Rice","Sugar"], major: false },
-  "Alappuzha":     { loads: ["Coir","Fish","Agri produce","FMCG"], major: false },
-  "Kottayam":      { loads: ["Rubber","Agri produce","Spices","FMCG"], major: false },
-  "Malappuram":    { loads: ["Agri produce","FMCG","Textiles"], major: false },
-  "Kannur":        { loads: ["Agri produce","FMCG","Beedi","Textiles"], major: false },
-  "Kasaragod":     { loads: ["Agri produce","Fish","FMCG","Cashews"], major: false },
-  "Ernakulam":     { loads: ["FMCG","Agri produce","Rubber","Consumer goods"], major: false },
-  "Pathanamthitta":{ loads: ["Rubber","Agri produce","FMCG"], major: false },
-  "Idukki":        { loads: ["Spices","Tea","Agri produce","FMCG"], major: false },
-  "Wayanad":       { loads: ["Coffee","Tea","Agri produce","FMCG"], major: false },
-
-  // ── ASSAM ──
-  "Guwahati":      { loads: ["Tea","Agri produce","FMCG","Petroleum","Textiles"], major: true },
-  "Silchar":       { loads: ["Tea","Agri produce","FMCG","Bamboo"], major: false },
-  "Dibrugarh":     { loads: ["Tea","Petroleum","Agri produce","FMCG"], major: true },
-  "Jorhat":        { loads: ["Tea","Agri produce","FMCG"], major: false },
-  "Tezpur":        { loads: ["Tea","Agri produce","FMCG"], major: false },
-  "Nagaon":        { loads: ["Agri produce","FMCG","Paper","Sugar"], major: false },
-  "Bongaigaon":    { loads: ["FMCG","Agri produce","Industrial goods","Paper"], major: false },
-  "Kamrup":        { loads: ["Agri produce","FMCG","Consumer goods"], major: false },
-  "Dhubri":        { loads: ["Agri produce","FMCG","Jute"], major: false },
-
-  // ── NORTHEAST ──
-  "Imphal":        { loads: ["Agri produce","FMCG","Consumer goods","Bamboo"], major: true },
-  "Aizawl":        { loads: ["Agri produce","FMCG","Consumer goods","Bamboo"], major: false },
-  "Agartala":      { loads: ["Agri produce","FMCG","Bamboo","Rubber"], major: true },
-  "Shillong":      { loads: ["Agri produce","FMCG","Minerals","Coal"], major: true },
-  "Kohima":        { loads: ["Agri produce","FMCG","Consumer goods"], major: false },
-  "Itanagar":      { loads: ["Agri produce","Timber","FMCG","Minerals"], major: false },
-  "Gangtok":       { loads: ["Agri produce","FMCG","Cardamom","Consumer goods"], major: false },
-
-  // ── ANDAMAN ──
-  "Port Blair":    { loads: ["FMCG","Consumer goods","Agri produce","Timber"], major: false },
-
-  // ── LAKSHADWEEP / DAMAN / DADRA ──
-  "Silvassa":      { loads: ["Industrial goods","Chemicals","FMCG","Plastics"], major: false },
-  "Daman":         { loads: ["Industrial goods","FMCG","Plastics","Chemicals"], major: false },
-};
-
-/* ---------- ROAD NETWORK GRAPH ----------
-   Each entry: [CityA, CityB, km]
-   Represents NH/major road connections.
-   This is used for BFS pathfinding.
----------- */
-const EDGES = [
-  // ── DELHI NCR SPOKES ──
-  ["Delhi","Gurgaon",30],["Gurgaon","Dharuhera",40],["Dharuhera","Neemrana",20],["Neemrana","Behror",18],
-  ["Behror","Shahpura",22],["Shahpura","Chomu",25],["Chomu","Jaipur",30],
-  ["Delhi","Faridabad",25],["Faridabad","Ballabhgarh",8],["Ballabhgarh","Palwal",30],
-  ["Palwal","Mathura",55],["Mathura","Agra",55],
-  ["Delhi","Noida",20],["Noida","Ghaziabad",12],["Ghaziabad","Modinagar",15],
-  ["Ghaziabad","Hapur",40],["Hapur","Bulandshahr",30],
-  ["Delhi","Sonipat",45],["Sonipat","Panipat",45],["Panipat","Karnal",50],
-  ["Karnal","Kurukshetra",35],["Kurukshetra","Ambala",40],["Ambala","Zirakpur",25],
-  ["Zirakpur","Chandigarh",10],["Ambala","Rajpura",30],["Rajpura","Sirhind",20],
-  ["Sirhind","Ludhiana",40],["Ludhiana","Jalandhar",65],["Jalandhar","Amritsar",75],
-  ["Jalandhar","Pathankot",90],["Pathankot","Jammu",105],
-  ["Ludhiana","Moga",50],["Moga","Firozpur",55],
-  ["Ludhiana","Patiala",45],["Chandigarh","Patiala",60],
-  ["Bathinda","Firozpur",90],["Bathinda","Hisar",110],["Bathinda","Sirsa",80],
-  ["Hisar","Bhiwani",42],["Hisar","Sirsa",80],["Sirsa","Ganganagar",90],
-  ["Delhi","Rohtak",75],["Rohtak","Hisar",90],["Rohtak","Bhiwani",50],
-  ["Delhi","Rewari",80],["Rewari","Narnaul",55],["Narnaul","Behror",35],
-  // Baddi cluster
-  ["Chandigarh","Parwanoo",35],["Parwanoo","Baddi",10],["Baddi","Nalagarh",15],
-  ["Baddi","Paonta Sahib",55],
-  // Dehradun / Haridwar
-  ["Ambala","Saharanpur",100],["Saharanpur","Dehradun",50],["Saharanpur","Muzaffarnagar",60],
-  ["Dehradun","Haridwar",55],["Haridwar","Roorkee",30],["Roorkee","Muzaffarnagar",55],
-  ["Muzaffarnagar","Meerut",60],["Meerut","Ghaziabad",60],
-  ["Haridwar","Rudrapur",80],["Rudrapur","Haldwani",45],["Haldwani","Kashipur",55],
-
-  // ── UP CORRIDOR ──
-  ["Agra","Firozabad",40],["Firozabad","Etawah",80],["Etawah","Kanpur",80],["Kanpur","Lucknow",80],
-  ["Lucknow","Rae Bareli",80],["Rae Bareli","Allahabad",110],["Allahabad","Varanasi",130],
-  ["Varanasi","Ghazipur",75],["Varanasi","Jaunpur",60],["Jaunpur","Sultanpur",70],
-  ["Sultanpur","Lucknow",135],["Lucknow","Hardoi",100],["Hardoi","Sitapur",75],
-  ["Sitapur","Gonda",80],["Gonda","Gorakhpur",95],["Gorakhpur","Deoria",50],
-  ["Gorakhpur","Basti",50],["Basti","Faizabad",75],["Faizabad","Lucknow",135],
-  ["Lucknow","Unnao",20],["Unnao","Kanpur",15],
-  ["Kanpur","Jhansi",190],["Jhansi","Gwalior",100],
-  ["Agra","Aligarh",90],["Aligarh","Mathura",50],["Aligarh","Hathras",30],
-  ["Bulandshahr","Aligarh",45],
-  ["Bareilly","Moradabad",55],["Moradabad","Rampur",45],["Bareilly","Shahjahanpur",60],
-  ["Shahjahanpur","Lucknow",165],["Bareilly","Hapur",120],
-  ["Varanasi","Mirzapur",55],["Mirzapur","Allahabad",90],
-  ["Varanasi","Azamgarh",65],["Azamgarh","Gorakhpur",100],
-  ["Kanpur","Shahjahanpur",165],
-
-  // ── RAJASTHAN ──
-  ["Jaipur","Ajmer",135],["Ajmer","Kishangarh",25],["Kishangarh","Beawar",30],
-  ["Beawar","Pali",75],["Pali","Jodhpur",70],["Jodhpur","Nagaur",120],
-  ["Nagaur","Merta",70],["Merta","Nokha",55],["Nokha","Bikaner",55],
-  ["Jaipur","Chomu",30],["Jaipur","Sikar",105],["Sikar","Fatehpur",60],
-  ["Fatehpur","Churu",75],["Churu","Ratangarh",55],["Ratangarh","Bikaner",110],
-  ["Jaipur","Alwar",155],["Alwar","Behror",55],["Alwar","Bharatpur",100],
-  ["Bharatpur","Mathura",55],["Bharatpur","Agra",60],
-  ["Jaipur","Kota",245],["Kota","Bundi",30],["Bundi","Chittorgarh",110],
-  ["Chittorgarh","Bhilwara",80],["Bhilwara","Ajmer",100],
-  ["Kota","Baran",80],["Kota","Udaipur",250],["Udaipur","Chittorgarh",115],
-  ["Udaipur","Banswara",155],["Udaipur","Dungarpur",100],
-  ["Jodhpur","Hanumangarh",285],["Hanumangarh","Ganganagar",60],
-  ["Ganganagar","Bikaner",180],["Sirsa","Hanumangarh",80],
-  ["Phulera","Jaipur",75],["Dudu","Phulera",30],["Ajmer","Dudu",70],
-  ["Jaipur","Shahpura",30],["Jaipur","Dausa",55],
-  ["Mandsaur","Ratlam",75],["Kota","Jhalawar",80],["Udaipur","Mandsaur",175],
-
-  // ── MP CORRIDOR ──
-  ["Gwalior","Morena",40],["Morena","Bhind",55],["Gwalior","Vidisha",105],
-  ["Vidisha","Bhopal",55],["Bhopal","Hoshangabad",70],["Hoshangabad","Betul",110],
-  ["Betul","Nagpur",160],["Bhopal","Sagar",180],["Sagar","Jabalpur",185],
-  ["Jabalpur","Katni",95],["Katni","Satna",55],["Satna","Rewa",75],
-  ["Rewa","Allahabad",185],
-  ["Jabalpur","Chhindwara",115],["Chhindwara","Nagpur",120],
-  ["Bhopal","Indore",190],["Indore","Ujjain",55],["Ujjain","Ratlam",80],
-  ["Ratlam","Mandsaur",75],["Ratlam","Vadodara",280],
-  ["Indore","Dewas",35],["Dewas","Bhopal",165],
-  ["Indore","Pithampur",25],["Pithampur","Dhar",25],
-  ["Indore","Khandwa",130],["Khandwa","Khargone",55],["Khargone","Burhanpur",60],
-  ["Burhanpur","Jalgaon",55],["Jalgaon","Dhule",60],["Dhule","Nashik",165],
-  ["Khandwa","Akola",130],
-  ["Sagar","Damoh",75],["Damoh","Jabalpur",110],
-  ["Gwalior","Jhansi",100],["Jhansi","Sagar",175],
-
-  // ── GUJARAT ──
-  ["Ahmedabad","Gandhinagar",25],["Ahmedabad","Mehsana",70],["Mehsana","Palanpur",65],
-  ["Palanpur","Sirohi",100],["Sirohi","Udaipur",135],
-  ["Ahmedabad","Anand",60],["Anand","Nadiad",20],["Nadiad","Vadodara",55],
-  ["Vadodara","Baruch",50],["Baruch","Surat",100],["Surat","Navsari",35],
-  ["Navsari","Valsad",30],["Valsad","Vapi",20],["Vapi","Mumbai",180],
-  ["Surat","Vapi",65],
-  ["Ahmedabad","Surendranagar",115],["Surendranagar","Rajkot",110],
-  ["Rajkot","Junagadh",100],["Junagadh","Porbandar",115],
-  ["Rajkot","Jamnagar",90],["Jamnagar","Bhuj",165],
-  ["Rajkot","Bhavnagar",100],["Bhavnagar","Botad",65],["Botad","Ahmedabad",130],
-  ["Rajkot","Morbi",65],["Morbi","Ahmedabad",190],["Morbi","Surendranagar",90],
-  ["Rajkot","Gondal",40],["Gondal","Wankaner",35],["Wankaner","Rajkot",30],
-  ["Rajkot","Amreli",115],["Amreli","Bhavnagar",90],
-  ["Ahmedabad","Vadodara",100],
-  ["Silvassa","Vapi",25],["Daman","Vapi",15],
-
-  // ── MAHARASHTRA ──
-  ["Mumbai","Navi Mumbai",15],["Navi Mumbai","Panvel",15],
-  ["Panvel","Khopoli",55],["Khopoli","Pune",85],
-  ["Mumbai","Thane",25],["Thane","Nashik",160],
-  ["Nashik","Igatpuri",50],["Igatpuri","Thane",90],
-  ["Nashik","Ahmednagar",115],["Ahmednagar","Pune",115],
-  ["Nashik","Malegaon",55],["Malegaon","Dhule",80],
-  ["Pune","Solapur",255],["Solapur","Kolhapur",215],["Kolhapur","Sangli",55],
-  ["Sangli","Satara",75],["Satara","Pune",110],
-  ["Solapur","Latur",115],["Latur","Osmanabad",55],["Osmanabad","Pune",275],
-  ["Latur","Nanded",110],["Nanded","Hingoli",85],["Hingoli","Aurangabad",165],
-  ["Aurangabad","Jalgaon",155],["Aurangabad","Nashik",175],
-  ["Aurangabad","Ahmednagar",120],["Aurangabad","Beed",90],
-  ["Aurangabad","Jalna",65],["Jalna","Parbhani",75],["Parbhani","Nanded",95],
-  ["Nagpur","Wardha",75],["Wardha","Yavatmal",70],["Yavatmal","Akola",120],
-  ["Akola","Amravati",55],["Amravati","Nagpur",145],
-  ["Nagpur","Chandrapur",115],["Chandrapur","Gadchiroli",75],
-  ["Nagpur","Gondia",145],["Gondia","Bhandara",40],["Bhandara","Nagpur",70],
-  ["Nagpur","Buldhana",195],["Buldhana","Akola",70],
-  ["Nagpur","Chhindwara",130],["Nagpur","Raipur",290],
-  ["Nagpur","Wardha",75],["Wardha","Washim",75],["Washim","Akola",75],
-  ["Mumbai","Raigad",55],["Raigad","Ratnagiri",155],["Ratnagiri","Sindhudurg",100],
-  ["Sindhudurg","Panaji",65],
-  ["Kolhapur","Belgaum",80],["Kolhapur","Panaji",190],
-  ["Pune","Pimpri",15],["Pimpri","Bhosari",10],
-  ["Solapur","Osmanabad",95],["Solapur","Bijapur",95],
-  ["Parbhani","Hingoli",85],
-
-  // ── GOA & KARNATAKA ──
-  ["Panaji","Margao",30],["Margao","Vasco da Gama",25],
-  ["Panaji","Hubli",185],["Hubli","Dharwad",25],["Dharwad","Belgaum",75],
-  ["Hubli","Davangere",55],["Davangere","Tumkur",130],["Tumkur","Bangalore",70],
-  ["Hubli","Gadag",55],["Gadag","Bellary",135],["Bellary","Hospet",14],
-  ["Bangalore","Hosur",40],["Hosur","Krishnagiri",35],["Krishnagiri","Vellore",100],
-  ["Bangalore","Kolar",65],["Kolar","Chikkaballapur",40],["Chikkaballapur","Hindupur",60],
-  ["Bangalore","Tumkur",70],["Bangalore","Mysore",140],["Mysore","Hassan",115],
-  ["Hassan","Mangalore",165],["Mangalore","Udupi",60],["Udupi","Kundapur",50],
-  ["Mangalore","Kasaragod",80],
-  ["Mysore","Mandya",35],["Mandya","Bangalore",100],
-  ["Bangalore","Shimoga",270],["Shimoga","Davangere",55],
-  ["Chitradurga","Davangere",60],["Chitradurga","Tumkur",95],
-  ["Bangalore","Chikkamagalur",240],["Chikkamagalur","Hassan",55],
-  ["Bangalore","Raichur",380],["Raichur","Gulbarga",105],
-  ["Gulbarga","Bidar",125],["Gulbarga","Bijapur",165],
-  ["Bijapur","Solapur",95],["Bijapur","Vijayapura",0],
-  ["Bellary","Raichur",90],["Raichur","Hyderabad",215],
-  ["Bellary","Anantapur",120],["Anantapur","Kurnool",155],
-  ["Kurnool","Nandyal",70],["Nandyal","Hyderabad",250],
-  ["Anantapur","Tirupati",225],["Tirupati","Nellore",175],
-  ["Tirupati","Chennai",145],["Nellore","Chennai",170],
-  ["Koppal","Bellary",60],["Yadgir","Gulbarga",55],["Bagalkot","Bijapur",75],
-  ["Bagalkot","Hubli",100],["Gadag","Bagalkot",70],
-
-  // ── ANDHRA & TELANGANA ──
-  ["Hyderabad","Warangal",145],["Warangal","Ramagundam",120],["Ramagundam","Karimnagar",55],
-  ["Karimnagar","Hyderabad",155],["Hyderabad","Nizamabad",175],["Hyderabad","Mahbubnagar",100],
-  ["Mahbubnagar","Kurnool",155],["Hyderabad","Nalgonda",90],["Nalgonda","Suryapet",55],
-  ["Suryapet","Vijayawada",155],
-  ["Hyderabad","Sangareddy",65],["Sangareddy","Zaheerabad",55],
-  ["Hyderabad","Khammam",195],["Khammam","Vijayawada",130],
-  ["Hyderabad","Adilabad",290],["Adilabad","Nagpur",265],
-  ["Hyderabad","Siddipet",95],["Siddipet","Nizamabad",80],
-  ["Vijayawada","Guntur",30],["Guntur","Nellore",210],
-  ["Vijayawada","Rajahmundry",165],["Rajahmundry","Kakinada",60],
-  ["Rajahmundry","Visakhapatnam",165],["Visakhapatnam","Vizianagaram",65],
-  ["Vizianagaram","Srikakulam",55],["Srikakulam","Bhubaneswar",320],
-  ["Vijayawada","Eluru",60],["Eluru","Machilipatnam",55],
-  ["Vijayawada","Ongole",150],["Ongole","Nellore",100],
-  ["Guntur","Bhimavaram",80],["Bhimavaram","Rajahmundry",85],
-  ["Nellore","Tirupati",130],["Kadapa","Kurnool",135],["Kadapa","Tirupati",130],
-  ["Kadapa","Nellore",175],["Proddatur","Kadapa",50],
-  ["Hyderabad","Warangal",145],["Warangal","Khammam",115],
-  ["Hyderabad","Vikarabad",75],["Vikarabad","Bidar",125],
-
-  // ── TAMIL NADU ──
-  ["Chennai","Vellore",140],["Vellore","Krishnagiri",100],["Krishnagiri","Salem",90],
-  ["Salem","Coimbatore",160],["Coimbatore","Tiruppur",55],["Tiruppur","Erode",55],
-  ["Erode","Salem",60],["Erode","Karur",55],["Karur","Tiruchirappalli",75],
-  ["Tiruchirappalli","Madurai",135],["Madurai","Dindigul",65],["Dindigul","Coimbatore",115],
-  ["Madurai","Tirunelveli",160],["Tirunelveli","Nagercoil",55],["Tirunelveli","Tuticorin",55],
-  ["Tuticorin","Madurai",155],
-  ["Tiruchirappalli","Thanjavur",55],["Thanjavur","Kumbakonam",40],
-  ["Thanjavur","Tiruchirappalli",55],
-  ["Chennai","Kanchipuram",75],["Kanchipuram","Vellore",75],
-  ["Chennai","Villupuram",155],["Villupuram","Puducherry",40],
-  ["Villupuram","Cuddalore",45],["Cuddalore","Chidambaram",25],
-  ["Salem","Namakkal",55],["Namakkal","Tiruchirappalli",90],
-  ["Salem","Erode",60],["Coimbatore","Palakkad",55],["Palakkad","Thrissur",55],
-  ["Thrissur","Kochi",80],["Kochi","Alappuzha",55],["Alappuzha","Kollam",80],
-  ["Kollam","Thiruvananthapuram",70],["Thiruvananthapuram","Nagercoil",75],
-  ["Kochi","Kottayam",55],["Kottayam","Alappuzha",40],
-  ["Kochi","Thrissur",80],["Thrissur","Palakkad",55],
-  ["Kozhikode","Malappuram",55],["Malappuram","Thrissur",90],
-  ["Kozhikode","Kannur",90],["Kannur","Kasaragod",55],
-  ["Kozhikode","Wayanad",75],
-  ["Kottayam","Idukki",75],["Idukki","Ernakulam",115],
-  ["Kottayam","Pathanamthitta",65],["Pathanamthitta","Kollam",65],
-  ["Coimbatore","Hosur",205],["Hosur","Bangalore",40],
-  ["Madurai","Sivakasi",70],["Sivakasi","Tirunelveli",80],
-  ["Chennai","Ambattur",15],["Ambattur","Chennai",15],
-  ["Ranipet","Vellore",25],["Ranipet","Chennai",115],
-  ["Cuddalore","Villupuram",45],
-
-  // ── MAHARASHTRA <-> KARNATAKA ──
-  ["Solapur","Gulbarga",140],["Nanded","Bidar",170],
-  ["Kolhapur","Hubli",80],["Kolhapur","Belgaum",80],
-
-  // ── WEST BENGAL & ODISHA ──
-  ["Kolkata","Howrah",5],["Howrah","Kharagpur",120],["Kharagpur","Bhubaneswar",230],
-  ["Kolkata","Bardhaman",110],["Bardhaman","Durgapur",55],["Durgapur","Asansol",40],
-  ["Asansol","Dhanbad",50],["Dhanbad","Ranchi",160],["Ranchi","Jamshedpur",130],
-  ["Jamshedpur","Kharagpur",155],["Jamshedpur","Rourkela",130],
-  ["Rourkela","Sambalpur",130],["Sambalpur","Cuttack",230],
-  ["Cuttack","Bhubaneswar",25],["Bhubaneswar","Berhampur",170],
-  ["Berhampur","Visakhapatnam",200],
-  ["Bhubaneswar","Paradip",90],["Bhubaneswar","Balasore",200],
-  ["Balasore","Kolkata",230],["Balasore","Kharagpur",100],
-  ["Kolkata","Malda",350],["Malda","Siliguri",170],["Siliguri","Jalpaiguri",35],
-  ["Jalpaiguri","Cooch Behar",55],["Siliguri","Gangtok",115],
-  ["Siliguri","Guwahati",355],
-  ["Kolkata","Shantipur",100],["Kolkata","Barasat",25],["Kolkata","Midnapore",125],
-  ["Midnapore","Kharagpur",55],
-  ["Bhubaneswar","Sambalpur",310],["Sambalpur","Jharsuguda",60],
-  ["Jharsuguda","Raigarh",75],["Raigarh","Bilaspur",80],
-  ["Sambalpur","Angul",120],["Angul","Rourkela",175],["Angul","Jajpur",110],
-  ["Jajpur","Cuttack",70],["Jajpur","Kalinganagar",55],
-  ["Bhubaneswar","Jagatsinghpur",70],["Bhubaneswar","Jajpur",100],
-  ["Berhampur","Jeypore",250],["Baripada","Balasore",55],
-  ["Baripada","Bhubaneswar",230],["Kharagpur","Midnapore",55],
-  // Jharkhand
-  ["Dhanbad","Giridih",65],["Giridih","Koderma",75],["Koderma","Gaya",110],
-  ["Gaya","Patna",100],["Ranchi","Hazaribagh",60],["Hazaribagh","Giridih",55],
-  ["Ranchi","Deoghar",220],["Deoghar","Dumka",70],
-  ["Bokaro","Dhanbad",45],["Bokaro","Ranchi",75],
-  ["Jamshedpur","Baipara",10],
-
-  // ── CHHATTISGARH ──
-  ["Raipur","Durg",25],["Durg","Bhilai",5],["Bhilai","Rajnandgaon",60],
-  ["Raipur","Bilaspur",115],["Bilaspur","Korba",80],["Bilaspur","Raigarh",115],
-  ["Raipur","Jagdalpur",300],["Jagdalpur","Jeypore",165],
-  ["Raipur","Ambikapur",225],["Ambikapur","Bilaspur",185],
-  ["Raipur","Nagpur",290],
-
-  // ── BIHAR ──
-  ["Patna","Hajipur",10],["Hajipur","Muzaffarpur",70],["Muzaffarpur","Darbhanga",65],
-  ["Darbhanga","Motihari",70],["Motihari","Bettiah",55],
-  ["Muzaffarpur","Purnia",200],["Purnia","Bhagalpur",145],
-  ["Bhagalpur","Patna",230],["Patna","Bihar Sharif",80],
-  ["Bihar Sharif","Gaya",80],["Gaya","Sasaram",110],["Sasaram","Buxar",65],
-  ["Buxar","Arrah",35],["Arrah","Patna",55],
-  ["Siwan","Muzaffarpur",115],["Siwan","Gorakhpur",85],
-  ["Patna","Arrah",55],["Patna","Siwan",135],
-
-  // ── ASSAM & NE ──
-  ["Guwahati","Bongaigaon",190],["Bongaigaon","Dhubri",55],
-  ["Guwahati","Nagaon",115],["Nagaon","Jorhat",150],["Jorhat","Dibrugarh",55],
-  ["Guwahati","Tezpur",180],["Tezpur","Nagaon",55],
-  ["Guwahati","Silchar",395],["Silchar","Agartala",290],["Agartala","Kolkata",1650],
-  ["Guwahati","Shillong",100],["Shillong","Silchar",290],
-  ["Guwahati","Imphal",610],["Guwahati","Itanagar",360],
-  ["Siliguri","Gangtok",115],["Siliguri","Imphal",850],
-  ["Guwahati","Kohima",270],["Kohima","Imphal",75],
-  ["Kamrup","Guwahati",25],
-
-  // ── HIMACHAL / J&K ──
-  ["Ambala","Shimla",200],["Parwanoo","Shimla",100],
-  ["Jammu","Pathankot",105],["Pathankot","Amritsar",110],
-
-  // ── LONG HAUL CORRIDORS (logical connections) ──
-  ["Delhi","Mumbai",1400],["Delhi","Chennai",2200],["Delhi","Kolkata",1450],
-  ["Delhi","Hyderabad",1560],["Delhi","Bangalore",2100],
-  ["Mumbai","Chennai",1330],["Mumbai","Hyderabad",710],["Mumbai","Bangalore",980],
-  ["Mumbai","Kolkata",1980],["Chennai","Kolkata",1670],["Bangalore","Chennai",345],
-  ["Hyderabad","Chennai",615],["Kolkata","Patna",580],["Kolkata","Bhubaneswar",440],
-  ["Bhubaneswar","Hyderabad",790],["Hyderabad","Bangalore",565],
-  ["Delhi","Lucknow",510],["Delhi","Patna",990],["Mumbai","Pune",150],
-  ["Ahmedabad","Mumbai",530],["Surat","Mumbai",280],
-];
-
-/* Build adjacency list */
-const GRAPH = {};
-function addEdge(a, b, km) {
-  const au = a.toUpperCase(), bu = b.toUpperCase();
-  if (!GRAPH[au]) GRAPH[au] = [];
-  if (!GRAPH[bu]) GRAPH[bu] = [];
-  GRAPH[au].push({ city: bu, km });
-  GRAPH[bu].push({ city: au, km });
-}
-EDGES.forEach(([a, b, km]) => addEdge(a, b, km));
-
-/* Normalize city name to canonical casing from CITY_DATA */
-const CITY_CANON = {};
-Object.keys(CITY_DATA).forEach(c => { CITY_CANON[c.toUpperCase()] = c; });
-
-/* All known cities (from CITY_DATA) for autocomplete */
-const ALL_CITIES = Object.keys(CITY_DATA).sort();
-
-/* ---------- DIJKSTRA PATH FINDING ---------- */
-function findPath(originRaw, destRaw) {
-  const src = originRaw.toUpperCase();
-  const dst = destRaw.toUpperCase();
-  if (src === dst) return null;
-  if (!GRAPH[src] || !GRAPH[dst]) return null;
-
-  const dist = {}, prev = {}, visited = new Set();
-  dist[src] = 0;
-  // Min-heap via sorted array (sufficient for this size graph)
-  const queue = [{ city: src, d: 0 }];
-
-  while (queue.length) {
-    queue.sort((a, b) => a.d - b.d);
-    const { city, d } = queue.shift();
-    if (visited.has(city)) continue;
-    visited.add(city);
-    if (city === dst) break;
-    for (const nb of (GRAPH[city] || [])) {
-      const nd = d + nb.km;
-      if (nd < (dist[nb.city] ?? Infinity)) {
-        dist[nb.city] = nd;
-        prev[nb.city] = city;
-        queue.push({ city: nb.city, d: nd });
-      }
-    }
-  }
-
-  if (!prev[dst] && src !== dst) return null;
-  // Reconstruct
-  const path = [];
-  let cur = dst;
-  while (cur) { path.unshift(cur); cur = prev[cur]; }
-  if (path[0] !== src) return null;
-  return { path, totalKm: dist[dst] };
+  if (name === 'editor' && sourceImage) initEditor();
+  if (name === 'gallery') renderGallery();
+  if (name === 'home') updateStats();
 }
 
-/* ---------- ASSEMBLE ROUTE RESULT ---------- */
-function buildRoute(originRaw, destRaw) {
-  const result = findPath(originRaw, destRaw);
-  if (!result) return null;
-
-  const { path, totalKm } = result;
-
-  // Canonical names
-  const stops = path.map(u => CITY_CANON[u] || u.split(' ').map(w=>w[0].toUpperCase()+w.slice(1).toLowerCase()).join(' '));
-
-  // Major hubs = cities in CITY_DATA with major:true that are on path
-  const majorHubs = stops.filter(s => {
-    const u = s.toUpperCase();
-    return CITY_DATA[CITY_CANON[u] || s]?.major === true;
-  });
-
-  // Loads — only show cities that have loads
-  const loads = {};
-  stops.forEach(s => {
-    const d = CITY_DATA[s] || CITY_DATA[CITY_CANON[s.toUpperCase()]];
-    if (d && d.loads && d.loads.length) loads[s] = d.loads;
-  });
-
-  const dist = totalKm > 5000 ? ">4000 km" : `~${Math.round(totalKm / 50) * 50} km`;
-
-  return { stops, majorHubs, distance: dist, loads };
-}
-
-/* Legacy ROUTES stub — keeps render logic unchanged */
-const ROUTES = {};
-
-/* ============================================================
-   BUILD BIDIRECTIONAL INDEX  (not needed — graph handles it)
-============================================================ */
-const ROUTE_INDEX = {};
-
-
-/* ============================================================
-   THEME
-============================================================ */
-function applyTheme(t) {
-  document.documentElement.setAttribute('data-theme', t);
-  document.getElementById('themeBtn').textContent = t === 'dark' ? 'Light' : 'Dark';
-}
-function toggleTheme() {
-  const cur = document.documentElement.getAttribute('data-theme');
-  const next = cur === 'dark' ? 'light' : 'dark';
-  applyTheme(next);
-  try { localStorage.setItem('rp-theme', next); } catch(e) {}
-}
-(function(){
-  let s = 'dark';
-  try { s = localStorage.getItem('rp-theme') || 'dark'; } catch(e) {}
-  applyTheme(s);
-})();
-
-/* ============================================================
-   AUTOCOMPLETE
-============================================================ */
-function setupAutocomplete(inputId, sugId) {
-  const inp = document.getElementById(inputId);
-  const sug = document.getElementById(sugId);
-  let activeIdx = -1;
-  let items = [];
-
-  inp.addEventListener('input', function() {
-    const val = this.value.trim().toUpperCase();
-    sug.innerHTML = '';
-    activeIdx = -1;
-    if (!val) { sug.classList.remove('open'); return; }
-    items = ALL_CITIES.filter(c => c.toUpperCase().startsWith(val));
-    if (!items.length) { sug.classList.remove('open'); return; }
-    items.forEach((city, i) => {
-      const div = document.createElement('div');
-      div.className = 'sug-item';
-      div.textContent = city;
-      div.addEventListener('mousedown', function(e) {
-        e.preventDefault();
-        inp.value = city;
-        sug.classList.remove('open');
-      });
-      sug.appendChild(div);
-    });
-    sug.classList.add('open');
-  });
-
-  inp.addEventListener('keydown', function(e) {
-    const divs = sug.querySelectorAll('.sug-item');
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      activeIdx = Math.min(activeIdx + 1, divs.length - 1);
-      divs.forEach((d,i) => d.classList.toggle('active', i === activeIdx));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      activeIdx = Math.max(activeIdx - 1, -1);
-      divs.forEach((d,i) => d.classList.toggle('active', i === activeIdx));
-    } else if (e.key === 'Enter') {
-      if (activeIdx >= 0 && divs[activeIdx]) {
-        inp.value = divs[activeIdx].textContent;
-        sug.classList.remove('open');
-      } else {
-        generateRoute();
-      }
-    } else if (e.key === 'Escape') {
-      sug.classList.remove('open');
-    }
-  });
-
-  inp.addEventListener('blur', function() {
-    setTimeout(() => sug.classList.remove('open'), 150);
-  });
-}
-
-setupAutocomplete('origin', 'origin-sug');
-setupAutocomplete('dest', 'dest-sug');
-
-// Enter key on dest triggers generate
-document.getElementById('dest').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') generateRoute();
+/* ================================================================
+   FILE / CAMERA INPUT
+================================================================ */
+document.getElementById('file-input').addEventListener('change', function(e) {
+  loadImageFile(e.target.files[0]);
+  this.value = '';
+});
+document.getElementById('camera-input').addEventListener('change', function(e) {
+  loadImageFile(e.target.files[0]);
+  this.value = '';
 });
 
-/* ============================================================
-   GENERATE ROUTE
-============================================================ */
-function generateRoute() {
-  const origin = document.getElementById('origin').value.trim();
-  const dest = document.getElementById('dest').value.trim();
-  const errorBox = document.getElementById('errorBox');
-  const result = document.getElementById('result');
-
-  errorBox.classList.remove('visible');
-  result.classList.remove('visible');
-
-  if (!origin || !dest) {
-    showError('Please enter both origin and destination.', []);
-    return;
-  }
-
-  // Fuzzy match input to known city names
-  const matchCity = (input) => {
-    const u = input.toUpperCase().trim();
-    // exact match
-    if (CITY_CANON[u]) return u;
-    // startswith match
-    const sw = Object.keys(CITY_CANON).find(k => k.startsWith(u));
-    if (sw) return sw;
-    // contains match
-    const cn = Object.keys(CITY_CANON).find(k => k.includes(u));
-    if (cn) return cn;
-    return null;
+function loadImageFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      sourceImage = img;
+      switchScreen('editor');
+    };
+    img.src = e.target.result;
   };
-
-  const orgKey = matchCity(origin);
-  const dstKey = matchCity(dest);
-
-  if (!orgKey) {
-    showError(`City not found: <strong>${origin}</strong>. Please check the spelling or try a nearby major city.`, []);
-    return;
-  }
-  if (!dstKey) {
-    showError(`City not found: <strong>${dest}</strong>. Please check the spelling or try a nearby major city.`, []);
-    return;
-  }
-  if (orgKey === dstKey) {
-    showError('Origin and destination cannot be the same city.', []);
-    return;
-  }
-
-  const data = buildRoute(orgKey, dstKey);
-
-  if (!data) {
-    // Suggest nearby known cities
-    const suggestions = Object.keys(CITY_CANON)
-      .filter(k => k.startsWith(orgKey.slice(0,3)) || k.startsWith(dstKey.slice(0,3)))
-      .slice(0,6)
-      .map(k => CITY_CANON[k] + " to Delhi");
-    showError(
-      `No road path found between <strong>${CITY_CANON[orgKey]||origin}</strong> and <strong>${CITY_CANON[dstKey]||dest}</strong>. The cities may not be connected in the current road network. Try a major hub city nearby.`,
-      []
-    );
-    return;
-  }
-
-  renderResult(CITY_CANON[orgKey] || origin, CITY_CANON[dstKey] || dest, data);
+  reader.readAsDataURL(file);
 }
 
-function showError(msg, suggestions) {
-  const errorBox = document.getElementById('errorBox');
-  const altRoutes = document.getElementById('altRoutes');
-  errorBox.innerHTML = msg;
-  if (suggestions.length) {
-    const div = document.createElement('div');
-    div.className = 'alt-routes';
-    const lbl = document.createElement('div');
-    lbl.className = 'alt-label';
-    lbl.textContent = 'Available routes:';
-    div.appendChild(lbl);
-    suggestions.forEach(s => {
-      const btn = document.createElement('button');
-      btn.className = 'alt-route-btn';
-      btn.textContent = s;
-      btn.onclick = function() {
-        const parts = s.split(' to ');
-        document.getElementById('origin').value = capitalize(parts[0]);
-        document.getElementById('dest').value = capitalize(parts[1]);
-        generateRoute();
-      };
-      div.appendChild(btn);
-    });
-    errorBox.appendChild(div);
-  }
-  errorBox.classList.add('visible');
+/* ================================================================
+   EDITOR / STENCIL
+================================================================ */
+function initEditor() {
+  editorCanvas = document.getElementById('editor-canvas');
+  editorCtx = editorCanvas.getContext('2d');
+
+  const container = document.querySelector('.editor-canvas-container');
+  editorCanvas.width = container.clientWidth;
+  editorCanvas.height = container.clientHeight;
+
+  // Center stencil
+  resetStencilPosition();
+
+  // Attach events
+  attachEditorEvents();
+
+  // Start render loop
+  cancelAnimationFrame(editorRAF);
+  renderEditor();
+
+  // Hint auto-hide
+  const hint = document.getElementById('editor-hint');
+  hint.classList.remove('hidden');
+  setTimeout(() => hint.classList.add('hidden'), 3000);
 }
 
-function renderResult(origin, dest, data) {
-  const result = document.getElementById('result');
+function resetStencilPosition() {
+  const cw = editorCanvas.width, ch = editorCanvas.height;
+  const size = Math.min(cw, ch) * 0.52;
+  stencil.baseW = size;
+  stencil.baseH = size;
+  applyShape();
+  stencil.x = cw / 2;
+  stencil.y = ch / 2;
+  stencil.rotation = 0;
+  document.getElementById('scale-slider').value = 100;
+  document.getElementById('scale-val').textContent = '100%';
+  document.getElementById('rotate-slider').value = 0;
+  document.getElementById('rotate-val').textContent = '0°';
+}
 
-  // Meta
-  document.getElementById('routeBadge').textContent = data.stops.length + " Stops \u00B7 " + data.distance;
+document.getElementById('btn-reset-stencil').addEventListener('click', () => {
+  resetStencilPosition();
+});
 
-  // Stats
-  const loadsCount = Object.values(data.loads).filter(l => l && l.length > 0).length;
-  document.getElementById('statStops').textContent = data.stops.length;
-  document.getElementById('statDist').textContent = data.distance;
-  document.getElementById('statHubs').textContent = data.majorHubs.length;
-  document.getElementById('statLoads').textContent = loadsCount;
-  document.getElementById('routeName').textContent = capitalize(data.stops[0]) + " \u2192 " + capitalize(data.stops[data.stops.length-1]);
+function setShape(shape) {
+  stencil.shape = shape;
+  document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-shape="${shape}"]`).classList.add('active');
+  applyShape();
+}
 
-  // Route Flow
-  const flowEl = document.getElementById('routeFlow');
-  flowEl.innerHTML = '';
-  data.stops.forEach((stop, i) => {
-    const isMajor = data.majorHubs.includes(stop);
-    const div = document.createElement('div');
-    div.className = 'flow-stop';
-    const span = document.createElement('span');
-    span.className = 'flow-city' + (isMajor ? ' major' : '');
-    span.textContent = stop;
-    div.appendChild(span);
-    if (i < data.stops.length - 1) {
-      const arr = document.createElement('span');
-      arr.className = 'flow-arrow';
-      arr.textContent = '→';
-      div.appendChild(arr);
+function applyShape() {
+  const base = stencil.baseW;
+  if (stencil.shape === 'square' || stencil.shape === 'circle') {
+    stencil.w = base; stencil.h = base;
+  } else if (stencil.shape === 'tall') {
+    stencil.w = base * 0.72; stencil.h = base;
+  } else if (stencil.shape === 'wide') {
+    stencil.w = base; stencil.h = base * 0.7;
+  }
+}
+
+// Sliders
+document.getElementById('scale-slider').addEventListener('input', function() {
+  const val = parseInt(this.value);
+  document.getElementById('scale-val').textContent = val + '%';
+  const ratio = val / 100;
+  const base = Math.min(editorCanvas.width, editorCanvas.height) * 0.52;
+  stencil.baseW = base * ratio;
+  stencil.baseH = base * ratio;
+  applyShape();
+});
+
+document.getElementById('rotate-slider').addEventListener('input', function() {
+  const val = parseInt(this.value);
+  document.getElementById('rotate-val').textContent = val + '°';
+  stencil.rotation = val * Math.PI / 180;
+});
+
+/* ---- Canvas Event Handlers ---- */
+function attachEditorEvents() {
+  // Remove old listeners by cloning
+  const old = editorCanvas;
+  const fresh = old.cloneNode(true);
+  old.parentNode.replaceChild(fresh, old);
+  editorCanvas = fresh;
+  editorCtx = fresh.getContext('2d');
+
+  editorCanvas.addEventListener('mousedown', onMouseDown);
+  editorCanvas.addEventListener('mousemove', onMouseMove);
+  window.addEventListener('mouseup', onMouseUp);
+
+  editorCanvas.addEventListener('touchstart', onTouchStart, { passive: false });
+  editorCanvas.addEventListener('touchmove', onTouchMove, { passive: false });
+  editorCanvas.addEventListener('touchend', onTouchEnd);
+}
+
+function onMouseDown(e) {
+  const rect = editorCanvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  if (isInStencil(mx, my)) {
+    drag.active = true;
+    drag.startX = mx; drag.startY = my;
+    drag.origX = stencil.x; drag.origY = stencil.y;
+  }
+}
+function onMouseMove(e) {
+  if (!drag.active) return;
+  const rect = editorCanvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  stencil.x = drag.origX + (mx - drag.startX);
+  stencil.y = drag.origY + (my - drag.startY);
+}
+function onMouseUp() { drag.active = false; }
+
+function onTouchStart(e) {
+  e.preventDefault();
+  if (e.touches.length === 1) {
+    const t = e.touches[0];
+    const rect = editorCanvas.getBoundingClientRect();
+    const tx = t.clientX - rect.left, ty = t.clientY - rect.top;
+    drag.active = true;
+    drag.startX = tx; drag.startY = ty;
+    drag.origX = stencil.x; drag.origY = stencil.y;
+  } else if (e.touches.length === 2) {
+    drag.active = false;
+    pinch.active = true;
+    pinch.startDist = getTouchDist(e.touches);
+    pinch.startScale = parseInt(document.getElementById('scale-slider').value) / 100;
+  }
+}
+function onTouchMove(e) {
+  e.preventDefault();
+  if (e.touches.length === 1 && drag.active) {
+    const t = e.touches[0];
+    const rect = editorCanvas.getBoundingClientRect();
+    const tx = t.clientX - rect.left, ty = t.clientY - rect.top;
+    stencil.x = drag.origX + (tx - drag.startX);
+    stencil.y = drag.origY + (ty - drag.startY);
+  } else if (e.touches.length === 2 && pinch.active) {
+    const dist = getTouchDist(e.touches);
+    const ratio = dist / pinch.startDist;
+    const newScale = Math.min(2, Math.max(0.5, pinch.startScale * ratio));
+    const pct = Math.round(newScale * 100);
+    document.getElementById('scale-slider').value = pct;
+    document.getElementById('scale-val').textContent = pct + '%';
+    const base = Math.min(editorCanvas.width, editorCanvas.height) * 0.52;
+    stencil.baseW = base * newScale;
+    stencil.baseH = base * newScale;
+    applyShape();
+  }
+}
+function onTouchEnd(e) {
+  if (e.touches.length === 0) { drag.active = false; pinch.active = false; }
+  if (e.touches.length === 1) { pinch.active = false; }
+}
+function getTouchDist(touches) {
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.sqrt(dx*dx + dy*dy);
+}
+function isInStencil(mx, my) {
+  const dx = mx - stencil.x, dy = my - stencil.y;
+  return Math.abs(dx) < stencil.w/2 + 20 && Math.abs(dy) < stencil.h/2 + 20;
+}
+
+/* ---- Render Loop ---- */
+function renderEditor() {
+  editorRAF = requestAnimationFrame(renderEditor);
+  const ctx = editorCtx;
+  const cw = editorCanvas.width, ch = editorCanvas.height;
+  ctx.clearRect(0, 0, cw, ch);
+
+  if (!sourceImage) return;
+
+  // Draw source image (cover-fit)
+  const scale = Math.max(cw / sourceImage.width, ch / sourceImage.height);
+  const sw = sourceImage.width * scale, sh = sourceImage.height * scale;
+  const sx = (cw - sw) / 2, sy = (ch - sh) / 2;
+  ctx.drawImage(sourceImage, sx, sy, sw, sh);
+
+  // Darkened overlay outside stencil
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.62)';
+  ctx.fillRect(0, 0, cw, ch);
+
+  // Cut out stencil hole
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.save();
+  ctx.translate(stencil.x, stencil.y);
+  ctx.rotate(stencil.rotation);
+  drawStencilShape(ctx, 0, 0, stencil.w, stencil.h, stencil.shape, true);
+  ctx.fillStyle = 'rgba(0,0,0,1)';
+  ctx.fill();
+  ctx.restore();
+  ctx.restore();
+
+  // Re-draw image in stencil area
+  ctx.save();
+  ctx.translate(stencil.x, stencil.y);
+  ctx.rotate(stencil.rotation);
+  ctx.beginPath();
+  drawStencilShape(ctx, 0, 0, stencil.w, stencil.h, stencil.shape, false);
+  ctx.clip();
+  ctx.rotate(-stencil.rotation);
+  ctx.translate(-stencil.x, -stencil.y);
+  ctx.drawImage(sourceImage, sx, sy, sw, sh);
+  ctx.restore();
+
+  // Draw perforation border
+  ctx.save();
+  ctx.translate(stencil.x, stencil.y);
+  ctx.rotate(stencil.rotation);
+  drawPerforationBorder(ctx, 0, 0, stencil.w, stencil.h, stencil.shape);
+  ctx.restore();
+
+  // Corner reticle lines
+  ctx.save();
+  ctx.translate(stencil.x, stencil.y);
+  ctx.rotate(stencil.rotation);
+  drawReticle(ctx, stencil.w, stencil.h, stencil.shape);
+  ctx.restore();
+}
+
+function drawStencilShape(ctx, x, y, w, h, shape, begin) {
+  if (begin) ctx.beginPath();
+  if (shape === 'circle') {
+    ctx.ellipse(x, y, w/2, h/2, 0, 0, Math.PI*2);
+  } else {
+    const r = 6;
+    const hw = w/2, hh = h/2;
+    ctx.beginPath();
+    ctx.moveTo(x - hw + r, y - hh);
+    ctx.lineTo(x + hw - r, y - hh);
+    ctx.arcTo(x + hw, y - hh, x + hw, y - hh + r, r);
+    ctx.lineTo(x + hw, y + hh - r);
+    ctx.arcTo(x + hw, y + hh, x + hw - r, y + hh, r);
+    ctx.lineTo(x - hw + r, y + hh);
+    ctx.arcTo(x - hw, y + hh, x - hw, y + hh - r, r);
+    ctx.lineTo(x - hw, y - hh + r);
+    ctx.arcTo(x - hw, y - hh, x - hw + r, y - hh, r);
+    ctx.closePath();
+  }
+}
+
+function drawPerforationBorder(ctx, x, y, w, h, shape) {
+  const perf = 9, gap = 5;
+  ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([perf, gap]);
+  ctx.lineDashOffset = 0;
+
+  if (shape === 'circle') {
+    ctx.beginPath();
+    ctx.ellipse(x, y, w/2 + 10, h/2 + 10, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  } else {
+    const pad = 10;
+    const hw = w/2 + pad, hh = h/2 + pad;
+    const r = 10;
+    ctx.beginPath();
+    ctx.moveTo(x - hw + r, y - hh);
+    ctx.lineTo(x + hw - r, y - hh);
+    ctx.arcTo(x + hw, y - hh, x + hw, y - hh + r, r);
+    ctx.lineTo(x + hw, y + hh - r);
+    ctx.arcTo(x + hw, y + hh, x + hw - r, y + hh, r);
+    ctx.lineTo(x - hw + r, y + hh);
+    ctx.arcTo(x - hw, y + hh, x - hw, y + hh - r, r);
+    ctx.lineTo(x - hw, y - hh + r);
+    ctx.arcTo(x - hw, y - hh, x - hw + r, y - hh, r);
+    ctx.closePath();
+    ctx.stroke();
+  }
+
+  ctx.setLineDash([]);
+}
+
+function drawReticle(ctx, w, h, shape) {
+  if (shape === 'circle') return;
+  const hw = w/2, hh = h/2;
+  const len = 16;
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+  ctx.lineWidth = 1.5;
+
+  // corners
+  const corners = [[-hw,-hh],[hw,-hh],[hw,hh],[-hw,hh]];
+  const dirs = [[1,1],[-1,1],[-1,-1],[1,-1]];
+  corners.forEach(([cx,cy],[dx,dy]) => {
+    ctx.beginPath();
+    ctx.moveTo(cx + dx*len, cy); ctx.lineTo(cx, cy); ctx.lineTo(cx, cy + dy*len);
+    ctx.stroke();
+  }, dirs);
+}
+
+/* ================================================================
+   STAMP GENERATION
+================================================================ */
+function createStamp() {
+  if (!sourceImage) { showToast('No image loaded'); return; }
+
+  // Extract image region under stencil
+  const STAMP_SIZE = 260;
+  const outCanvas = document.createElement('canvas');
+  outCanvas.width = STAMP_SIZE;
+  outCanvas.height = STAMP_SIZE;
+  const oc = outCanvas.getContext('2d');
+
+  // Compute how image maps to editor canvas
+  const cw = editorCanvas.width, ch = editorCanvas.height;
+  const imgScale = Math.max(cw / sourceImage.width, ch / sourceImage.height);
+  const sw = sourceImage.width * imgScale, sh = sourceImage.height * imgScale;
+  const imgOffX = (cw - sw) / 2, imgOffY = (ch - sh) / 2;
+
+  // Determine stamp aspect
+  let stampW = STAMP_SIZE, stampH = STAMP_SIZE;
+  if (stencil.shape === 'tall') { stampW = STAMP_SIZE * 0.72; stampH = STAMP_SIZE; }
+  if (stencil.shape === 'wide') { stampW = STAMP_SIZE; stampH = STAMP_SIZE * 0.7; }
+
+  const PERF = 14; // perforated border width
+  const innerW = stampW - PERF * 2;
+  const innerH = stampH - PERF * 2;
+
+  // Total canvas needs to fit stamp + shadow
+  const pad = 24;
+  const totalW = stampW + pad * 2;
+  const totalH = stampH + pad * 2;
+  outCanvas.width = totalW;
+  outCanvas.height = totalH;
+
+  const ox = pad, oy = pad;
+
+  // Shadow
+  oc.shadowColor = 'rgba(0,0,0,0.22)';
+  oc.shadowBlur = 18;
+  oc.shadowOffsetX = 2;
+  oc.shadowOffsetY = 4;
+
+  // Stamp body (white paper)
+  oc.fillStyle = '#FDFAF6';
+  oc.beginPath();
+  roundRect(oc, ox, oy, stampW, stampH, 5);
+  oc.fill();
+  oc.shadowColor = 'transparent';
+
+  // Paper grain texture (noise overlay)
+  addPaperGrain(oc, ox, oy, stampW, stampH);
+
+  // Clip image to inner region
+  oc.save();
+  oc.beginPath();
+  if (stencil.shape === 'circle') {
+    oc.ellipse(ox + stampW/2, oy + stampH/2, innerW/2, innerH/2, 0, 0, Math.PI*2);
+  } else {
+    roundRect(oc, ox + PERF, oy + PERF, innerW, innerH, 3);
+  }
+  oc.clip();
+
+  // Draw the image portion that was in stencil
+  const scaleX = innerW / stencil.w;
+  const scaleY = innerH / stencil.h;
+  oc.save();
+  oc.translate(ox + PERF + innerW/2, oy + PERF + innerH/2);
+  oc.rotate(stencil.rotation);
+  oc.drawImage(
+    sourceImage,
+    0, 0, sourceImage.width, sourceImage.height,
+    -(stencil.x - imgOffX) / imgScale * scaleX - innerW/2,
+    -(stencil.y - imgOffY) / imgScale * scaleY - innerH/2,
+    (sw / imgScale) * scaleX,
+    (sh / imgScale) * scaleY
+  );
+  oc.restore();
+  oc.restore();
+
+  // Emboss inner shadow on image
+  oc.save();
+  oc.beginPath();
+  if (stencil.shape === 'circle') {
+    oc.ellipse(ox + stampW/2, oy + stampH/2, innerW/2, innerH/2, 0, 0, Math.PI*2);
+  } else {
+    roundRect(oc, ox + PERF, oy + PERF, innerW, innerH, 3);
+  }
+  oc.clip();
+  const grad = oc.createRadialGradient(
+    ox + PERF + innerW/2, oy + PERF + innerH/2, Math.min(innerW, innerH) * 0.3,
+    ox + PERF + innerW/2, oy + PERF + innerH/2, Math.min(innerW, innerH) * 0.7
+  );
+  grad.addColorStop(0, 'rgba(0,0,0,0)');
+  grad.addColorStop(1, 'rgba(0,0,0,0.18)');
+  oc.fillStyle = grad;
+  oc.fillRect(ox + PERF, oy + PERF, innerW, innerH);
+  oc.restore();
+
+  // Perforated border
+  drawStampPerforation(oc, ox, oy, stampW, stampH, stencil.shape);
+
+  stampDataURL = outCanvas.toDataURL('image/png');
+
+  // Show on preview canvas
+  const previewCanvas = document.getElementById('preview-canvas');
+  previewCanvas.width = totalW;
+  previewCanvas.height = totalH;
+  const pc = previewCanvas.getContext('2d');
+  pc.drawImage(outCanvas, 0, 0);
+
+  switchScreen('preview');
+  init3DTilt();
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+}
+
+function addPaperGrain(ctx, x, y, w, h) {
+  const imgData = ctx.getImageData(x, y, w, h);
+  const d = imgData.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const noise = (Math.random() - 0.5) * 18;
+    d[i] = Math.min(255, Math.max(0, d[i] + noise));
+    d[i+1] = Math.min(255, Math.max(0, d[i+1] + noise));
+    d[i+2] = Math.min(255, Math.max(0, d[i+2] + noise));
+  }
+  ctx.putImageData(imgData, x, y);
+}
+
+function drawStampPerforation(ctx, ox, oy, stampW, stampH, shape) {
+  const PERF = 14;
+  const dotR = 4.5;
+  const spacing = 13;
+  ctx.fillStyle = '#F5F2EE';
+
+  if (shape === 'circle') {
+    // Circular perforations around the ellipse
+    const cx = ox + stampW/2, cy = oy + stampH/2;
+    const rx = stampW/2 + dotR, ry = stampH/2 + dotR;
+    const circumference = Math.PI * (3*(rx+ry) - Math.sqrt((3*rx+ry)*(rx+3*ry)));
+    const numDots = Math.floor(circumference / spacing);
+    for (let i = 0; i < numDots; i++) {
+      const angle = (i / numDots) * Math.PI * 2;
+      const dx = cx + rx * Math.cos(angle);
+      const dy = cy + ry * Math.sin(angle);
+      ctx.beginPath();
+      ctx.arc(dx, dy, dotR, 0, Math.PI * 2);
+      ctx.fill();
     }
-    flowEl.appendChild(div);
-  });
-
-  // Hubs Grid
-  const hubsEl = document.getElementById('hubsGrid');
-  hubsEl.innerHTML = '';
-  data.stops.forEach(stop => {
-    const isMajor = data.majorHubs.includes(stop);
-    const chip = document.createElement('div');
-    chip.className = 'hub-chip ' + (isMajor ? 'major' : 'minor');
-    const dot = document.createElement('span');
-    dot.className = 'hub-dot';
-    const label = document.createElement('span');
-    label.textContent = stop;
-    chip.appendChild(dot);
-    chip.appendChild(label);
-    hubsEl.appendChild(chip);
-  });
-
-  // Load Opportunities
-  const loadEl = document.getElementById('loadGrid');
-  loadEl.innerHTML = '';
-  data.stops.forEach(stop => {
-    const loads = data.loads[stop];
-    if (!loads || !loads.length) return;
-    const isMajor = data.majorHubs.includes(stop);
-    const card = document.createElement('div');
-    card.className = 'load-card';
-    const cityName = document.createElement('div');
-    cityName.className = 'load-city-name';
-    if (isMajor) {
-      const dot = document.createElement('span');
-      dot.className = 'major-dot';
-      cityName.appendChild(dot);
+  } else {
+    // Horizontal top/bottom
+    for (let x = ox + spacing; x < ox + stampW - spacing/2; x += spacing) {
+      ctx.beginPath(); ctx.arc(x, oy, dotR, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x, oy + stampH, dotR, 0, Math.PI*2); ctx.fill();
     }
-    cityName.appendChild(document.createTextNode(stop));
-    const tags = document.createElement('div');
-    tags.className = 'load-tags';
-    loads.forEach(l => {
-      const tag = document.createElement('span');
-      tag.className = 'load-tag';
-      tag.textContent = l;
-      tags.appendChild(tag);
-    });
-    card.appendChild(cityName);
-    card.appendChild(tags);
-    loadEl.appendChild(card);
+    // Vertical left/right
+    for (let y = oy + spacing; y < oy + stampH - spacing/2; y += spacing) {
+      ctx.beginPath(); ctx.arc(ox, y, dotR, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(ox + stampW, y, dotR, 0, Math.PI*2); ctx.fill();
+    }
+    // Corners
+    [ox, ox+stampW].forEach(px => [oy, oy+stampH].forEach(py => {
+      ctx.beginPath(); ctx.arc(px, py, dotR, 0, Math.PI*2); ctx.fill();
+    }));
+  }
+}
+
+/* ================================================================
+   3D TILT ON PREVIEW
+================================================================ */
+function init3DTilt() {
+  const wrap = document.getElementById('preview-stamp-wrap');
+  const canvas = document.getElementById('preview-canvas');
+  let tiltTimeout;
+
+  function applyTilt(rx, ry) {
+    canvas.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+  }
+  function resetTilt() {
+    canvas.style.transform = 'rotateX(0deg) rotateY(0deg)';
+  }
+
+  wrap.addEventListener('mousemove', (e) => {
+    const rect = wrap.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    applyTilt(-y * 20, x * 20);
   });
+  wrap.addEventListener('mouseleave', resetTilt);
 
-  result.classList.add('visible');
+  wrap.addEventListener('touchmove', (e) => {
+    const t = e.touches[0];
+    const rect = wrap.getBoundingClientRect();
+    const x = (t.clientX - rect.left) / rect.width - 0.5;
+    const y = (t.clientY - rect.top) / rect.height - 0.5;
+    applyTilt(-y * 20, x * 20);
+  }, { passive: true });
+  wrap.addEventListener('touchend', resetTilt);
+}
 
-  // Smooth scroll to result
+/* ================================================================
+   EXPORT
+================================================================ */
+document.getElementById('btn-export-single').addEventListener('click', () => {
+  if (!stampDataURL) return;
+  const a = document.createElement('a');
+  a.href = stampDataURL;
+  a.download = 'stamp-' + Date.now() + '.png';
+  a.click();
+  showToast('Stamp saved');
+});
+
+document.getElementById('btn-export-page').addEventListener('click', () => {
+  openModal('export-modal');
+});
+
+function exportCurrentPage() {
+  closeModal('export-modal');
+  const pageEl = document.querySelector('.book-page');
+  if (!pageEl) { showToast('No stamps to export'); return; }
+  // Render the gallery page using a canvas
+  showToast('Preparing export...');
   setTimeout(() => {
-    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 60);
+    const canvas = document.createElement('canvas');
+    canvas.width = 900; canvas.height = 1200;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#FDFAF6';
+    roundRect(ctx, 20, 20, 860, 1160, 24);
+    ctx.fill();
+
+    const stamps_in_page = stamps.slice(0, STAMPS_PER_PAGE);
+    let loaded = 0;
+    if (stamps_in_page.length === 0) { showToast('No stamps'); return; }
+
+    stamps_in_page.forEach((src, i) => {
+      const img = new Image();
+      img.onload = () => {
+        const col = i % 3, row = Math.floor(i / 3);
+        const cellW = 260, cellH = 280;
+        const padX = 50, padY = 80;
+        const x = padX + col * (cellW + 16);
+        const y = padY + row * (cellH + 16);
+        ctx.drawImage(img, x, y, cellW, cellH);
+        loaded++;
+        if (loaded === stamps_in_page.length) {
+          const a = document.createElement('a');
+          a.href = canvas.toDataURL('image/png');
+          a.download = 'stampbook-page-' + Date.now() + '.png';
+          a.click();
+          showToast('Page exported');
+        }
+      };
+      img.src = src;
+    });
+  }, 100);
 }
 
-function capitalize(str) {
-  if (!str) return str;
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+/* ================================================================
+   SAVE TO COLLECTION
+================================================================ */
+function saveToCollection() {
+  if (!stampDataURL) { showToast('No stamp to save'); return; }
+  stamps.push(stampDataURL);
+  saveStamps();
+  switchScreen('gallery');
+  showToast('Stamp added to collection');
 }
 
-// Allow Enter on origin to move to dest
-document.getElementById('origin').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') {
-    const sug = document.getElementById('origin-sug');
-    if (!sug.classList.contains('open')) {
-      document.getElementById('dest').focus();
-    }
+/* ================================================================
+   GALLERY RENDER
+================================================================ */
+function renderGallery() {
+  const body = document.getElementById('gallery-body');
+  body.innerHTML = '';
+
+  if (stamps.length === 0) {
+    body.innerHTML = `
+      <div class="gallery-empty">
+        <div class="gallery-empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <path d="M8 12h8M12 8v8"/>
+          </svg>
+        </div>
+        <h3>No Stamps Yet</h3>
+        <p>Create your first stamp from a photo and it will appear here.</p>
+      </div>`;
+    return;
   }
+
+  const totalPages = Math.ceil(stamps.length / STAMPS_PER_PAGE);
+
+  for (let p = 0; p < totalPages; p++) {
+    const pageStamps = stamps.slice(p * STAMPS_PER_PAGE, (p+1) * STAMPS_PER_PAGE);
+    const isFull = pageStamps.length === STAMPS_PER_PAGE;
+
+    const pageEl = document.createElement('div');
+    pageEl.className = 'book-page' + (isFull ? ' full' : '');
+
+    const header = document.createElement('div');
+    header.className = 'page-header';
+    header.innerHTML = `
+      <div class="page-title">Collection</div>
+      <div class="page-num">Page ${p+1} &bull; ${pageStamps.length}/${STAMPS_PER_PAGE}</div>`;
+    pageEl.appendChild(header);
+
+    const grid = document.createElement('div');
+    grid.className = 'stamp-grid';
+
+    for (let i = 0; i < STAMPS_PER_PAGE; i++) {
+      const slot = document.createElement('div');
+      const globalIdx = p * STAMPS_PER_PAGE + i;
+
+      if (i < pageStamps.length) {
+        slot.className = 'stamp-slot filled';
+        const img = document.createElement('img');
+        img.src = pageStamps[i];
+        img.alt = 'Stamp';
+        slot.appendChild(img);
+
+        const del = document.createElement('button');
+        del.className = 'stamp-del';
+        del.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+        del.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteStamp(globalIdx);
+        });
+        slot.appendChild(del);
+
+        // Click to inspect/download
+        slot.addEventListener('click', () => {
+          const a = document.createElement('a');
+          a.href = pageStamps[i];
+          a.download = 'stamp-' + (globalIdx+1) + '.png';
+          a.click();
+        });
+      } else {
+        slot.className = 'stamp-slot empty-hint';
+        slot.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+      }
+
+      grid.appendChild(slot);
+    }
+
+    pageEl.appendChild(grid);
+    body.appendChild(pageEl);
+  }
+}
+
+function deleteStamp(idx) {
+  stamps.splice(idx, 1);
+  saveStamps();
+  renderGallery();
+  updateStats();
+  showToast('Stamp removed');
+}
+
+/* ================================================================
+   STORAGE
+================================================================ */
+function saveStamps() {
+  try {
+    localStorage.setItem('stampbook_stamps', JSON.stringify(stamps));
+  } catch(e) {
+    showToast('Storage full — some stamps may not save');
+  }
+}
+
+function loadStamps() {
+  try {
+    const d = localStorage.getItem('stampbook_stamps');
+    if (d) stamps = JSON.parse(d);
+  } catch(e) { stamps = []; }
+}
+
+/* ================================================================
+   STATS
+================================================================ */
+function updateStats() {
+  document.getElementById('stat-total').textContent = stamps.length;
+  const pages = stamps.length === 0 ? 0 : Math.ceil(stamps.length / STAMPS_PER_PAGE);
+  document.getElementById('stat-pages').textContent = pages;
+  let full = 0;
+  for (let p = 0; p < pages; p++) {
+    if (stamps.slice(p * STAMPS_PER_PAGE, (p+1) * STAMPS_PER_PAGE).length === STAMPS_PER_PAGE) full++;
+  }
+  document.getElementById('stat-full').textContent = full;
+}
+
+/* ================================================================
+   HOME DECORATION STAMPS
+================================================================ */
+function renderHomeDeco() {
+  const container = document.getElementById('home-deco');
+  container.innerHTML = '';
+
+  const sampleColors = [
+    ['#FBE8E3', '#C4593A'], ['#E3EDE6', '#5A7A65'],
+    ['#E3ECF3', '#3A5A7A'], ['#F5EDD6', '#9A7A40']
+  ];
+
+  sampleColors.forEach(([bg, fg], i) => {
+    const c = document.createElement('canvas');
+    c.width = 64; c.height = 72;
+    const ctx = c.getContext('2d');
+
+    ctx.shadowColor = 'rgba(0,0,0,0.1)';
+    ctx.shadowBlur = 6;
+    ctx.shadowOffsetY = 2;
+    ctx.fillStyle = '#FDFAF6';
+    roundRect(ctx, 4, 4, 56, 64, 4);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+
+    ctx.fillStyle = bg;
+    ctx.fillRect(10, 10, 44, 44);
+
+    ctx.fillStyle = fg;
+    ctx.fillRect(16, 16, 32, 32);
+
+    // Perforations
+    ctx.fillStyle = '#F5F2EE';
+    for (let x = 6; x < 60; x += 10) {
+      ctx.beginPath(); ctx.arc(x, 4, 3, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x, 68, 3, 0, Math.PI*2); ctx.fill();
+    }
+    for (let y = 14; y < 62; y += 10) {
+      ctx.beginPath(); ctx.arc(4, y, 3, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(60, y, 3, 0, Math.PI*2); ctx.fill();
+    }
+
+    c.style.transform = `rotate(${[-2,1.5,-1,2][i]}deg)`;
+    c.style.flexShrink = '0';
+    container.appendChild(c);
+  });
+}
+
+/* ================================================================
+   MODALS
+================================================================ */
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', (e) => { if (e.target === m) closeModal(m.id); });
+});
+
+/* ================================================================
+   TOAST
+================================================================ */
+let toastTimeout;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ================================================================
+   INIT
+================================================================ */
+window.addEventListener('load', () => {
+  loadStamps();
+  updateStats();
+  renderHomeDeco();
+
+  // Shape button
+  document.querySelector('[data-shape="square"]').classList.add('active');
+
+  // Hide loader
+  setTimeout(() => {
+    document.getElementById('loading-overlay').classList.add('hidden');
+    setTimeout(() => document.getElementById('loading-overlay').remove(), 500);
+  }, 1400);
+
+  // Handle resize in editor
+  window.addEventListener('resize', () => {
+    if (currentScreen === 'editor' && sourceImage) {
+      const container = document.querySelector('.editor-canvas-container');
+      if (editorCanvas) {
+        editorCanvas.width = container.clientWidth;
+        editorCanvas.height = container.clientHeight;
+        resetStencilPosition();
+      }
+    }
+  });
 });
 </script>
+
 </body>
 </html>
