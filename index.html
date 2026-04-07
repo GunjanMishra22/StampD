@@ -5,1973 +5,1476 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Stampbook</title>
 <style>
-  /* =============================================
-     DESIGN TOKENS & RESET
-  ============================================= */
   @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
-
-  :root {
-    --bg: #F5F2EE;
-    --surface: #FDFBF8;
-    --surface2: #F0EDE8;
-    --border: #E2DDD6;
-    --text-primary: #1A1714;
-    --text-secondary: #7A7470;
-    --text-muted: #B0AAA4;
-    --accent: #2C2420;
-    --accent-warm: #C4593A;
-    --accent-sage: #5A7A65;
-    --accent-blue: #3A5A7A;
-    --stamp-bg: #FDFAF6;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
-    --shadow-lg: 0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
-    --radius-sm: 8px;
-    --radius-md: 16px;
-    --radius-lg: 24px;
-    --font-display: 'DM Serif Display', serif;
-    --font-body: 'DM Sans', sans-serif;
-    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  :root {
+    --cream: #F5F0E8;
+    --cream2: #EDE8DC;
+    --ink: #1A1714;
+    --ink2: #3D3830;
+    --ink3: #7A7368;
+    --rose: #D4856A;
+    --rose-light: #F0D5CB;
+    --sage: #7A9B8A;
+    --sage-light: #C8DDD4;
+    --lavender: #9B8EC4;
+    --lav-light: #DDD8F0;
+    --amber: #C4956A;
+    --amber-light: #E8D5B8;
+    --border: rgba(26,23,20,0.12);
+    --border2: rgba(26,23,20,0.07);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 4px 24px rgba(26,23,20,0.10), 0 1px 4px rgba(26,23,20,0.06);
+    --shadow-lg: 0 12px 48px rgba(26,23,20,0.15), 0 4px 16px rgba(26,23,20,0.08);
+    --transit: 0.28s cubic-bezier(0.4,0,0.2,1);
+  }
+
   html, body {
-    width: 100%; height: 100%;
-    background: var(--bg);
-    font-family: var(--font-body);
-    color: var(--text-primary);
-    overflow: hidden;
+    height: 100%; overflow: hidden;
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* =============================================
-     SCREEN SYSTEM
-  ============================================= */
+  /* ===== APP SHELL ===== */
+  #app {
+    width: 100%; height: 100vh;
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+
+  /* ===== SCREENS ===== */
   .screen {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.4,0,0.2,1);
-    transform: translateY(12px);
-    overflow: hidden;
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    background: var(--cream);
+    transition: transform var(--transit), opacity var(--transit);
   }
-  .screen.active {
-    opacity: 1;
-    pointer-events: all;
-    transform: translateY(0);
-  }
-  .screen.exit {
-    opacity: 0;
-    transform: translateY(-12px);
-  }
+  .screen.hidden { transform: translateX(100%); opacity: 0; pointer-events: none; }
+  .screen.slide-left { transform: translateX(-100%); opacity: 0; pointer-events: none; }
 
-  /* =============================================
-     NAV BAR
-  ============================================= */
-  .nav-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px 12px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
+  /* ===== TOP BAR ===== */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 52px 24px 16px;
+    background: var(--cream);
+    border-bottom: 1px solid var(--border2);
     flex-shrink: 0;
-    position: relative;
     z-index: 10;
   }
-  .nav-title {
-    font-family: var(--font-display);
-    font-size: 20px;
-    color: var(--text-primary);
-    letter-spacing: -0.3px;
+  .topbar-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px; color: var(--ink); letter-spacing: -0.3px;
   }
-  .nav-btn {
-    width: 36px; height: 36px;
-    border: none;
-    background: var(--surface2);
-    border-radius: 10px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--text-primary);
-    transition: var(--transition);
-  }
-  .nav-btn:hover { background: var(--border); }
-  .nav-btn:active { transform: scale(0.94); }
-  .nav-btn svg { width: 18px; height: 18px; }
-
-  /* =============================================
-     BOTTOM TAB BAR
-  ============================================= */
-  .tab-bar {
-    display: flex;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-  .tab-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 10px 0 14px;
-    cursor: pointer;
-    border: none;
-    background: none;
-    color: var(--text-muted);
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.3px;
-    text-transform: uppercase;
-    transition: var(--transition);
-  }
-  .tab-item.active { color: var(--accent); }
-  .tab-item svg { width: 20px; height: 20px; }
-  .tab-dot {
-    width: 4px; height: 4px;
-    border-radius: 50%;
-    background: var(--accent-warm);
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-  .tab-item.active .tab-dot { opacity: 1; }
-
-  /* =============================================
-     BUTTONS
-  ============================================= */
-  .btn {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    border: none;
-    cursor: pointer;
-    font-family: var(--font-body);
-    font-weight: 500;
-    letter-spacing: -0.1px;
-    transition: var(--transition);
-    border-radius: var(--radius-md);
-  }
-  .btn:active { transform: scale(0.97); }
-  .btn-primary {
-    background: var(--accent);
-    color: white;
-    padding: 14px 24px;
-    font-size: 15px;
-  }
-  .btn-primary:hover { background: #2f2823; }
-  .btn-secondary {
-    background: var(--surface2);
-    color: var(--text-primary);
-    padding: 14px 24px;
-    font-size: 15px;
+  .topbar-sub { font-size: 12px; color: var(--ink3); margin-top: 1px; font-weight: 400; }
+  .icon-btn {
+    width: 40px; height: 40px; border-radius: 50%;
     border: 1px solid var(--border);
+    background: var(--cream2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background var(--transit), transform 0.15s;
   }
-  .btn-secondary:hover { background: var(--border); }
-  .btn-accent {
-    background: var(--accent-warm);
-    color: white;
-    padding: 14px 24px;
-    font-size: 15px;
-  }
-  .btn-lg { padding: 16px 28px; font-size: 16px; border-radius: var(--radius-lg); }
-  .btn svg { width: 18px; height: 18px; }
-  .btn-full { width: 100%; }
+  .icon-btn:active { transform: scale(0.93); background: var(--border); }
+  .icon-btn svg { width: 18px; height: 18px; stroke: var(--ink2); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 
-  /* =============================================
-     SCREEN 1: HOME
-  ============================================= */
-  #screen-home {
-    background: var(--bg);
-  }
-  .home-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 0 24px 24px;
-    overflow-y: auto;
+  /* ===== HOME SCREEN ===== */
+  #home-screen {
+    justify-content: space-between;
   }
   .home-hero {
-    padding: 36px 0 32px;
-    text-align: left;
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 8px; padding: 0 32px;
   }
-  .home-eyebrow {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 10px;
-  }
-  .home-headline {
-    font-family: var(--font-display);
-    font-size: 38px;
-    line-height: 1.1;
-    color: var(--text-primary);
-    letter-spacing: -0.5px;
-    margin-bottom: 12px;
-  }
-  .home-sub {
-    font-size: 15px;
-    color: var(--text-secondary);
-    line-height: 1.5;
-    font-weight: 300;
-  }
-
-  .home-stamp-preview {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px 0 28px;
-    position: relative;
-  }
-  .stamp-decoration {
-    display: flex;
-    gap: 12px;
-  }
-  .deco-stamp {
-    border-radius: 6px;
-    background: var(--surface);
-    box-shadow: var(--shadow-md);
-    position: relative;
-    overflow: hidden;
-  }
-  .deco-stamp::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border: 2px solid var(--border);
-    border-radius: 6px;
-  }
-
-  .home-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    flex: 1;
-  }
-  .action-card {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 20px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    cursor: pointer;
-    transition: var(--transition);
-    box-shadow: var(--shadow-sm);
-    text-align: left;
-  }
-  .action-card:hover {
-    box-shadow: var(--shadow-md);
-    border-color: var(--text-muted);
-    transform: translateY(-1px);
-  }
-  .action-card:active { transform: scale(0.98); }
-  .action-icon {
-    width: 52px; height: 52px;
-    border-radius: var(--radius-md);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .action-icon svg { width: 24px; height: 24px; }
-  .action-icon.warm { background: #FBE8E3; color: var(--accent-warm); }
-  .action-icon.sage { background: #E3EDE6; color: var(--accent-sage); }
-  .action-icon.blue { background: #E3ECF3; color: var(--accent-blue); }
-  .action-text h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 2px;
-  }
-  .action-text p {
-    font-size: 13px;
-    color: var(--text-secondary);
-    font-weight: 300;
-  }
-  .action-arrow {
-    margin-left: auto;
-    color: var(--text-muted);
-    flex-shrink: 0;
-  }
-  .action-arrow svg { width: 16px; height: 16px; }
-
-  .home-stats {
-    display: flex;
-    gap: 12px;
-    margin-top: 16px;
-  }
-  .stat-card {
-    flex: 1;
-    padding: 16px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    text-align: center;
-    box-shadow: var(--shadow-sm);
-  }
-  .stat-num {
-    font-family: var(--font-display);
-    font-size: 28px;
-    color: var(--text-primary);
-    display: block;
-    margin-bottom: 4px;
-  }
-  .stat-label {
-    font-size: 11px;
-    color: var(--text-muted);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-  }
-
-  /* =============================================
-     SCREEN 2: EDITOR
-  ============================================= */
-  #screen-editor {
-    background: #111;
-  }
-  .editor-nav {
-    background: rgba(17,17,17,0.95);
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    backdrop-filter: blur(8px);
-  }
-  .editor-nav .nav-title { color: white; }
-  .editor-nav .nav-btn {
-    background: rgba(255,255,255,0.1);
-    color: white;
-  }
-  .editor-nav .nav-btn:hover { background: rgba(255,255,255,0.18); }
-
-  .editor-canvas-container {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  #editor-canvas {
-    display: block;
-    touch-action: none;
-  }
-
-  .editor-controls {
-    background: rgba(17,17,17,0.95);
-    border-top: 1px solid rgba(255,255,255,0.08);
-    padding: 16px 20px;
-    backdrop-filter: blur(8px);
-  }
-  .slider-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 14px;
-  }
-  .slider-label {
-    font-size: 11px;
-    color: rgba(255,255,255,0.5);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    width: 44px;
-    flex-shrink: 0;
-  }
-  .slider-label svg { width: 16px; height: 16px; }
-  input[type="range"] {
-    flex: 1;
-    height: 3px;
-    appearance: none;
-    background: rgba(255,255,255,0.2);
-    border-radius: 2px;
-    outline: none;
-  }
-  input[type="range"]::-webkit-slider-thumb {
-    appearance: none;
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    background: white;
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-  }
-  input[type="range"]::-moz-range-thumb {
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    background: white;
-    cursor: pointer;
-    border: none;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-  }
-  .slider-value {
-    font-size: 12px;
-    color: rgba(255,255,255,0.4);
-    width: 36px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  .editor-btn-row {
-    display: flex;
-    gap: 10px;
-  }
-  .editor-btn-row .btn-primary {
-    flex: 1;
-    background: white;
-    color: #111;
-  }
-  .editor-btn-row .btn-primary:hover { background: #eee; }
-
-  /* Shape selector */
-  .shape-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-  .shape-btn {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 8px;
-    background: rgba(255,255,255,0.06);
-    color: rgba(255,255,255,0.6);
-    font-size: 11px;
-    font-family: var(--font-body);
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-  }
-  .shape-btn svg { width: 18px; height: 18px; }
-  .shape-btn.active {
-    border-color: white;
-    background: rgba(255,255,255,0.15);
-    color: white;
-  }
-
-  /* =============================================
-     SCREEN 3: PREVIEW
-  ============================================= */
-  #screen-preview {
-    background: var(--bg);
-  }
-  .preview-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    overflow: hidden;
-  }
-  .preview-stamp-wrap {
-    perspective: 800px;
-    margin-bottom: 32px;
-  }
-  #preview-canvas {
-    display: block;
-    border-radius: 4px;
-    transition: transform 0.15s ease;
-    transform-style: preserve-3d;
-    cursor: pointer;
-  }
-  .preview-label {
-    font-family: var(--font-display);
-    font-size: 26px;
-    color: var(--text-primary);
-    margin-bottom: 8px;
-    text-align: center;
-    letter-spacing: -0.3px;
-  }
-  .preview-sub {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 32px;
-    text-align: center;
-    font-weight: 300;
-  }
-  .preview-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-    max-width: 320px;
-  }
-
-  /* =============================================
-     SCREEN 4: GALLERY
-  ============================================= */
-  #screen-gallery {
-    background: var(--bg);
-  }
-  .gallery-body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .book-page {
-    background: var(--stamp-bg);
-    border-radius: var(--radius-lg);
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: var(--shadow-md);
-    position: relative;
-    border: 1px solid var(--border);
-  }
-  .book-page::before {
-    content: '';
-    position: absolute;
-    left: 28px; top: 0; bottom: 0;
-    width: 1px;
-    background: linear-gradient(to bottom, transparent, rgba(196,89,58,0.15) 20%, rgba(196,89,58,0.15) 80%, transparent);
-  }
-  .book-page.full::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: var(--radius-lg);
-    border: 2px solid transparent;
-    background: linear-gradient(var(--stamp-bg), var(--stamp-bg)) padding-box,
-                linear-gradient(135deg, #C4593A, #5A7A65, #3A5A7A, #C4593A) border-box;
-    animation: shimmer-border 3s linear infinite;
-    pointer-events: none;
-  }
-  @keyframes shimmer-border {
-    0% { filter: hue-rotate(0deg); opacity: 0.7; }
-    50% { filter: hue-rotate(30deg); opacity: 1; }
-    100% { filter: hue-rotate(0deg); opacity: 0.7; }
-  }
-
-  .page-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-    padding-left: 20px;
-  }
-  .page-title {
-    font-family: var(--font-display);
-    font-size: 17px;
-    color: var(--text-secondary);
-    font-style: italic;
-  }
-  .page-num {
-    font-size: 11px;
-    color: var(--text-muted);
-    font-weight: 500;
-    letter-spacing: 0.5px;
-  }
-
-  .stamp-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    padding-left: 20px;
-  }
-  .stamp-slot {
-    aspect-ratio: 1;
-    border-radius: 6px;
-    overflow: hidden;
-    position: relative;
-    background: var(--surface2);
-    border: 1.5px dashed var(--border);
-    transition: var(--transition);
-  }
-  .stamp-slot.filled {
-    border: none;
-    box-shadow: var(--shadow-sm);
-    cursor: pointer;
-  }
-  .stamp-slot.filled:hover {
-    transform: scale(1.04) rotate(-0.5deg);
-    box-shadow: var(--shadow-md);
-    z-index: 2;
-  }
-  .stamp-slot.filled canvas,
-  .stamp-slot.filled img {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-  .stamp-slot.empty-hint {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--border);
-  }
-  .stamp-slot.empty-hint svg { width: 20px; height: 20px; }
-
-  /* stamp slot delete button */
-  .stamp-slot.filled .stamp-del {
-    position: absolute;
-    top: 4px; right: 4px;
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    background: rgba(0,0,0,0.55);
-    border: none;
-    cursor: pointer;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    color: white;
-  }
-  .stamp-slot.filled:hover .stamp-del { display: flex; }
-  .stamp-slot.filled .stamp-del svg { width: 12px; height: 12px; }
-
-  .gallery-empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 24px;
-    text-align: center;
-  }
-  .gallery-empty-icon {
-    width: 64px; height: 64px;
-    background: var(--surface2);
+  .home-logo {
+    width: 72px; height: 72px; margin-bottom: 16px;
+    background: var(--ink);
     border-radius: 20px;
     display: flex; align-items: center; justify-content: center;
-    margin-bottom: 20px;
-    color: var(--text-muted);
+    box-shadow: 0 8px 32px rgba(26,23,20,0.2);
   }
-  .gallery-empty-icon svg { width: 28px; height: 28px; }
-  .gallery-empty h3 {
-    font-family: var(--font-display);
-    font-size: 22px;
-    color: var(--text-primary);
-    margin-bottom: 8px;
+  .home-logo svg { width: 38px; height: 38px; fill: var(--cream); }
+  .home-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px; color: var(--ink); letter-spacing: -0.8px;
+    text-align: center; line-height: 1.1;
   }
-  .gallery-empty p {
-    font-size: 14px;
-    color: var(--text-secondary);
-    font-weight: 300;
-    line-height: 1.5;
-    max-width: 240px;
+  .home-subtitle {
+    font-size: 14px; color: var(--ink3); text-align: center;
+    line-height: 1.6; max-width: 240px; margin-top: 4px; font-weight: 400;
   }
+  .home-actions {
+    padding: 24px; display: flex; flex-direction: column; gap: 12px;
+  }
+  .btn-primary {
+    width: 100%; padding: 16px 20px;
+    background: var(--ink); color: var(--cream);
+    border: none; border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: transform 0.15s, background var(--transit);
+    letter-spacing: -0.1px;
+  }
+  .btn-primary:active { transform: scale(0.97); }
+  .btn-primary svg { width: 18px; height: 18px; stroke: var(--cream); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .btn-secondary {
+    width: 100%; padding: 16px 20px;
+    background: transparent; color: var(--ink);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: transform 0.15s, background var(--transit);
+    letter-spacing: -0.1px;
+  }
+  .btn-secondary:active { transform: scale(0.97); background: var(--border2); }
+  .btn-secondary svg { width: 18px; height: 18px; stroke: var(--ink); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .btn-ghost {
+    width: 100%; padding: 14px 20px;
+    background: transparent; color: var(--ink3);
+    border: none; border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 400;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: color var(--transit);
+  }
+  .btn-ghost:active { color: var(--ink); }
+  .btn-ghost svg { width: 16px; height: 16px; stroke: var(--ink3); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 
-  /* =============================================
-     MODALS & OVERLAYS
-  ============================================= */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(4px);
-    z-index: 100;
-    display: flex;
-    align-items: flex-end;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
+  /* ===== EDITOR SCREEN ===== */
+  #editor-screen { background: #0E0C0B; }
+  .editor-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 52px 20px 14px;
+    position: absolute; top: 0; left: 0; right: 0;
+    z-index: 20; background: linear-gradient(to bottom, rgba(14,12,11,0.95) 60%, transparent);
   }
-  .modal-overlay.open {
-    opacity: 1;
-    pointer-events: all;
+  .editor-title { font-size: 15px; font-weight: 500; color: rgba(245,240,232,0.9); letter-spacing: -0.1px; }
+  .icon-btn-dark {
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 1px solid rgba(245,240,232,0.15);
+    background: rgba(245,240,232,0.08);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background var(--transit), transform 0.15s;
+    backdrop-filter: blur(8px);
   }
-  .modal-sheet {
-    width: 100%;
-    background: var(--surface);
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    padding: 20px;
-    transform: translateY(100%);
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .modal-overlay.open .modal-sheet { transform: translateY(0); }
-  .modal-handle {
-    width: 36px; height: 4px;
-    border-radius: 2px;
-    background: var(--border);
-    margin: 0 auto 20px;
-  }
-  .modal-title {
-    font-family: var(--font-display);
-    font-size: 22px;
-    margin-bottom: 8px;
-  }
-  .modal-sub {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 24px;
-    font-weight: 300;
-  }
-  .modal-actions { display: flex; flex-direction: column; gap: 10px; }
+  .icon-btn-dark:active { transform: scale(0.93); background: rgba(245,240,232,0.18); }
+  .icon-btn-dark svg { width: 17px; height: 17px; stroke: rgba(245,240,232,0.9); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 
-  /* =============================================
-     TOAST
-  ============================================= */
-  #toast {
-    position: fixed;
-    bottom: 100px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--accent);
-    color: white;
-    padding: 12px 20px;
-    border-radius: 100px;
-    font-size: 13px;
-    font-weight: 500;
-    pointer-events: none;
-    opacity: 0;
-    transition: all 0.3s ease;
-    z-index: 200;
-    white-space: nowrap;
-    box-shadow: var(--shadow-md);
-  }
-  #toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
-  /* =============================================
-     LOADING STATE
-  ============================================= */
-  .loading-overlay {
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    z-index: 300;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    opacity: 1;
-    transition: opacity 0.4s ease;
-  }
-  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-  .loader-logo {
-    font-family: var(--font-display);
-    font-size: 32px;
-    color: var(--text-primary);
-    margin-bottom: 8px;
-    letter-spacing: -0.5px;
-  }
-  .loader-tagline {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 32px;
-    font-weight: 300;
-  }
-  .loader-bar {
-    width: 120px; height: 2px;
-    background: var(--border);
-    border-radius: 1px;
+  #canvas-container {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
     overflow: hidden;
   }
-  .loader-fill {
-    width: 0%;
-    height: 100%;
-    background: var(--accent);
-    border-radius: 1px;
-    animation: load-progress 1.2s ease forwards;
+  #image-canvas { display: block; }
+
+  #editor-bottom {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 20px 20px 40px;
+    background: linear-gradient(to top, rgba(14,12,11,0.98) 60%, transparent);
+    z-index: 20;
   }
-  @keyframes load-progress {
-    0% { width: 0%; }
-    100% { width: 100%; }
+  .editor-controls {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 16px;
+  }
+  .ctrl-label { font-size: 11px; color: rgba(245,240,232,0.5); min-width: 36px; font-weight: 400; }
+  .ctrl-slider {
+    flex: 1; -webkit-appearance: none; appearance: none;
+    height: 3px; border-radius: 2px;
+    background: rgba(245,240,232,0.15); outline: none;
+  }
+  .ctrl-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--cream); cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    transition: transform 0.15s;
+  }
+  .ctrl-slider::-webkit-slider-thumb:active { transform: scale(1.2); }
+  .ctrl-val { font-size: 11px; color: rgba(245,240,232,0.4); min-width: 32px; text-align: right; font-weight: 400; }
+
+  .stencil-shape-row {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+  }
+  .shape-label { font-size: 11px; color: rgba(245,240,232,0.5); font-weight: 400; margin-right: 4px; }
+  .shape-opt {
+    width: 34px; height: 34px; border-radius: 8px;
+    border: 1px solid rgba(245,240,232,0.15);
+    background: rgba(245,240,232,0.06);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: border-color var(--transit), background var(--transit);
+  }
+  .shape-opt.active { border-color: var(--cream); background: rgba(245,240,232,0.15); }
+  .shape-opt svg { width: 16px; height: 16px; stroke: rgba(245,240,232,0.7); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .shape-opt.active svg { stroke: var(--cream); }
+
+  .btn-create {
+    width: 100%; padding: 16px;
+    background: var(--cream); color: var(--ink);
+    border: none; border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: transform 0.15s, opacity var(--transit);
+    letter-spacing: -0.2px;
+  }
+  .btn-create:active { transform: scale(0.97); }
+  .btn-create svg { width: 17px; height: 17px; stroke: var(--ink); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ===== PREVIEW SCREEN ===== */
+  #preview-screen { align-items: center; justify-content: space-between; }
+  .preview-topbar {
+    width: 100%; display: flex; align-items: center; justify-content: space-between;
+    padding: 52px 24px 16px;
+    border-bottom: 1px solid var(--border2);
+    flex-shrink: 0;
+  }
+  .preview-body {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 0; position: relative; width: 100%;
+  }
+  #stamp-preview-wrap {
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    transform-style: preserve-3d; perspective: 600px;
+    transition: transform 0.1s;
+  }
+  #stamp-preview-canvas {
+    border-radius: 4px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2), 0 6px 20px rgba(0,0,0,0.1);
+    max-width: calc(100vw - 80px); max-height: calc(100vw - 80px);
+  }
+  .preview-meta {
+    text-align: center; padding: 0 32px 8px;
+  }
+  .preview-meta-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px; color: var(--ink); letter-spacing: -0.3px; margin-bottom: 4px;
+  }
+  .preview-meta-date { font-size: 12px; color: var(--ink3); font-weight: 400; }
+  .preview-actions {
+    width: 100%; padding: 16px 24px 40px;
+    display: flex; flex-direction: column; gap: 10px;
+    border-top: 1px solid var(--border2);
+  }
+  .preview-row { display: flex; gap: 10px; }
+  .btn-outline {
+    flex: 1; padding: 14px 16px;
+    background: transparent; color: var(--ink);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: transform 0.15s, background var(--transit);
+  }
+  .btn-outline:active { transform: scale(0.97); background: var(--border2); }
+  .btn-outline svg { width: 15px; height: 15px; stroke: var(--ink2); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ===== GALLERY / BOOK ===== */
+  #gallery-screen { }
+  .gallery-body {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    padding: 16px 20px 40px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .page-spread {
+    background: var(--cream2);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 16px rgba(26,23,20,0.06), 0 8px 32px rgba(26,23,20,0.04);
+    position: relative; overflow: hidden;
+  }
+  .page-spread::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; border-radius: var(--radius);
+  }
+  .page-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .page-num {
+    font-size: 11px; color: var(--ink3); font-weight: 400;
+    letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .page-full-badge {
+    font-size: 10px; color: var(--rose); font-weight: 500; letter-spacing: 0.3px;
+    background: var(--rose-light); padding: 3px 8px; border-radius: 20px;
+    display: none;
+  }
+  .page-full-badge.visible { display: block; }
+  .stamp-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  }
+  .stamp-cell {
+    aspect-ratio: 1; border-radius: 8px;
+    border: 1.5px dashed var(--border);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden; cursor: pointer;
+    transition: transform 0.15s, box-shadow var(--transit);
+    background: rgba(255,255,255,0.3);
+  }
+  .stamp-cell:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(26,23,20,0.12); }
+  .stamp-cell img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+  .stamp-cell.empty { cursor: default; }
+  .stamp-cell.empty:hover { transform: none; box-shadow: none; }
+  .stamp-del {
+    position: absolute; top: 4px; right: 4px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(26,23,20,0.7); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: transform 0.15s; opacity: 0;
+    border: none;
+  }
+  .stamp-cell:hover .stamp-del { opacity: 1; }
+  .stamp-del:active { transform: scale(0.9); }
+  .stamp-del svg { width: 10px; height: 10px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+  /* Page shimmer effect */
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  .page-spread.page-complete {
+    box-shadow: 0 2px 16px rgba(26,23,20,0.06), 0 8px 32px rgba(26,23,20,0.04), 0 0 0 2px var(--rose-light), 0 0 20px rgba(212,133,106,0.2);
+    animation: pagePulse 3s ease infinite;
+  }
+  @keyframes pagePulse {
+    0%, 100% { box-shadow: 0 2px 16px rgba(26,23,20,0.06), 0 0 0 2px var(--rose-light), 0 0 20px rgba(212,133,106,0.15); }
+    50% { box-shadow: 0 2px 16px rgba(26,23,20,0.06), 0 0 0 2px var(--rose), 0 0 32px rgba(212,133,106,0.3); }
+  }
+  .shimmer-bar {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+    animation: shimmer 2.5s ease infinite; pointer-events: none;
+    border-radius: var(--radius);
   }
 
-  /* =============================================
-     PAPER TEXTURE OVERLAY
-  ============================================= */
-  .paper-texture {
-    position: absolute;
-    inset: 0;
+  /* ===== EMPTY GALLERY ===== */
+  .gallery-empty {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px; padding: 48px 32px; text-align: center;
+  }
+  .gallery-empty-icon {
+    width: 60px; height: 60px;
+    background: var(--cream2); border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 4px;
+    border: 1px solid var(--border);
+  }
+  .gallery-empty-icon svg { width: 26px; height: 26px; stroke: var(--ink3); fill: none; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+  .gallery-empty-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--ink); }
+  .gallery-empty-sub { font-size: 13px; color: var(--ink3); line-height: 1.6; max-width: 220px; }
+
+  /* ===== NAV BAR ===== */
+  #nav-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: 80px; z-index: 100;
+    background: rgba(245,240,232,0.92);
+    backdrop-filter: blur(20px) saturate(1.2);
+    border-top: 1px solid var(--border2);
+    display: flex; align-items: flex-start; justify-content: space-around;
+    padding-top: 12px;
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: pointer; padding: 6px 20px;
+    transition: opacity var(--transit);
+    border: none; background: none;
+  }
+  .nav-icon {
+    width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+  }
+  .nav-icon svg { width: 22px; height: 22px; stroke: var(--ink3); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; transition: stroke var(--transit); }
+  .nav-label { font-size: 10px; color: var(--ink3); font-weight: 400; transition: color var(--transit); letter-spacing: 0.2px; }
+  .nav-item.active .nav-icon svg { stroke: var(--ink); }
+  .nav-item.active .nav-label { color: var(--ink); font-weight: 500; }
+  .nav-add {
+    width: 46px; height: 46px; border-radius: 14px;
+    background: var(--ink); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: none; margin-top: -8px;
+    box-shadow: 0 4px 16px rgba(26,23,20,0.25);
+    transition: transform 0.15s, box-shadow var(--transit);
+  }
+  .nav-add:active { transform: scale(0.93); }
+  .nav-add svg { width: 20px; height: 20px; stroke: var(--cream); fill: none; stroke-width: 2; stroke-linecap: round; }
+
+  /* ===== CAMERA MODAL ===== */
+  #camera-modal {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(14,12,11,0.6);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: flex-end;
+    transition: opacity var(--transit);
+  }
+  #camera-modal.hidden { opacity: 0; pointer-events: none; }
+  .camera-sheet {
+    width: 100%; background: var(--cream);
+    border-radius: 24px 24px 0 0;
+    padding: 12px 24px 48px;
+    transform: translateY(0);
+    transition: transform var(--transit);
+  }
+  #camera-modal.hidden .camera-sheet { transform: translateY(100%); }
+  .sheet-handle { width: 36px; height: 4px; border-radius: 2px; background: var(--border); margin: 0 auto 20px; }
+  .sheet-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--ink); margin-bottom: 16px; text-align: center; }
+
+  /* ===== LIGHTBOX ===== */
+  #lightbox {
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(14,12,11,0.85);
+    backdrop-filter: blur(12px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px 20px;
+  }
+  #lightbox.hidden { display: none; }
+  #lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: contain; }
+  #lightbox-close {
+    position: absolute; top: 60px; right: 20px;
+    width: 38px; height: 38px; border-radius: 50%;
+    background: rgba(245,240,232,0.15); border: 1px solid rgba(245,240,232,0.2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  #lightbox-close svg { width: 16px; height: 16px; stroke: var(--cream); fill: none; stroke-width: 2; stroke-linecap: round; }
+
+  /* ===== TOAST ===== */
+  #toast {
+    position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: var(--cream);
+    padding: 10px 20px; border-radius: 100px;
+    font-size: 13px; font-weight: 500; white-space: nowrap;
+    opacity: 0; transition: opacity 0.25s, transform 0.25s; z-index: 500;
     pointer-events: none;
-    z-index: 1;
-    opacity: 0.035;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  /* =============================================
-     EXPORT PAGE STYLES
-  ============================================= */
-  .export-row {
-    display: flex;
-    gap: 10px;
-    width: 100%;
-    max-width: 320px;
+  /* ===== INPUT HIDDEN ===== */
+  #file-input { display: none; }
+
+  /* Scrollbar */
+  .gallery-body::-webkit-scrollbar { width: 0; }
+
+  /* Safe area */
+  @supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .home-actions { padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+    #nav-bar { height: calc(80px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); }
+    #editor-bottom { padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
+    .preview-actions { padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
   }
-  .export-row .btn { flex: 1; font-size: 13px; padding: 12px 16px; }
-
-  /* =============================================
-     SCROLLBAR
-  ============================================= */
-  ::-webkit-scrollbar { width: 0; }
-
-  /* =============================================
-     HIDE FILE INPUT
-  ============================================= */
-  #file-input, #camera-input { display: none; }
-
-  /* =============================================
-     HELP HINT IN EDITOR
-  ============================================= */
-  .editor-hint {
-    position: absolute;
-    top: 16px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.7);
-    color: rgba(255,255,255,0.8);
-    font-size: 12px;
-    padding: 6px 14px;
-    border-radius: 100px;
-    pointer-events: none;
-    white-space: nowrap;
-    font-family: var(--font-body);
-    backdrop-filter: blur(4px);
-    opacity: 1;
-    transition: opacity 1s ease;
-  }
-  .editor-hint.hidden { opacity: 0; }
-
 </style>
 </head>
 <body>
+<div id="app">
 
-<!-- LOADING -->
-<div class="loading-overlay" id="loading-overlay">
-  <div class="loader-logo">Stampbook</div>
-  <div class="loader-tagline">Your personal stamp collection</div>
-  <div class="loader-bar"><div class="loader-fill"></div></div>
+  <!-- HOME SCREEN -->
+  <div class="screen" id="home-screen">
+    <div class="home-hero">
+      <div class="home-logo">
+        <!-- Stamp icon -->
+        <svg viewBox="0 0 38 38" fill="var(--cream)" xmlns="http://www.w3.org/2000/svg">
+          <rect x="7" y="10" width="24" height="18" rx="2" fill="none" stroke="var(--cream)" stroke-width="2"/>
+          <rect x="11" y="14" width="16" height="10" rx="1" fill="var(--cream)" fill-opacity="0.3" stroke="var(--cream)" stroke-width="1.5"/>
+          <line x1="5" y1="30" x2="33" y2="30" stroke="var(--cream)" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="10" cy="10" r="1" fill="var(--cream)"/>
+          <circle cx="14" cy="10" r="1" fill="var(--cream)"/>
+          <circle cx="18" cy="10" r="1" fill="var(--cream)"/>
+          <circle cx="22" cy="10" r="1" fill="var(--cream)"/>
+          <circle cx="26" cy="10" r="1" fill="var(--cream)"/>
+          <circle cx="28" cy="14" r="1" fill="var(--cream)"/>
+          <circle cx="28" cy="18" r="1" fill="var(--cream)"/>
+          <circle cx="28" cy="22" r="1" fill="var(--cream)"/>
+          <circle cx="10" cy="14" r="1" fill="var(--cream)"/>
+          <circle cx="10" cy="18" r="1" fill="var(--cream)"/>
+          <circle cx="10" cy="22" r="1" fill="var(--cream)"/>
+          <circle cx="10" cy="28" r="1" fill="var(--cream)"/>
+          <circle cx="14" cy="28" r="1" fill="var(--cream)"/>
+          <circle cx="18" cy="28" r="1" fill="var(--cream)"/>
+          <circle cx="22" cy="28" r="1" fill="var(--cream)"/>
+          <circle cx="26" cy="28" r="1" fill="var(--cream)"/>
+        </svg>
+      </div>
+      <div class="home-title">Stamp<br>Book</div>
+      <div class="home-subtitle">Turn any photo into a collectible stamp</div>
+    </div>
+    <div class="home-actions">
+      <button class="btn-primary" onclick="triggerUpload()">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload Image
+      </button>
+      <button class="btn-secondary" onclick="openCamera()">
+        <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        Take Photo
+      </button>
+      <button class="btn-ghost" onclick="showGallery()">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        View Collection
+      </button>
+    </div>
+  </div>
+
+  <!-- EDITOR SCREEN -->
+  <div class="screen hidden" id="editor-screen">
+    <div class="editor-topbar">
+      <button class="icon-btn-dark" onclick="backToHome()">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="editor-title">Position Stamp</div>
+      <button class="icon-btn-dark" id="rotate-btn" onclick="rotateStencil()">
+        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      </button>
+    </div>
+
+    <div id="canvas-container">
+      <canvas id="image-canvas"></canvas>
+    </div>
+
+    <div id="editor-bottom">
+      <div class="stencil-shape-row">
+        <span class="shape-label">Shape</span>
+        <div class="shape-opt active" id="shape-square" onclick="setShape('square')">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+        </div>
+        <div class="shape-opt" id="shape-portrait" onclick="setShape('portrait')">
+          <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/></svg>
+        </div>
+        <div class="shape-opt" id="shape-landscape" onclick="setShape('landscape')">
+          <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/></svg>
+        </div>
+        <div class="shape-opt" id="shape-circle" onclick="setShape('circle')">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
+        </div>
+      </div>
+
+      <div class="editor-controls">
+        <span class="ctrl-label">Size</span>
+        <input type="range" class="ctrl-slider" id="scale-slider" min="40" max="95" value="65" oninput="updateScale(this.value)">
+        <span class="ctrl-val" id="scale-val">65%</span>
+      </div>
+      <div class="editor-controls" style="margin-bottom:14px;">
+        <span class="ctrl-label">Rotate</span>
+        <input type="range" class="ctrl-slider" id="rot-slider" min="-45" max="45" value="0" oninput="updateRotation(this.value)">
+        <span class="ctrl-val" id="rot-val">0°</span>
+      </div>
+
+      <button class="btn-create" onclick="createStamp()">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        Create Stamp
+      </button>
+    </div>
+  </div>
+
+  <!-- PREVIEW SCREEN -->
+  <div class="screen hidden" id="preview-screen">
+    <div class="preview-topbar">
+      <button class="icon-btn" onclick="backToEditor()">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div>
+        <div class="topbar-title">Your Stamp</div>
+        <div class="topbar-sub">Ready to collect</div>
+      </div>
+      <button class="icon-btn" onclick="downloadStamp()">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
+    </div>
+    <div class="preview-body">
+      <div id="stamp-preview-wrap">
+        <canvas id="stamp-preview-canvas"></canvas>
+      </div>
+      <div class="preview-meta">
+        <div class="preview-meta-title">Postage Stamp</div>
+        <div class="preview-meta-date" id="preview-date"></div>
+      </div>
+    </div>
+    <div class="preview-actions">
+      <button class="btn-primary" onclick="saveToCollection()">
+        <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:var(--cream);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        Save to Collection
+      </button>
+      <div class="preview-row">
+        <button class="btn-outline" onclick="downloadStamp()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export PNG
+        </button>
+        <button class="btn-outline" onclick="shareStamp()">
+          <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GALLERY SCREEN -->
+  <div class="screen hidden" id="gallery-screen">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Collection</div>
+        <div class="topbar-sub" id="gallery-count">0 stamps</div>
+      </div>
+      <button class="icon-btn" onclick="showHome()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+    <div class="gallery-body" id="gallery-body"></div>
+  </div>
+
+</div>
+
+<!-- NAV BAR (only on home/gallery) -->
+<div id="nav-bar" style="display:none;">
+  <button class="nav-item active" id="nav-home" onclick="showHome()">
+    <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+    <span class="nav-label">Home</span>
+  </button>
+  <button class="nav-add" onclick="triggerUpload()">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+  <button class="nav-item" id="nav-gallery" onclick="showGallery()">
+    <div class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+    <span class="nav-label">Collection</span>
+  </button>
+</div>
+
+<!-- CAMERA SHEET -->
+<div id="camera-modal" class="hidden">
+  <div class="camera-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Add a Photo</div>
+    <button class="btn-primary" style="margin-bottom:10px;" onclick="startCamera()">
+      <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:var(--cream);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      Open Camera
+    </button>
+    <button class="btn-secondary" onclick="triggerUpload(); closeCameraSheet()">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      Choose from Library
+    </button>
+    <button class="btn-ghost" style="margin-top:4px;" onclick="closeCameraSheet()">Cancel</button>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" class="hidden" onclick="closeLightbox()">
+  <button id="lightbox-close" onclick="closeLightbox()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  <img id="lightbox-img" src="" alt="">
 </div>
 
 <!-- TOAST -->
 <div id="toast"></div>
 
-<!-- FILE INPUTS -->
-<input type="file" id="file-input" accept="image/*">
-<input type="file" id="camera-input" accept="image/*" capture="environment">
+<!-- HIDDEN FILE INPUT -->
+<input type="file" id="file-input" accept="image/*" onchange="handleFileSelect(event)">
 
-<!-- ============================================================
-     SCREEN 1: HOME
-============================================================ -->
-<div class="screen active" id="screen-home">
-  <div class="nav-bar">
-    <div class="nav-title">Stampbook</div>
-    <button class="nav-btn" onclick="switchScreen('gallery')" title="Collection">
-      <!-- Grid/collection icon -->
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
-        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
-        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
-        <rect x="14" y="14" width="7" height="7" rx="1.5"/>
-      </svg>
-    </button>
-  </div>
-
-  <div class="home-body">
-    <div class="home-hero">
-      <div class="home-eyebrow">Digital Stamp Creator</div>
-      <h1 class="home-headline">Create &amp;<br>Collect Stamps</h1>
-      <p class="home-sub">Turn your photos into beautiful postage stamps. Build a personal collection.</p>
-    </div>
-
-    <div id="home-deco" class="home-stamp-preview"></div>
-
-    <div class="home-actions">
-      <div class="action-card" onclick="document.getElementById('file-input').click()">
-        <div class="action-icon warm">
-          <!-- Upload icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="17 8 12 3 7 8"/>
-            <line x1="12" y1="3" x2="12" y2="15"/>
-          </svg>
-        </div>
-        <div class="action-text">
-          <h3>Upload Image</h3>
-          <p>Choose from your device library</p>
-        </div>
-        <div class="action-arrow">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </div>
-      </div>
-
-      <div class="action-card" onclick="document.getElementById('camera-input').click()">
-        <div class="action-icon sage">
-          <!-- Camera icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-            <circle cx="12" cy="13" r="4"/>
-          </svg>
-        </div>
-        <div class="action-text">
-          <h3>Take Photo</h3>
-          <p>Use camera to capture a moment</p>
-        </div>
-        <div class="action-arrow">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </div>
-      </div>
-    </div>
-
-    <div class="home-stats">
-      <div class="stat-card">
-        <span class="stat-num" id="stat-total">0</span>
-        <span class="stat-label">Stamps</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-num" id="stat-pages">0</span>
-        <span class="stat-label">Pages</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-num" id="stat-full">0</span>
-        <span class="stat-label">Full Pages</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ============================================================
-     SCREEN 2: EDITOR
-============================================================ -->
-<div class="screen" id="screen-editor">
-  <div class="nav-bar editor-nav">
-    <button class="nav-btn" onclick="switchScreen('home')" title="Back">
-      <!-- Back/chevron-left icon -->
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="15 18 9 12 15 6"/>
-      </svg>
-    </button>
-    <div class="nav-title" style="color:white;">Frame &amp; Cut</div>
-    <button class="nav-btn" id="btn-reset-stencil" title="Reset position">
-      <!-- Crosshair / center icon -->
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/>
-        <line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/>
-      </svg>
-    </button>
-  </div>
-
-  <div class="editor-canvas-container">
-    <canvas id="editor-canvas"></canvas>
-    <div class="editor-hint" id="editor-hint">Drag to move &bull; Pinch or slide to scale</div>
-  </div>
-
-  <div class="editor-controls">
-    <!-- Shape chooser -->
-    <div class="shape-row">
-      <button class="shape-btn active" data-shape="square" onclick="setShape('square')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-        Square
-      </button>
-      <button class="shape-btn" data-shape="tall" onclick="setShape('tall')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/></svg>
-        Portrait
-      </button>
-      <button class="shape-btn" data-shape="wide" onclick="setShape('wide')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/></svg>
-        Landscape
-      </button>
-      <button class="shape-btn" data-shape="circle" onclick="setShape('circle')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
-        Round
-      </button>
-    </div>
-
-    <!-- Scale slider -->
-    <div class="slider-row">
-      <span class="slider-label">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          <line x1="8" y1="11" x2="14" y2="11"/><line x1="11" y1="8" x2="11" y2="14"/>
-        </svg>
-      </span>
-      <input type="range" id="scale-slider" min="50" max="200" value="100">
-      <span class="slider-value" id="scale-val">100%</span>
-    </div>
-
-    <!-- Rotation slider -->
-    <div class="slider-row">
-      <span class="slider-label">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21.5 2v6h-6"/><path d="M2.5 12a10 10 0 0 1 17.8-6.3L21.5 8M2.5 22v-6h6"/><path d="M21.5 12a10 10 0 0 1-17.8 6.3L2.5 16"/>
-        </svg>
-      </span>
-      <input type="range" id="rotate-slider" min="-30" max="30" value="0">
-      <span class="slider-value" id="rotate-val">0°</span>
-    </div>
-
-    <div class="editor-btn-row">
-      <button class="btn btn-primary btn-lg" onclick="createStamp()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-        </svg>
-        Create Stamp
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- ============================================================
-     SCREEN 3: PREVIEW
-============================================================ -->
-<div class="screen" id="screen-preview">
-  <div class="nav-bar">
-    <button class="nav-btn" onclick="switchScreen('editor')" title="Back">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="15 18 9 12 15 6"/>
-      </svg>
-    </button>
-    <div class="nav-title">Your Stamp</div>
-    <button class="nav-btn" id="btn-export-single" title="Download stamp">
-      <!-- Download icon -->
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-        <polyline points="7 10 12 15 17 10"/>
-        <line x1="12" y1="15" x2="12" y2="3"/>
-      </svg>
-    </button>
-  </div>
-
-  <div class="preview-body">
-    <div class="preview-stamp-wrap" id="preview-stamp-wrap">
-      <canvas id="preview-canvas" width="260" height="300"></canvas>
-    </div>
-    <div class="preview-label">Stamp Ready</div>
-    <div class="preview-sub">Move your finger over the stamp to inspect it</div>
-
-    <div class="preview-actions">
-      <button class="btn btn-primary btn-lg btn-full" onclick="saveToCollection()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px">
-          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-          <polyline points="17 21 17 13 7 13 7 21"/>
-          <polyline points="7 3 7 8 15 8"/>
-        </svg>
-        Save to Collection
-      </button>
-      <button class="btn btn-secondary btn-lg btn-full" onclick="switchScreen('editor')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px">
-          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-        </svg>
-        Adjust Frame
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- ============================================================
-     SCREEN 4: GALLERY
-============================================================ -->
-<div class="screen" id="screen-gallery">
-  <div class="nav-bar">
-    <button class="nav-btn" onclick="switchScreen('home')" title="Back">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="15 18 9 12 15 6"/>
-      </svg>
-    </button>
-    <div class="nav-title">Collection</div>
-    <button class="nav-btn" id="btn-export-page" title="Export page">
-      <!-- Share icon -->
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-      </svg>
-    </button>
-  </div>
-
-  <div class="gallery-body" id="gallery-body">
-    <!-- rendered by JS -->
-  </div>
-</div>
-
-<!-- ============================================================
-     EXPORT MODAL
-============================================================ -->
-<div class="modal-overlay" id="export-modal">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title">Export</div>
-    <div class="modal-sub">Save or share your stamp collection</div>
-    <div class="modal-actions">
-      <button class="btn btn-primary btn-full" onclick="exportCurrentPage()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="7 10 12 15 17 10"/>
-          <line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        Save Page as Image
-      </button>
-      <button class="btn btn-secondary btn-full" onclick="closeModal('export-modal')">Cancel</button>
-    </div>
-  </div>
-</div>
-
+<!-- HIDDEN VIDEO FOR CAMERA -->
+<video id="camera-video" style="display:none;" playsinline autoplay></video>
 
 <script>
-/* ================================================================
-   GLOBALS & STATE
-================================================================ */
-const STAMPS_PER_PAGE = 12;
-let stamps = [];        // array of base64 dataURLs
-let sourceImage = null; // HTMLImageElement
+/* =============================================
+   STATE
+   ============================================= */
 let currentScreen = 'home';
-
-// Stencil state
-let stencil = { x: 0, y: 0, w: 160, h: 160, shape: 'square', rotation: 0, baseW: 160, baseH: 160 };
-let drag = { active: false, startX: 0, startY: 0, origX: 0, origY: 0 };
-let pinch = { active: false, startDist: 0, startScale: 1 };
-let editorCanvas, editorCtx, editorRAF;
-
-// Generated stamp
+let sourceImage = null;
 let stampDataURL = null;
+let stencilShape = 'square';
+let stencilScale = 0.65;
+let stencilRotation = 0;
+let stencilX = 0, stencilY = 0;
 
-/* ================================================================
-   SCREEN MANAGEMENT
-================================================================ */
-function switchScreen(name) {
-  const prev = document.getElementById('screen-' + currentScreen);
-  const next = document.getElementById('screen-' + name);
-  if (!next || currentScreen === name) return;
-  prev.classList.remove('active');
-  prev.classList.add('exit');
-  setTimeout(() => prev.classList.remove('exit'), 400);
-  next.classList.add('active');
+// Canvas & drawing
+let imgCanvas, imgCtx;
+let isDragging = false;
+let dragStartX, dragStartY, stencilStartX, stencilStartY;
+let lastPinchDist = null;
+let animFrame = null;
+let imageW = 0, imageH = 0;
+let canvasW = 0, canvasH = 0;
+let imgDrawX = 0, imgDrawY = 0, imgDrawW = 0, imgDrawH = 0;
+
+const PERFORATIONS = 12;
+const PERF_RADIUS = 5;
+
+/* =============================================
+   SCREEN NAVIGATION
+   ============================================= */
+function showScreen(name, direction = 'forward') {
+  const prev = document.getElementById(currentScreen + '-screen');
+  const next = document.getElementById(name + '-screen');
+  const navbar = document.getElementById('nav-bar');
+
+  if (prev) {
+    prev.classList.add(direction === 'forward' ? 'slide-left' : 'hidden');
+    setTimeout(() => prev.classList.add('hidden'), 300);
+  }
+  next.classList.remove('hidden', 'slide-left');
+
   currentScreen = name;
 
-  if (name === 'editor' && sourceImage) initEditor();
-  if (name === 'gallery') renderGallery();
-  if (name === 'home') updateStats();
+  // Nav bar visibility
+  if (name === 'home' || name === 'gallery') {
+    navbar.style.display = 'flex';
+    document.getElementById('nav-home').classList.toggle('active', name === 'home');
+    document.getElementById('nav-gallery').classList.toggle('active', name === 'gallery');
+  } else {
+    navbar.style.display = 'none';
+  }
 }
 
-/* ================================================================
-   FILE / CAMERA INPUT
-================================================================ */
-document.getElementById('file-input').addEventListener('change', function(e) {
-  loadImageFile(e.target.files[0]);
-  this.value = '';
-});
-document.getElementById('camera-input').addEventListener('change', function(e) {
-  loadImageFile(e.target.files[0]);
-  this.value = '';
-});
+function showHome() { showScreen('home', 'back'); }
+function showEditor() { showScreen('editor', 'forward'); }
+function showPreview() { showScreen('preview', 'forward'); }
+function showGallery() {
+  renderGallery();
+  showScreen('gallery', 'forward');
+}
+function backToHome() { showScreen('home', 'back'); }
+function backToEditor() { showScreen('editor', 'back'); }
 
-function loadImageFile(file) {
+/* =============================================
+   FILE / CAMERA INPUT
+   ============================================= */
+function triggerUpload() {
+  document.getElementById('file-input').click();
+}
+
+function openCamera() {
+  document.getElementById('camera-modal').classList.remove('hidden');
+}
+
+function closeCameraSheet() {
+  document.getElementById('camera-modal').classList.add('hidden');
+}
+
+function handleFileSelect(e) {
+  const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = (e) => {
-    const img = new Image();
-    img.onload = () => {
-      sourceImage = img;
-      switchScreen('editor');
-    };
-    img.src = e.target.result;
+  reader.onload = function(ev) {
+    loadImageSrc(ev.target.result);
   };
   reader.readAsDataURL(file);
+  e.target.value = '';
 }
 
-/* ================================================================
-   EDITOR / STENCIL
-================================================================ */
-function initEditor() {
-  editorCanvas = document.getElementById('editor-canvas');
-  editorCtx = editorCanvas.getContext('2d');
+function loadImageSrc(src) {
+  const img = new Image();
+  img.onload = function() {
+    sourceImage = img;
+    showEditor();
+    setTimeout(initEditor, 50);
+  };
+  img.src = src;
+}
 
-  const container = document.querySelector('.editor-canvas-container');
-  editorCanvas.width = container.clientWidth;
-  editorCanvas.height = container.clientHeight;
+async function startCamera() {
+  closeCameraSheet();
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+    const video = document.getElementById('camera-video');
+    video.srcObject = stream;
+    await video.play();
+    setTimeout(() => {
+      const c = document.createElement('canvas');
+      c.width = video.videoWidth;
+      c.height = video.videoHeight;
+      c.getContext('2d').drawImage(video, 0, 0);
+      stream.getTracks().forEach(t => t.stop());
+      loadImageSrc(c.toDataURL('image/jpeg', 0.95));
+    }, 800);
+  } catch(err) {
+    showToast('Camera unavailable — upload a photo instead');
+  }
+}
+
+/* =============================================
+   EDITOR INIT & CANVAS SETUP
+   ============================================= */
+function initEditor() {
+  imgCanvas = document.getElementById('image-canvas');
+  imgCtx = imgCanvas.getContext('2d');
+
+  const container = document.getElementById('canvas-container');
+  const cw = container.offsetWidth;
+  const ch = container.offsetHeight;
+  canvasW = cw;
+  canvasH = ch;
+  imgCanvas.width = cw;
+  imgCanvas.height = ch;
+
+  // Fit image
+  const iw = sourceImage.naturalWidth;
+  const ih = sourceImage.naturalHeight;
+  const scale = Math.min(cw / iw, ch / ih);
+  imgDrawW = iw * scale;
+  imgDrawH = ih * scale;
+  imgDrawX = (cw - imgDrawW) / 2;
+  imgDrawY = (ch - imgDrawH) / 2;
+
+  imageW = imgDrawW;
+  imageH = imgDrawH;
 
   // Center stencil
-  resetStencilPosition();
+  stencilX = cw / 2;
+  stencilY = ch / 2;
+  stencilScale = 0.65;
+  stencilRotation = 0;
 
-  // Attach events
-  attachEditorEvents();
+  document.getElementById('scale-slider').value = 65;
+  document.getElementById('rot-slider').value = 0;
+  document.getElementById('scale-val').textContent = '65%';
+  document.getElementById('rot-val').textContent = '0°';
 
-  // Start render loop
-  cancelAnimationFrame(editorRAF);
-  renderEditor();
-
-  // Hint auto-hide
-  const hint = document.getElementById('editor-hint');
-  hint.classList.remove('hidden');
-  setTimeout(() => hint.classList.add('hidden'), 3000);
+  bindEditorEvents();
+  drawEditor();
 }
 
-function resetStencilPosition() {
-  const cw = editorCanvas.width, ch = editorCanvas.height;
-  const size = Math.min(cw, ch) * 0.52;
-  stencil.baseW = size;
-  stencil.baseH = size;
-  applyShape();
-  stencil.x = cw / 2;
-  stencil.y = ch / 2;
-  stencil.rotation = 0;
-  document.getElementById('scale-slider').value = 100;
-  document.getElementById('scale-val').textContent = '100%';
-  document.getElementById('rotate-slider').value = 0;
-  document.getElementById('rotate-val').textContent = '0°';
+function getStencilDims() {
+  const minSide = Math.min(canvasW, canvasH);
+  const size = minSide * stencilScale;
+  let sw, sh;
+  if (stencilShape === 'square' || stencilShape === 'circle') { sw = size; sh = size; }
+  else if (stencilShape === 'portrait') { sw = size * 0.75; sh = size; }
+  else { sw = size; sh = size * 0.70; }
+  return { sw, sh };
 }
 
-document.getElementById('btn-reset-stencil').addEventListener('click', () => {
-  resetStencilPosition();
-});
+/* =============================================
+   EDITOR DRAW — CORE RENDERING
+   ============================================= */
+function drawEditor() {
+  if (!imgCtx) return;
+  const ctx = imgCtx;
+  ctx.clearRect(0, 0, canvasW, canvasH);
 
-function setShape(shape) {
-  stencil.shape = shape;
-  document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector(`[data-shape="${shape}"]`).classList.add('active');
-  applyShape();
+  // Draw source image
+  ctx.drawImage(sourceImage, imgDrawX, imgDrawY, imgDrawW, imgDrawH);
+
+  // Dim overlay
+  ctx.fillStyle = 'rgba(14,12,11,0.60)';
+  ctx.fillRect(0, 0, canvasW, canvasH);
+
+  // Cut out stencil (show clear image inside)
+  const { sw, sh } = getStencilDims();
+  ctx.save();
+  ctx.translate(stencilX, stencilY);
+  ctx.rotate(stencilRotation * Math.PI / 180);
+
+  // Clip path
+  ctx.beginPath();
+  if (stencilShape === 'circle') {
+    ctx.ellipse(0, 0, sw / 2, sh / 2, 0, 0, Math.PI * 2);
+  } else {
+    const r = 8;
+    const x = -sw / 2, y = -sh / 2;
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + sw - r, y);
+    ctx.quadraticCurveTo(x + sw, y, x + sw, y + r);
+    ctx.lineTo(x + sw, y + sh - r);
+    ctx.quadraticCurveTo(x + sw, y + sh, x + sw - r, y + sh);
+    ctx.lineTo(x + r, y + sh);
+    ctx.quadraticCurveTo(x, y + sh, x, y + sh - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
+  ctx.save();
+  ctx.clip();
+  // Draw original image inside clip (reverse transform to align)
+  ctx.rotate(-stencilRotation * Math.PI / 180);
+  ctx.translate(-stencilX, -stencilY);
+  ctx.drawImage(sourceImage, imgDrawX, imgDrawY, imgDrawW, imgDrawH);
+  ctx.restore();
+
+  // Perforated border
+  ctx.restore();
+  ctx.save();
+  ctx.translate(stencilX, stencilY);
+  ctx.rotate(stencilRotation * Math.PI / 180);
+
+  drawPerforations(ctx, sw, sh);
+
+  // Inner frame lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([]);
+  if (stencilShape === 'circle') {
+    ctx.beginPath();
+    ctx.ellipse(0, 0, sw / 2, sh / 2, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  } else {
+    const r = 8;
+    const x = -sw / 2, y = -sh / 2;
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + sw - r, y);
+    ctx.quadraticCurveTo(x + sw, y, x + sw, y + r);
+    ctx.lineTo(x + sw, y + sh - r);
+    ctx.quadraticCurveTo(x + sw, y + sh, x + sw - r, y + sh);
+    ctx.lineTo(x + r, y + sh);
+    ctx.quadraticCurveTo(x, y + sh, x, y + sh - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+    ctx.stroke();
+  }
+
+  // Corner indicators
+  const hw = sw / 2, hh = sh / 2;
+  const clen = 14;
+  ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+  ctx.lineWidth = 2;
+  const corners = [[-hw,-hh,1,1],[-hw+clen,-hh,0,1],[-hw,-hh+clen,-1,0],
+                    [hw,-hh,-1,1],[hw-clen,-hh,0,1],[hw,-hh+clen,1,0],
+                    [hw,hh,-1,-1],[hw-clen,hh,0,-1],[hw,hh-clen,1,0],
+                    [-hw,hh,1,-1],[-hw+clen,hh,0,-1],[-hw,hh-clen,-1,0]];
+  corners.forEach(([x,y,dx,dy]) => {
+    ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+dx*clen,y+dy*clen); ctx.stroke();
+  });
+
+  ctx.restore();
 }
 
-function applyShape() {
-  const base = stencil.baseW;
-  if (stencil.shape === 'square' || stencil.shape === 'circle') {
-    stencil.w = base; stencil.h = base;
-  } else if (stencil.shape === 'tall') {
-    stencil.w = base * 0.72; stencil.h = base;
-  } else if (stencil.shape === 'wide') {
-    stencil.w = base; stencil.h = base * 0.7;
+function drawPerforations(ctx, sw, sh) {
+  const perf = 6; // radius
+  const gap = perf * 2.8;
+  ctx.fillStyle = 'rgba(14,12,11,0.75)';
+
+  if (stencilShape === 'circle') {
+    const r = sw / 2 + perf * 0.5;
+    const count = Math.floor((2 * Math.PI * r) / gap);
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2;
+      const px = Math.cos(angle) * (sw / 2 + perf);
+      const py = Math.sin(angle) * (sh / 2 + perf);
+      ctx.beginPath();
+      ctx.arc(px, py, perf, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    return;
+  }
+
+  const x0 = -sw / 2, y0 = -sh / 2;
+
+  // Top & bottom edges
+  const countH = Math.max(3, Math.floor(sw / gap) - 1);
+  for (let i = 0; i <= countH; i++) {
+    const px = x0 + (i / countH) * sw;
+    ctx.beginPath(); ctx.arc(px, y0 - perf, perf, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(px, y0 + sh + perf, perf, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // Left & right edges
+  const countV = Math.max(3, Math.floor(sh / gap) - 1);
+  for (let i = 1; i < countV; i++) {
+    const py = y0 + (i / countV) * sh;
+    ctx.beginPath(); ctx.arc(x0 - perf, py, perf, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x0 + sw + perf, py, perf, 0, Math.PI * 2); ctx.fill();
   }
 }
 
-// Sliders
-document.getElementById('scale-slider').addEventListener('input', function() {
-  const val = parseInt(this.value);
-  document.getElementById('scale-val').textContent = val + '%';
-  const ratio = val / 100;
-  const base = Math.min(editorCanvas.width, editorCanvas.height) * 0.52;
-  stencil.baseW = base * ratio;
-  stencil.baseH = base * ratio;
-  applyShape();
-});
+/* =============================================
+   EDITOR EVENTS — DRAG & PINCH
+   ============================================= */
+function bindEditorEvents() {
+  const canvas = imgCanvas;
+  // Remove old listeners
+  canvas.onmousedown = null; canvas.ontouchstart = null;
 
-document.getElementById('rotate-slider').addEventListener('input', function() {
-  const val = parseInt(this.value);
-  document.getElementById('rotate-val').textContent = val + '°';
-  stencil.rotation = val * Math.PI / 180;
-});
+  // Mouse
+  canvas.addEventListener('mousedown', onDragStart, { passive: false });
+  canvas.addEventListener('mousemove', onDragMove, { passive: false });
+  canvas.addEventListener('mouseup', onDragEnd);
+  canvas.addEventListener('mouseleave', onDragEnd);
 
-/* ---- Canvas Event Handlers ---- */
-function attachEditorEvents() {
-  // Remove old listeners by cloning
-  const old = editorCanvas;
-  const fresh = old.cloneNode(true);
-  old.parentNode.replaceChild(fresh, old);
-  editorCanvas = fresh;
-  editorCtx = fresh.getContext('2d');
-
-  editorCanvas.addEventListener('mousedown', onMouseDown);
-  editorCanvas.addEventListener('mousemove', onMouseMove);
-  window.addEventListener('mouseup', onMouseUp);
-
-  editorCanvas.addEventListener('touchstart', onTouchStart, { passive: false });
-  editorCanvas.addEventListener('touchmove', onTouchMove, { passive: false });
-  editorCanvas.addEventListener('touchend', onTouchEnd);
+  // Touch
+  canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+  canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+  canvas.addEventListener('touchend', onTouchEnd);
 }
 
-function onMouseDown(e) {
-  const rect = editorCanvas.getBoundingClientRect();
-  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-  if (isInStencil(mx, my)) {
-    drag.active = true;
-    drag.startX = mx; drag.startY = my;
-    drag.origX = stencil.x; drag.origY = stencil.y;
+function getEventPos(e) {
+  const rect = imgCanvas.getBoundingClientRect();
+  if (e.touches) {
+    return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
   }
+  return { x: e.clientX - rect.left, y: e.clientY - rect.top };
 }
-function onMouseMove(e) {
-  if (!drag.active) return;
-  const rect = editorCanvas.getBoundingClientRect();
-  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-  stencil.x = drag.origX + (mx - drag.startX);
-  stencil.y = drag.origY + (my - drag.startY);
+
+function onDragStart(e) {
+  e.preventDefault();
+  const pos = getEventPos(e);
+  isDragging = true;
+  dragStartX = pos.x; dragStartY = pos.y;
+  stencilStartX = stencilX; stencilStartY = stencilY;
 }
-function onMouseUp() { drag.active = false; }
+
+function onDragMove(e) {
+  e.preventDefault();
+  if (!isDragging) return;
+  const pos = getEventPos(e);
+  const dx = pos.x - dragStartX, dy = pos.y - dragStartY;
+  stencilX = stencilStartX + dx;
+  stencilY = stencilStartY + dy;
+  drawEditor();
+}
+
+function onDragEnd() { isDragging = false; lastPinchDist = null; }
 
 function onTouchStart(e) {
   e.preventDefault();
-  if (e.touches.length === 1) {
-    const t = e.touches[0];
-    const rect = editorCanvas.getBoundingClientRect();
-    const tx = t.clientX - rect.left, ty = t.clientY - rect.top;
-    drag.active = true;
-    drag.startX = tx; drag.startY = ty;
-    drag.origX = stencil.x; drag.origY = stencil.y;
-  } else if (e.touches.length === 2) {
-    drag.active = false;
-    pinch.active = true;
-    pinch.startDist = getTouchDist(e.touches);
-    pinch.startScale = parseInt(document.getElementById('scale-slider').value) / 100;
+  if (e.touches.length === 2) {
+    lastPinchDist = getPinchDist(e);
+    return;
   }
+  const rect = imgCanvas.getBoundingClientRect();
+  const pos = { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+  isDragging = true;
+  dragStartX = pos.x; dragStartY = pos.y;
+  stencilStartX = stencilX; stencilStartY = stencilY;
 }
+
 function onTouchMove(e) {
   e.preventDefault();
-  if (e.touches.length === 1 && drag.active) {
-    const t = e.touches[0];
-    const rect = editorCanvas.getBoundingClientRect();
-    const tx = t.clientX - rect.left, ty = t.clientY - rect.top;
-    stencil.x = drag.origX + (tx - drag.startX);
-    stencil.y = drag.origY + (ty - drag.startY);
-  } else if (e.touches.length === 2 && pinch.active) {
-    const dist = getTouchDist(e.touches);
-    const ratio = dist / pinch.startDist;
-    const newScale = Math.min(2, Math.max(0.5, pinch.startScale * ratio));
-    const pct = Math.round(newScale * 100);
-    document.getElementById('scale-slider').value = pct;
-    document.getElementById('scale-val').textContent = pct + '%';
-    const base = Math.min(editorCanvas.width, editorCanvas.height) * 0.52;
-    stencil.baseW = base * newScale;
-    stencil.baseH = base * newScale;
-    applyShape();
+  if (e.touches.length === 2) {
+    const dist = getPinchDist(e);
+    if (lastPinchDist) {
+      const delta = (dist - lastPinchDist) / 300;
+      stencilScale = Math.max(0.2, Math.min(0.95, stencilScale + delta));
+      document.getElementById('scale-slider').value = Math.round(stencilScale * 100);
+      document.getElementById('scale-val').textContent = Math.round(stencilScale * 100) + '%';
+    }
+    lastPinchDist = dist;
+    drawEditor();
+    return;
   }
+  if (!isDragging) return;
+  const rect = imgCanvas.getBoundingClientRect();
+  const pos = { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+  stencilX = stencilStartX + (pos.x - dragStartX);
+  stencilY = stencilStartY + (pos.y - dragStartY);
+  drawEditor();
 }
+
 function onTouchEnd(e) {
-  if (e.touches.length === 0) { drag.active = false; pinch.active = false; }
-  if (e.touches.length === 1) { pinch.active = false; }
-}
-function getTouchDist(touches) {
-  const dx = touches[0].clientX - touches[1].clientX;
-  const dy = touches[0].clientY - touches[1].clientY;
-  return Math.sqrt(dx*dx + dy*dy);
-}
-function isInStencil(mx, my) {
-  const dx = mx - stencil.x, dy = my - stencil.y;
-  return Math.abs(dx) < stencil.w/2 + 20 && Math.abs(dy) < stencil.h/2 + 20;
+  if (e.touches.length < 2) lastPinchDist = null;
+  if (e.touches.length === 0) isDragging = false;
 }
 
-/* ---- Render Loop ---- */
-function renderEditor() {
-  editorRAF = requestAnimationFrame(renderEditor);
-  const ctx = editorCtx;
-  const cw = editorCanvas.width, ch = editorCanvas.height;
-  ctx.clearRect(0, 0, cw, ch);
-
-  if (!sourceImage) return;
-
-  // Draw source image (cover-fit)
-  const scale = Math.max(cw / sourceImage.width, ch / sourceImage.height);
-  const sw = sourceImage.width * scale, sh = sourceImage.height * scale;
-  const sx = (cw - sw) / 2, sy = (ch - sh) / 2;
-  ctx.drawImage(sourceImage, sx, sy, sw, sh);
-
-  // Darkened overlay outside stencil
-  ctx.save();
-  ctx.fillStyle = 'rgba(0,0,0,0.62)';
-  ctx.fillRect(0, 0, cw, ch);
-
-  // Cut out stencil hole
-  ctx.globalCompositeOperation = 'destination-out';
-  ctx.save();
-  ctx.translate(stencil.x, stencil.y);
-  ctx.rotate(stencil.rotation);
-  drawStencilShape(ctx, 0, 0, stencil.w, stencil.h, stencil.shape, true);
-  ctx.fillStyle = 'rgba(0,0,0,1)';
-  ctx.fill();
-  ctx.restore();
-  ctx.restore();
-
-  // Re-draw image in stencil area
-  ctx.save();
-  ctx.translate(stencil.x, stencil.y);
-  ctx.rotate(stencil.rotation);
-  ctx.beginPath();
-  drawStencilShape(ctx, 0, 0, stencil.w, stencil.h, stencil.shape, false);
-  ctx.clip();
-  ctx.rotate(-stencil.rotation);
-  ctx.translate(-stencil.x, -stencil.y);
-  ctx.drawImage(sourceImage, sx, sy, sw, sh);
-  ctx.restore();
-
-  // Draw perforation border
-  ctx.save();
-  ctx.translate(stencil.x, stencil.y);
-  ctx.rotate(stencil.rotation);
-  drawPerforationBorder(ctx, 0, 0, stencil.w, stencil.h, stencil.shape);
-  ctx.restore();
-
-  // Corner reticle lines
-  ctx.save();
-  ctx.translate(stencil.x, stencil.y);
-  ctx.rotate(stencil.rotation);
-  drawReticle(ctx, stencil.w, stencil.h, stencil.shape);
-  ctx.restore();
+function getPinchDist(e) {
+  const dx = e.touches[0].clientX - e.touches[1].clientX;
+  const dy = e.touches[0].clientY - e.touches[1].clientY;
+  return Math.sqrt(dx * dx + dy * dy);
 }
 
-function drawStencilShape(ctx, x, y, w, h, shape, begin) {
-  if (begin) ctx.beginPath();
-  if (shape === 'circle') {
-    ctx.ellipse(x, y, w/2, h/2, 0, 0, Math.PI*2);
+/* =============================================
+   CONTROLS
+   ============================================= */
+function setShape(shape) {
+  stencilShape = shape;
+  ['square','portrait','landscape','circle'].forEach(s => {
+    document.getElementById('shape-' + s).classList.toggle('active', s === shape);
+  });
+  drawEditor();
+}
+
+function updateScale(val) {
+  stencilScale = val / 100;
+  document.getElementById('scale-val').textContent = val + '%';
+  drawEditor();
+}
+
+function updateRotation(val) {
+  stencilRotation = parseInt(val);
+  document.getElementById('rot-val').textContent = val + '°';
+  drawEditor();
+}
+
+function rotateStencil() {
+  stencilRotation = (stencilRotation + 15) % 360;
+  const v = stencilRotation > 180 ? stencilRotation - 360 : stencilRotation;
+  document.getElementById('rot-slider').value = Math.max(-45, Math.min(45, v));
+  document.getElementById('rot-val').textContent = Math.round(stencilRotation) + '°';
+  drawEditor();
+}
+
+/* =============================================
+   STAMP GENERATION
+   ============================================= */
+function createStamp() {
+  const { sw, sh } = getStencilDims();
+  const MARGIN = 36; // perforated border space
+  const OUTPUT_SIZE = 480;
+
+  // Determine output canvas dimensions
+  let outW, outH;
+  if (stencilShape === 'square' || stencilShape === 'circle') { outW = OUTPUT_SIZE; outH = OUTPUT_SIZE; }
+  else if (stencilShape === 'portrait') { outW = OUTPUT_SIZE * 0.75; outH = OUTPUT_SIZE; }
+  else { outW = OUTPUT_SIZE; outH = OUTPUT_SIZE * 0.70; }
+
+  const totalW = outW + MARGIN * 2;
+  const totalH = outH + MARGIN * 2;
+
+  const out = document.createElement('canvas');
+  out.width = totalW;
+  out.height = totalH;
+  const octx = out.getContext('2d');
+
+  // Paper background
+  octx.fillStyle = '#F5F0E8';
+  octx.fillRect(0, 0, totalW, totalH);
+
+  // Paper texture
+  addPaperTexture(octx, totalW, totalH);
+
+  // Extract region from source image, applying stencil transform
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = outW; tempCanvas.height = outH;
+  const tctx = tempCanvas.getContext('2d');
+
+  tctx.save();
+  tctx.translate(outW / 2, outH / 2);
+  tctx.rotate(stencilRotation * Math.PI / 180);
+
+  // Calculate what fraction of image the stencil covers
+  const scaleX = outW / sw;
+  const scaleY = outH / sh;
+
+  // Image position relative to stencil center
+  const offX = (imgDrawX + imgDrawW / 2 - stencilX) * scaleX;
+  const offY = (imgDrawY + imgDrawH / 2 - stencilY) * scaleY;
+
+  tctx.drawImage(sourceImage, offX - (imgDrawW / 2) * scaleX, offY - (imgDrawH / 2) * scaleY, imgDrawW * scaleX, imgDrawH * scaleY);
+  tctx.restore();
+
+  // Draw image into stamp area with rounded clip
+  octx.save();
+  octx.translate(MARGIN, MARGIN);
+
+  if (stencilShape === 'circle') {
+    octx.beginPath();
+    octx.ellipse(outW / 2, outH / 2, outW / 2, outH / 2, 0, 0, Math.PI * 2);
+    octx.clip();
   } else {
     const r = 6;
-    const hw = w/2, hh = h/2;
-    ctx.beginPath();
-    ctx.moveTo(x - hw + r, y - hh);
-    ctx.lineTo(x + hw - r, y - hh);
-    ctx.arcTo(x + hw, y - hh, x + hw, y - hh + r, r);
-    ctx.lineTo(x + hw, y + hh - r);
-    ctx.arcTo(x + hw, y + hh, x + hw - r, y + hh, r);
-    ctx.lineTo(x - hw + r, y + hh);
-    ctx.arcTo(x - hw, y + hh, x - hw, y + hh - r, r);
-    ctx.lineTo(x - hw, y - hh + r);
-    ctx.arcTo(x - hw, y - hh, x - hw + r, y - hh, r);
-    ctx.closePath();
+    octx.beginPath();
+    octx.moveTo(r, 0); octx.lineTo(outW - r, 0);
+    octx.quadraticCurveTo(outW, 0, outW, r);
+    octx.lineTo(outW, outH - r);
+    octx.quadraticCurveTo(outW, outH, outW - r, outH);
+    octx.lineTo(r, outH);
+    octx.quadraticCurveTo(0, outH, 0, outH - r);
+    octx.lineTo(0, r);
+    octx.quadraticCurveTo(0, 0, r, 0);
+    octx.closePath();
+    octx.clip();
   }
+  octx.drawImage(tempCanvas, 0, 0);
+  octx.restore();
+
+  // Inner emboss shadow
+  octx.save();
+  octx.translate(MARGIN, MARGIN);
+  const grad = octx.createLinearGradient(0, 0, 0, outH);
+  grad.addColorStop(0, 'rgba(0,0,0,0.15)');
+  grad.addColorStop(0.3, 'transparent');
+  grad.addColorStop(0.7, 'transparent');
+  grad.addColorStop(1, 'rgba(0,0,0,0.10)');
+
+  if (stencilShape === 'circle') {
+    octx.beginPath();
+    octx.ellipse(outW / 2, outH / 2, outW / 2, outH / 2, 0, 0, Math.PI * 2);
+    octx.clip();
+  } else {
+    octx.beginPath();
+    const r = 6;
+    octx.moveTo(r, 0); octx.lineTo(outW - r, 0);
+    octx.quadraticCurveTo(outW, 0, outW, r);
+    octx.lineTo(outW, outH - r);
+    octx.quadraticCurveTo(outW, outH, outW - r, outH);
+    octx.lineTo(r, outH);
+    octx.quadraticCurveTo(0, outH, 0, outH - r);
+    octx.lineTo(0, r);
+    octx.quadraticCurveTo(0, 0, r, 0);
+    octx.closePath();
+    octx.clip();
+  }
+  octx.fillStyle = grad;
+  octx.fillRect(0, 0, outW, outH);
+  octx.restore();
+
+  // Perforated border — stamp-style
+  drawStampPerforations(octx, totalW, totalH, MARGIN, outW, outH, stencilShape);
+
+  // Fine border line
+  octx.save();
+  octx.translate(MARGIN, MARGIN);
+  octx.strokeStyle = 'rgba(26,23,20,0.25)';
+  octx.lineWidth = 0.75;
+
+  if (stencilShape === 'circle') {
+    octx.beginPath();
+    octx.ellipse(outW / 2, outH / 2, outW / 2 - 0.5, outH / 2 - 0.5, 0, 0, Math.PI * 2);
+    octx.stroke();
+  } else {
+    const r = 6;
+    octx.beginPath();
+    octx.moveTo(r, 0.5); octx.lineTo(outW - r, 0.5);
+    octx.quadraticCurveTo(outW - 0.5, 0.5, outW - 0.5, r);
+    octx.lineTo(outW - 0.5, outH - r);
+    octx.quadraticCurveTo(outW - 0.5, outH - 0.5, outW - r, outH - 0.5);
+    octx.lineTo(r, outH - 0.5);
+    octx.quadraticCurveTo(0.5, outH - 0.5, 0.5, outH - r);
+    octx.lineTo(0.5, r);
+    octx.quadraticCurveTo(0.5, 0.5, r, 0.5);
+    octx.closePath();
+    octx.stroke();
+  }
+  octx.restore();
+
+  // Outer stamp border
+  octx.strokeStyle = 'rgba(26,23,20,0.08)';
+  octx.lineWidth = 0.5;
+  octx.strokeRect(0.25, 0.25, totalW - 0.5, totalH - 0.5);
+
+  stampDataURL = out.toDataURL('image/png');
+
+  // Show preview
+  const prevCanvas = document.getElementById('stamp-preview-canvas');
+  const maxSide = Math.min(window.innerWidth - 80, window.innerHeight * 0.45);
+  const ratio = totalW / totalH;
+  if (ratio >= 1) { prevCanvas.width = maxSide; prevCanvas.height = maxSide / ratio; }
+  else { prevCanvas.width = maxSide * ratio; prevCanvas.height = maxSide; }
+
+  prevCanvas.getContext('2d').drawImage(out, 0, 0, prevCanvas.width, prevCanvas.height);
+  document.getElementById('preview-date').textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  showPreview();
+  initPreviewTilt();
 }
 
-function drawPerforationBorder(ctx, x, y, w, h, shape) {
-  const perf = 9, gap = 5;
-  ctx.strokeStyle = 'rgba(255,255,255,0.9)';
-  ctx.lineWidth = 2;
-  ctx.setLineDash([perf, gap]);
-  ctx.lineDashOffset = 0;
+function addPaperTexture(ctx, w, h) {
+  // Subtle grain via random dots
+  ctx.save();
+  ctx.globalAlpha = 0.035;
+  for (let i = 0; i < 800; i++) {
+    const x = Math.random() * w;
+    const y = Math.random() * h;
+    const r = Math.random() * 1.2;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = Math.random() > 0.5 ? '#000' : '#888';
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawStampPerforations(ctx, totalW, totalH, margin, imgW, imgH, shape) {
+  const perf = 7; // perforation radius
+  const gap = perf * 2.6;
+  ctx.fillStyle = '#F5F0E8'; // cream-colored holes
+
+  // We punch holes out from the dark border
+  ctx.globalCompositeOperation = 'destination-out';
 
   if (shape === 'circle') {
-    ctx.beginPath();
-    ctx.ellipse(x, y, w/2 + 10, h/2 + 10, 0, 0, Math.PI * 2);
-    ctx.stroke();
-  } else {
-    const pad = 10;
-    const hw = w/2 + pad, hh = h/2 + pad;
-    const r = 10;
-    ctx.beginPath();
-    ctx.moveTo(x - hw + r, y - hh);
-    ctx.lineTo(x + hw - r, y - hh);
-    ctx.arcTo(x + hw, y - hh, x + hw, y - hh + r, r);
-    ctx.lineTo(x + hw, y + hh - r);
-    ctx.arcTo(x + hw, y + hh, x + hw - r, y + hh, r);
-    ctx.lineTo(x - hw + r, y + hh);
-    ctx.arcTo(x - hw, y + hh, x - hw, y + hh - r, r);
-    ctx.lineTo(x - hw, y - hh + r);
-    ctx.arcTo(x - hw, y - hh, x - hw + r, y - hh, r);
-    ctx.closePath();
-    ctx.stroke();
-  }
-
-  ctx.setLineDash([]);
-}
-
-function drawReticle(ctx, w, h, shape) {
-  if (shape === 'circle') return;
-  const hw = w/2, hh = h/2;
-  const len = 16;
-  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-  ctx.lineWidth = 1.5;
-
-  // corners
-  const corners = [[-hw,-hh],[hw,-hh],[hw,hh],[-hw,hh]];
-  const dirs = [[1,1],[-1,1],[-1,-1],[1,-1]];
-  corners.forEach(([cx,cy],[dx,dy]) => {
-    ctx.beginPath();
-    ctx.moveTo(cx + dx*len, cy); ctx.lineTo(cx, cy); ctx.lineTo(cx, cy + dy*len);
-    ctx.stroke();
-  }, dirs);
-}
-
-/* ================================================================
-   STAMP GENERATION
-================================================================ */
-function createStamp() {
-  if (!sourceImage) { showToast('No image loaded'); return; }
-
-  // Extract image region under stencil
-  const STAMP_SIZE = 260;
-  const outCanvas = document.createElement('canvas');
-  outCanvas.width = STAMP_SIZE;
-  outCanvas.height = STAMP_SIZE;
-  const oc = outCanvas.getContext('2d');
-
-  // Compute how image maps to editor canvas
-  const cw = editorCanvas.width, ch = editorCanvas.height;
-  const imgScale = Math.max(cw / sourceImage.width, ch / sourceImage.height);
-  const sw = sourceImage.width * imgScale, sh = sourceImage.height * imgScale;
-  const imgOffX = (cw - sw) / 2, imgOffY = (ch - sh) / 2;
-
-  // Determine stamp aspect
-  let stampW = STAMP_SIZE, stampH = STAMP_SIZE;
-  if (stencil.shape === 'tall') { stampW = STAMP_SIZE * 0.72; stampH = STAMP_SIZE; }
-  if (stencil.shape === 'wide') { stampW = STAMP_SIZE; stampH = STAMP_SIZE * 0.7; }
-
-  const PERF = 14; // perforated border width
-  const innerW = stampW - PERF * 2;
-  const innerH = stampH - PERF * 2;
-
-  // Total canvas needs to fit stamp + shadow
-  const pad = 24;
-  const totalW = stampW + pad * 2;
-  const totalH = stampH + pad * 2;
-  outCanvas.width = totalW;
-  outCanvas.height = totalH;
-
-  const ox = pad, oy = pad;
-
-  // Shadow
-  oc.shadowColor = 'rgba(0,0,0,0.22)';
-  oc.shadowBlur = 18;
-  oc.shadowOffsetX = 2;
-  oc.shadowOffsetY = 4;
-
-  // Stamp body (white paper)
-  oc.fillStyle = '#FDFAF6';
-  oc.beginPath();
-  roundRect(oc, ox, oy, stampW, stampH, 5);
-  oc.fill();
-  oc.shadowColor = 'transparent';
-
-  // Paper grain texture (noise overlay)
-  addPaperGrain(oc, ox, oy, stampW, stampH);
-
-  // Clip image to inner region
-  oc.save();
-  oc.beginPath();
-  if (stencil.shape === 'circle') {
-    oc.ellipse(ox + stampW/2, oy + stampH/2, innerW/2, innerH/2, 0, 0, Math.PI*2);
-  } else {
-    roundRect(oc, ox + PERF, oy + PERF, innerW, innerH, 3);
-  }
-  oc.clip();
-
-  // Draw the image portion that was in stencil
-  const scaleX = innerW / stencil.w;
-  const scaleY = innerH / stencil.h;
-  oc.save();
-  oc.translate(ox + PERF + innerW/2, oy + PERF + innerH/2);
-  oc.rotate(stencil.rotation);
-  oc.drawImage(
-    sourceImage,
-    0, 0, sourceImage.width, sourceImage.height,
-    -(stencil.x - imgOffX) / imgScale * scaleX - innerW/2,
-    -(stencil.y - imgOffY) / imgScale * scaleY - innerH/2,
-    (sw / imgScale) * scaleX,
-    (sh / imgScale) * scaleY
-  );
-  oc.restore();
-  oc.restore();
-
-  // Emboss inner shadow on image
-  oc.save();
-  oc.beginPath();
-  if (stencil.shape === 'circle') {
-    oc.ellipse(ox + stampW/2, oy + stampH/2, innerW/2, innerH/2, 0, 0, Math.PI*2);
-  } else {
-    roundRect(oc, ox + PERF, oy + PERF, innerW, innerH, 3);
-  }
-  oc.clip();
-  const grad = oc.createRadialGradient(
-    ox + PERF + innerW/2, oy + PERF + innerH/2, Math.min(innerW, innerH) * 0.3,
-    ox + PERF + innerW/2, oy + PERF + innerH/2, Math.min(innerW, innerH) * 0.7
-  );
-  grad.addColorStop(0, 'rgba(0,0,0,0)');
-  grad.addColorStop(1, 'rgba(0,0,0,0.18)');
-  oc.fillStyle = grad;
-  oc.fillRect(ox + PERF, oy + PERF, innerW, innerH);
-  oc.restore();
-
-  // Perforated border
-  drawStampPerforation(oc, ox, oy, stampW, stampH, stencil.shape);
-
-  stampDataURL = outCanvas.toDataURL('image/png');
-
-  // Show on preview canvas
-  const previewCanvas = document.getElementById('preview-canvas');
-  previewCanvas.width = totalW;
-  previewCanvas.height = totalH;
-  const pc = previewCanvas.getContext('2d');
-  pc.drawImage(outCanvas, 0, 0);
-
-  switchScreen('preview');
-  init3DTilt();
-}
-
-function roundRect(ctx, x, y, w, h, r) {
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.arcTo(x + w, y, x + w, y + r, r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
-  ctx.lineTo(x + r, y + h);
-  ctx.arcTo(x, y + h, x, y + h - r, r);
-  ctx.lineTo(x, y + r);
-  ctx.arcTo(x, y, x + r, y, r);
-  ctx.closePath();
-}
-
-function addPaperGrain(ctx, x, y, w, h) {
-  const imgData = ctx.getImageData(x, y, w, h);
-  const d = imgData.data;
-  for (let i = 0; i < d.length; i += 4) {
-    const noise = (Math.random() - 0.5) * 18;
-    d[i] = Math.min(255, Math.max(0, d[i] + noise));
-    d[i+1] = Math.min(255, Math.max(0, d[i+1] + noise));
-    d[i+2] = Math.min(255, Math.max(0, d[i+2] + noise));
-  }
-  ctx.putImageData(imgData, x, y);
-}
-
-function drawStampPerforation(ctx, ox, oy, stampW, stampH, shape) {
-  const PERF = 14;
-  const dotR = 4.5;
-  const spacing = 13;
-  ctx.fillStyle = '#F5F2EE';
-
-  if (shape === 'circle') {
-    // Circular perforations around the ellipse
-    const cx = ox + stampW/2, cy = oy + stampH/2;
-    const rx = stampW/2 + dotR, ry = stampH/2 + dotR;
-    const circumference = Math.PI * (3*(rx+ry) - Math.sqrt((3*rx+ry)*(rx+3*ry)));
-    const numDots = Math.floor(circumference / spacing);
-    for (let i = 0; i < numDots; i++) {
-      const angle = (i / numDots) * Math.PI * 2;
-      const dx = cx + rx * Math.cos(angle);
-      const dy = cy + ry * Math.sin(angle);
-      ctx.beginPath();
-      ctx.arc(dx, dy, dotR, 0, Math.PI * 2);
-      ctx.fill();
+    // Circular perforations
+    const cx = totalW / 2, cy = totalH / 2;
+    const outerR = imgW / 2 + margin - perf * 0.4;
+    const count = Math.floor((2 * Math.PI * outerR) / gap);
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2;
+      const px = cx + Math.cos(angle) * outerR;
+      const py = cy + Math.sin(angle) * outerR;
+      ctx.beginPath(); ctx.arc(px, py, perf, 0, Math.PI * 2); ctx.fill();
     }
   } else {
-    // Horizontal top/bottom
-    for (let x = ox + spacing; x < ox + stampW - spacing/2; x += spacing) {
-      ctx.beginPath(); ctx.arc(x, oy, dotR, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(x, oy + stampH, dotR, 0, Math.PI*2); ctx.fill();
+    const x0 = margin; const y0 = margin;
+
+    // Top & bottom
+    const countH = Math.max(4, Math.floor(imgW / gap));
+    for (let i = 0; i <= countH; i++) {
+      const px = x0 + (i / countH) * imgW;
+      ctx.beginPath(); ctx.arc(px, y0 - perf * 0.5, perf, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(px, y0 + imgH + perf * 0.5, perf, 0, Math.PI * 2); ctx.fill();
     }
-    // Vertical left/right
-    for (let y = oy + spacing; y < oy + stampH - spacing/2; y += spacing) {
-      ctx.beginPath(); ctx.arc(ox, y, dotR, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(ox + stampW, y, dotR, 0, Math.PI*2); ctx.fill();
+
+    // Left & right
+    const countV = Math.max(4, Math.floor(imgH / gap));
+    for (let i = 1; i < countV; i++) {
+      const py = y0 + (i / countV) * imgH;
+      ctx.beginPath(); ctx.arc(x0 - perf * 0.5, py, perf, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x0 + imgW + perf * 0.5, py, perf, 0, Math.PI * 2); ctx.fill();
     }
-    // Corners
-    [ox, ox+stampW].forEach(px => [oy, oy+stampH].forEach(py => {
-      ctx.beginPath(); ctx.arc(px, py, dotR, 0, Math.PI*2); ctx.fill();
-    }));
   }
+
+  ctx.globalCompositeOperation = 'source-over';
 }
 
-/* ================================================================
-   3D TILT ON PREVIEW
-================================================================ */
-function init3DTilt() {
-  const wrap = document.getElementById('preview-stamp-wrap');
-  const canvas = document.getElementById('preview-canvas');
-  let tiltTimeout;
+/* =============================================
+   PREVIEW TILT
+   ============================================= */
+function initPreviewTilt() {
+  const wrap = document.getElementById('stamp-preview-wrap');
+  const screen = document.getElementById('preview-screen');
 
-  function applyTilt(rx, ry) {
-    canvas.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
-  }
-  function resetTilt() {
-    canvas.style.transform = 'rotateX(0deg) rotateY(0deg)';
-  }
-
-  wrap.addEventListener('mousemove', (e) => {
+  screen.onmousemove = function(e) {
     const rect = wrap.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    applyTilt(-y * 20, x * 20);
-  });
-  wrap.addEventListener('mouseleave', resetTilt);
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const rx = ((e.clientY - cy) / rect.height) * 12;
+    const ry = ((e.clientX - cx) / rect.width) * -12;
+    wrap.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+  };
+  screen.onmouseleave = function() {
+    wrap.style.transform = 'rotateX(0deg) rotateY(0deg)';
+  };
 
-  wrap.addEventListener('touchmove', (e) => {
-    const t = e.touches[0];
+  screen.ontouchmove = function(e) {
+    const touch = e.touches[0];
     const rect = wrap.getBoundingClientRect();
-    const x = (t.clientX - rect.left) / rect.width - 0.5;
-    const y = (t.clientY - rect.top) / rect.height - 0.5;
-    applyTilt(-y * 20, x * 20);
-  }, { passive: true });
-  wrap.addEventListener('touchend', resetTilt);
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const rx = ((touch.clientY - cy) / rect.height) * 10;
+    const ry = ((touch.clientX - cx) / rect.width) * -10;
+    wrap.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+  };
 }
 
-/* ================================================================
-   EXPORT
-================================================================ */
-document.getElementById('btn-export-single').addEventListener('click', () => {
+/* =============================================
+   SAVE / GALLERY
+   ============================================= */
+const STAMPS_PER_PAGE = 12;
+
+function saveToCollection() {
+  if (!stampDataURL) return;
+  const stamps = getStamps();
+  stamps.push({ id: Date.now(), src: stampDataURL, date: new Date().toISOString() });
+  localStorage.setItem('stampbook_stamps', JSON.stringify(stamps));
+  showToast('Stamp saved to collection');
+  setTimeout(() => showGallery(), 800);
+}
+
+function getStamps() {
+  try { return JSON.parse(localStorage.getItem('stampbook_stamps') || '[]'); }
+  catch { return []; }
+}
+
+function renderGallery() {
+  const stamps = getStamps();
+  const body = document.getElementById('gallery-body');
+  const countEl = document.getElementById('gallery-count');
+  countEl.textContent = stamps.length + (stamps.length === 1 ? ' stamp' : ' stamps');
+
+  if (stamps.length === 0) {
+    body.innerHTML = `<div class="gallery-empty">
+      <div class="gallery-empty-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+      <div class="gallery-empty-title">No stamps yet</div>
+      <div class="gallery-empty-sub">Create your first stamp from any photo</div>
+    </div>`;
+    return;
+  }
+
+  const pages = Math.ceil(stamps.length / STAMPS_PER_PAGE);
+  let html = '';
+
+  for (let p = 0; p < pages; p++) {
+    const pageStamps = stamps.slice(p * STAMPS_PER_PAGE, (p + 1) * STAMPS_PER_PAGE);
+    const isFull = pageStamps.length === STAMPS_PER_PAGE;
+    html += `<div class="page-spread ${isFull ? 'page-complete' : ''}" data-page="${p}">
+      ${isFull ? '<div class="shimmer-bar"></div>' : ''}
+      <div class="page-header">
+        <span class="page-num">Page ${p + 1}</span>
+        <span class="page-full-badge ${isFull ? 'visible' : ''}">Complete</span>
+      </div>
+      <div class="stamp-grid">`;
+
+    pageStamps.forEach((stamp, i) => {
+      html += `<div class="stamp-cell" onclick="openLightbox('${stamp.id}')">
+        <img src="${stamp.src}" alt="Stamp ${i + 1}" loading="lazy">
+        <button class="stamp-del" onclick="event.stopPropagation(); deleteStamp(${stamp.id})">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>`;
+    });
+
+    // Empty cells
+    const empty = STAMPS_PER_PAGE - pageStamps.length;
+    for (let e = 0; e < empty && p === pages - 1; e++) {
+      html += `<div class="stamp-cell empty"></div>`;
+    }
+
+    html += `</div></div>`;
+  }
+
+  body.innerHTML = html;
+}
+
+function deleteStamp(id) {
+  const stamps = getStamps().filter(s => s.id !== id);
+  localStorage.setItem('stampbook_stamps', JSON.stringify(stamps));
+  renderGallery();
+}
+
+function openLightbox(id) {
+  const stamps = getStamps();
+  const stamp = stamps.find(s => s.id == id);
+  if (!stamp) return;
+  document.getElementById('lightbox-img').src = stamp.src;
+  document.getElementById('lightbox').classList.remove('hidden');
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.add('hidden');
+}
+
+/* =============================================
+   EXPORT / SHARE
+   ============================================= */
+function downloadStamp() {
   if (!stampDataURL) return;
   const a = document.createElement('a');
   a.href = stampDataURL;
   a.download = 'stamp-' + Date.now() + '.png';
   a.click();
-  showToast('Stamp saved');
-});
-
-document.getElementById('btn-export-page').addEventListener('click', () => {
-  openModal('export-modal');
-});
-
-function exportCurrentPage() {
-  closeModal('export-modal');
-  const pageEl = document.querySelector('.book-page');
-  if (!pageEl) { showToast('No stamps to export'); return; }
-  // Render the gallery page using a canvas
-  showToast('Preparing export...');
-  setTimeout(() => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 900; canvas.height = 1200;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#FDFAF6';
-    roundRect(ctx, 20, 20, 860, 1160, 24);
-    ctx.fill();
-
-    const stamps_in_page = stamps.slice(0, STAMPS_PER_PAGE);
-    let loaded = 0;
-    if (stamps_in_page.length === 0) { showToast('No stamps'); return; }
-
-    stamps_in_page.forEach((src, i) => {
-      const img = new Image();
-      img.onload = () => {
-        const col = i % 3, row = Math.floor(i / 3);
-        const cellW = 260, cellH = 280;
-        const padX = 50, padY = 80;
-        const x = padX + col * (cellW + 16);
-        const y = padY + row * (cellH + 16);
-        ctx.drawImage(img, x, y, cellW, cellH);
-        loaded++;
-        if (loaded === stamps_in_page.length) {
-          const a = document.createElement('a');
-          a.href = canvas.toDataURL('image/png');
-          a.download = 'stampbook-page-' + Date.now() + '.png';
-          a.click();
-          showToast('Page exported');
-        }
-      };
-      img.src = src;
-    });
-  }, 100);
+  showToast('Stamp exported');
 }
 
-/* ================================================================
-   SAVE TO COLLECTION
-================================================================ */
-function saveToCollection() {
-  if (!stampDataURL) { showToast('No stamp to save'); return; }
-  stamps.push(stampDataURL);
-  saveStamps();
-  switchScreen('gallery');
-  showToast('Stamp added to collection');
-}
-
-/* ================================================================
-   GALLERY RENDER
-================================================================ */
-function renderGallery() {
-  const body = document.getElementById('gallery-body');
-  body.innerHTML = '';
-
-  if (stamps.length === 0) {
-    body.innerHTML = `
-      <div class="gallery-empty">
-        <div class="gallery-empty-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="3"/>
-            <path d="M8 12h8M12 8v8"/>
-          </svg>
-        </div>
-        <h3>No Stamps Yet</h3>
-        <p>Create your first stamp from a photo and it will appear here.</p>
-      </div>`;
-    return;
-  }
-
-  const totalPages = Math.ceil(stamps.length / STAMPS_PER_PAGE);
-
-  for (let p = 0; p < totalPages; p++) {
-    const pageStamps = stamps.slice(p * STAMPS_PER_PAGE, (p+1) * STAMPS_PER_PAGE);
-    const isFull = pageStamps.length === STAMPS_PER_PAGE;
-
-    const pageEl = document.createElement('div');
-    pageEl.className = 'book-page' + (isFull ? ' full' : '');
-
-    const header = document.createElement('div');
-    header.className = 'page-header';
-    header.innerHTML = `
-      <div class="page-title">Collection</div>
-      <div class="page-num">Page ${p+1} &bull; ${pageStamps.length}/${STAMPS_PER_PAGE}</div>`;
-    pageEl.appendChild(header);
-
-    const grid = document.createElement('div');
-    grid.className = 'stamp-grid';
-
-    for (let i = 0; i < STAMPS_PER_PAGE; i++) {
-      const slot = document.createElement('div');
-      const globalIdx = p * STAMPS_PER_PAGE + i;
-
-      if (i < pageStamps.length) {
-        slot.className = 'stamp-slot filled';
-        const img = document.createElement('img');
-        img.src = pageStamps[i];
-        img.alt = 'Stamp';
-        slot.appendChild(img);
-
-        const del = document.createElement('button');
-        del.className = 'stamp-del';
-        del.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
-        del.addEventListener('click', (e) => {
-          e.stopPropagation();
-          deleteStamp(globalIdx);
-        });
-        slot.appendChild(del);
-
-        // Click to inspect/download
-        slot.addEventListener('click', () => {
-          const a = document.createElement('a');
-          a.href = pageStamps[i];
-          a.download = 'stamp-' + (globalIdx+1) + '.png';
-          a.click();
-        });
-      } else {
-        slot.className = 'stamp-slot empty-hint';
-        slot.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
-      }
-
-      grid.appendChild(slot);
-    }
-
-    pageEl.appendChild(grid);
-    body.appendChild(pageEl);
+async function shareStamp() {
+  if (!stampDataURL) return;
+  if (navigator.share) {
+    try {
+      const blob = await (await fetch(stampDataURL)).blob();
+      const file = new File([blob], 'stamp.png', { type: 'image/png' });
+      await navigator.share({ files: [file], title: 'My Stamp' });
+    } catch {}
+  } else {
+    downloadStamp();
   }
 }
 
-function deleteStamp(idx) {
-  stamps.splice(idx, 1);
-  saveStamps();
-  renderGallery();
-  updateStats();
-  showToast('Stamp removed');
-}
-
-/* ================================================================
-   STORAGE
-================================================================ */
-function saveStamps() {
-  try {
-    localStorage.setItem('stampbook_stamps', JSON.stringify(stamps));
-  } catch(e) {
-    showToast('Storage full — some stamps may not save');
-  }
-}
-
-function loadStamps() {
-  try {
-    const d = localStorage.getItem('stampbook_stamps');
-    if (d) stamps = JSON.parse(d);
-  } catch(e) { stamps = []; }
-}
-
-/* ================================================================
-   STATS
-================================================================ */
-function updateStats() {
-  document.getElementById('stat-total').textContent = stamps.length;
-  const pages = stamps.length === 0 ? 0 : Math.ceil(stamps.length / STAMPS_PER_PAGE);
-  document.getElementById('stat-pages').textContent = pages;
-  let full = 0;
-  for (let p = 0; p < pages; p++) {
-    if (stamps.slice(p * STAMPS_PER_PAGE, (p+1) * STAMPS_PER_PAGE).length === STAMPS_PER_PAGE) full++;
-  }
-  document.getElementById('stat-full').textContent = full;
-}
-
-/* ================================================================
-   HOME DECORATION STAMPS
-================================================================ */
-function renderHomeDeco() {
-  const container = document.getElementById('home-deco');
-  container.innerHTML = '';
-
-  const sampleColors = [
-    ['#FBE8E3', '#C4593A'], ['#E3EDE6', '#5A7A65'],
-    ['#E3ECF3', '#3A5A7A'], ['#F5EDD6', '#9A7A40']
-  ];
-
-  sampleColors.forEach(([bg, fg], i) => {
-    const c = document.createElement('canvas');
-    c.width = 64; c.height = 72;
-    const ctx = c.getContext('2d');
-
-    ctx.shadowColor = 'rgba(0,0,0,0.1)';
-    ctx.shadowBlur = 6;
-    ctx.shadowOffsetY = 2;
-    ctx.fillStyle = '#FDFAF6';
-    roundRect(ctx, 4, 4, 56, 64, 4);
-    ctx.fill();
-    ctx.shadowColor = 'transparent';
-
-    ctx.fillStyle = bg;
-    ctx.fillRect(10, 10, 44, 44);
-
-    ctx.fillStyle = fg;
-    ctx.fillRect(16, 16, 32, 32);
-
-    // Perforations
-    ctx.fillStyle = '#F5F2EE';
-    for (let x = 6; x < 60; x += 10) {
-      ctx.beginPath(); ctx.arc(x, 4, 3, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(x, 68, 3, 0, Math.PI*2); ctx.fill();
-    }
-    for (let y = 14; y < 62; y += 10) {
-      ctx.beginPath(); ctx.arc(4, y, 3, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(60, y, 3, 0, Math.PI*2); ctx.fill();
-    }
-
-    c.style.transform = `rotate(${[-2,1.5,-1,2][i]}deg)`;
-    c.style.flexShrink = '0';
-    container.appendChild(c);
-  });
-}
-
-/* ================================================================
-   MODALS
-================================================================ */
-function openModal(id) {
-  document.getElementById(id).classList.add('open');
-}
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-}
-document.querySelectorAll('.modal-overlay').forEach(m => {
-  m.addEventListener('click', (e) => { if (e.target === m) closeModal(m.id); });
-});
-
-/* ================================================================
+/* =============================================
    TOAST
-================================================================ */
-let toastTimeout;
+   ============================================= */
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  clearTimeout(toastTimeout);
-  toastTimeout = setTimeout(() => t.classList.remove('show'), 2200);
+  setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-/* ================================================================
+/* =============================================
    INIT
-================================================================ */
-window.addEventListener('load', () => {
-  loadStamps();
-  updateStats();
-  renderHomeDeco();
+   ============================================= */
+window.onload = function() {
+  showScreen('home');
+  document.getElementById('nav-bar').style.display = 'flex';
 
-  // Shape button
-  document.querySelector('[data-shape="square"]').classList.add('active');
-
-  // Hide loader
-  setTimeout(() => {
-    document.getElementById('loading-overlay').classList.add('hidden');
-    setTimeout(() => document.getElementById('loading-overlay').remove(), 500);
-  }, 1400);
-
-  // Handle resize in editor
-  window.addEventListener('resize', () => {
-    if (currentScreen === 'editor' && sourceImage) {
-      const container = document.querySelector('.editor-canvas-container');
-      if (editorCanvas) {
-        editorCanvas.width = container.clientWidth;
-        editorCanvas.height = container.clientHeight;
-        resetStencilPosition();
-      }
-    }
-  });
-});
+  // Prevent scroll bounce
+  document.addEventListener('touchmove', e => {
+    if (currentScreen === 'editor') e.preventDefault();
+  }, { passive: false });
+};
 </script>
-
 </body>
 </html>
