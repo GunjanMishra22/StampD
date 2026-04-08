@@ -186,12 +186,12 @@ body::before{
   pointer-events:none;z-index:1
 }
 
-/* 6x8 stamp grid */
+/* 3x5 stamp grid */
 .stamps-grid{
   display:grid;
-  grid-template-columns:repeat(6,1fr);
-  gap:8px;
-  padding:16px 18px 14px 28px;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+  padding:20px 22px 16px 32px;
   position:relative;z-index:2;
   height:100%;
   align-content:start;
@@ -271,6 +271,79 @@ body::before{
 /* Hidden */
 #file-input{display:none}
 #import-input{display:none}
+
+/* ============ ZOOM MODAL ============ */
+.stamp-modal-overlay{
+  position:fixed;inset:0;z-index:8000;
+  background:rgba(20,10,2,0.88);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity 0.3s var(--ease-smooth);
+  backdrop-filter:blur(6px);
+}
+.stamp-modal-overlay.open{opacity:1;pointer-events:all}
+.stamp-modal-box{
+  position:relative;display:flex;flex-direction:column;align-items:center;gap:18px;
+  transform:scale(0.75) translateY(24px);
+  transition:transform 0.4s var(--ease-spring);
+}
+.stamp-modal-overlay.open .stamp-modal-box{transform:scale(1) translateY(0)}
+.stamp-modal-img{
+  max-width:min(80vw,420px);max-height:55vh;
+  object-fit:contain;
+  filter:drop-shadow(0 16px 50px rgba(0,0,0,0.8));
+}
+.stamp-modal-actions{display:flex;gap:12px}
+.stamp-modal-close{
+  position:absolute;top:-14px;right:-14px;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--parchment);border:1px solid var(--warm-tan);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:transform 0.18s var(--ease-spring),background 0.15s;
+  color:var(--umber);font-size:14px;line-height:1;
+}
+.stamp-modal-close:hover{transform:scale(1.12);background:var(--cream)}
+.stamp-modal-delete{
+  padding:9px 22px;border:1px solid rgba(180,80,40,0.4);
+  border-radius:3px;background:transparent;
+  color:rgba(200,100,60,0.85);font-family:'Jost',sans-serif;
+  font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;
+  transition:border-color 0.2s,color 0.2s,background 0.2s;
+}
+.stamp-modal-delete:hover{border-color:rgba(200,80,40,0.7);color:#c85030;background:rgba(200,80,40,0.08)}
+
+/* ============ STAMP SELECTION ============ */
+.stamp-slot.selected{
+  border-color:var(--gold)!important;border-style:solid!important;
+  box-shadow:0 0 0 2px rgba(200,168,64,0.35),0 4px 14px rgba(200,168,64,0.2);
+}
+
+/* ============ DRAG-AND-DROP ============ */
+.stamp-slot.drag-over{
+  border-color:var(--gold-lt)!important;border-style:solid!important;
+  background:rgba(200,168,64,0.12)!important;
+  transform:scale(1.04);
+}
+.stamp-slot.dragging-source{opacity:0.4;transform:scale(0.95)}
+
+/* ============ DELETE FADE ============ */
+.stamp-slot.deleting img{animation:stampFadeOut 0.35s var(--ease-smooth) forwards}
+@keyframes stampFadeOut{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(0.7)}}
+
+/* ============ CONFIRM BANNER ============ */
+.confirm-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:9500;
+  background:linear-gradient(135deg,var(--parchment),var(--cream));
+  border-top:1px solid var(--warm-tan);
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  padding:14px 20px;
+  transform:translateY(100%);transition:transform 0.35s var(--ease-spring);
+}
+.confirm-bar.show{transform:translateY(0)}
+.confirm-bar-label{font-family:'Libre Baskerville',serif;font-style:italic;font-size:0.88rem;color:var(--umber)}
+.confirm-yes{padding:8px 20px;background:linear-gradient(135deg,#c85030,#a03020);border:none;border-radius:3px;color:#fff;font-family:'Jost',sans-serif;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s}
+.confirm-yes:hover{opacity:0.85}
+.confirm-no{padding:8px 20px;background:transparent;border:1px solid rgba(160,117,80,0.4);border-radius:3px;color:var(--sienna);font-family:'Jost',sans-serif;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:border-color 0.2s}
+.confirm-no:hover{border-color:var(--sienna)}
 </style>
 </head>
 <body>
@@ -465,7 +538,7 @@ const state = {
   stampDataURL: null,
   stamps: [],
   currentPage: 0,
-  STAMPS_PER_PAGE: 48, // 6x8
+  STAMPS_PER_PAGE: 15, // 3x5
   stencilShape: 'rect',
   imgX: 0, imgY: 0,
   imgScale: 1, imgRotate: 0,
@@ -516,18 +589,8 @@ document.getElementById('import-input').addEventListener('change', e => {
   reader.onload = ev => {
     // Normalise: load onto canvas preserving transparency
     const img = new Image();
-    img.onload = () => {
-      const sz = 400;
-      const c = document.createElement('canvas');
-      c.width = sz; c.height = sz;
-      const ctx = c.getContext('2d');
-      // Center and scale to fit
-      const scale = Math.min(sz / img.width, sz / img.height);
-      const dx = (sz - img.width * scale) / 2;
-      const dy = (sz - img.height * scale) / 2;
-      ctx.drawImage(img, dx, dy, img.width * scale, img.height * scale);
-      const dataURL = c.toDataURL('image/png');
-      state.stamps.push(dataURL);
+    img.onload = async () => {
+      await importStampToCollection(img.src);
       e.target.value = '';
       renderBook();
       showToast('Stamp imported');
@@ -836,8 +899,11 @@ function generateStamp() {
   for(const [px,py] of perf){ctx.beginPath();ctx.arc(px,py,4.5,0,Math.PI*2);ctx.fill();}
   ctx.restore();
 
-  state.stampDataURL=out.toDataURL('image/png');
-  showPreview();
+  const rawPng = out.toDataURL('image/png');
+  normaliseToUHD(rawPng).then(uhd => {
+    state.stampDataURL = uhd;
+    showPreview();
+  });
 }
 
 function getPerimeterPoints(cx,cy,w,h,gap) {
@@ -888,8 +954,8 @@ document.getElementById('btn-share-stamp').addEventListener('click',async()=>{
   const a=document.createElement('a');a.href=state.stampDataURL;a.download='stamp-'+Date.now()+'.png';a.click();
   showToast('Stamp saved');
 });
-document.getElementById('btn-add-to-book').addEventListener('click',()=>{
-  state.stamps.push(state.stampDataURL);
+document.getElementById('btn-add-to-book').addEventListener('click',async()=>{
+  await saveStampToCollection(state.stampDataURL);
   showScreen('book');renderBook();showToast('Stamp added to collection');
   setTimeout(()=>{animateLastStampSlot();},100);
   const SLOTS=state.STAMPS_PER_PAGE;
@@ -911,11 +977,20 @@ function renderBook() {
   const start=state.currentPage*SLOTS;
   document.getElementById('book-count').textContent=state.stamps.length+(state.stamps.length===1?' stamp':' stamps');
   for(let i=0;i<SLOTS;i++){
-    const slot=document.createElement('div');slot.className='stamp-slot';
-    if(state.stamps[start+i]){
+    const slot=document.createElement('div');
+    slot.className='stamp-slot';
+    const stampObj=state.stamps[start+i];
+    if(stampObj){
       slot.classList.add('has-stamp');
-      const img=document.createElement('img');img.src=state.stamps[start+i];img.alt='Stamp'+(start+i+1);
+      slot.dataset.id=stampObj.id;
+      const img=document.createElement('img');
+      img.src=stampObj.image;
+      img.alt='Stamp '+(start+i+1);
       slot.appendChild(img);
+      // Click: open modal
+      slot.addEventListener('click',()=>openModal(stampObj));
+      // Drag-and-drop
+      setupDragDrop(slot,stampObj);
     }
     grid.appendChild(slot);
   }
@@ -945,9 +1020,9 @@ document.getElementById('btn-book-add-new').addEventListener('click',()=>documen
 document.getElementById('btn-export-page').addEventListener('click',()=>{
   const SLOTS=state.STAMPS_PER_PAGE;
   const start=state.currentPage*SLOTS;
-  const stamps=state.stamps.slice(start,start+SLOTS);
+  const stamps=state.stamps.slice(start,start+SLOTS).map(s=>s?s.image:null).filter(Boolean);
   if(!stamps.length){showToast('No stamps on this page');return;}
-  const cols=6,rows=8,stampSz=120,padding=10,bgPad=24;
+  const cols=3,rows=5,stampSz=400,padding=24,bgPad=40;
   const W=cols*stampSz+(cols-1)*padding+bgPad*2;
   const H=rows*stampSz+(rows-1)*padding+bgPad*2;
   const out=document.createElement('canvas');out.width=W;out.height=H;
@@ -980,7 +1055,248 @@ window.addEventListener('resize',()=>{
   },200);
 });
 
-showScreen('entry');
+
+/* =============================================
+   INDEXEDDB PERSISTENCE
+   ============================================= */
+const DB_NAME = 'StampAppDB';
+const DB_VER  = 1;
+const STORE   = 'stamps';
+let db = null;
+
+function initDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = e => {
+      const idb = e.target.result;
+      if (!idb.objectStoreNames.contains(STORE)) {
+        const store = idb.createObjectStore(STORE, { keyPath: 'id' });
+        store.createIndex('position', 'position', { unique: false });
+      }
+    };
+    req.onsuccess  = e => { db = e.target.result; resolve(db); };
+    req.onerror    = e => reject(e.target.error);
+  });
+}
+
+function saveStamp(stamp) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    tx.objectStore(STORE).put(stamp);
+    tx.oncomplete = resolve;
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+function getAllStamps() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE, 'readonly');
+    const req = tx.objectStore(STORE).index('position').getAll();
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror   = e => reject(e.target.error);
+  });
+}
+
+function deleteStampDB(id) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    tx.objectStore(STORE).delete(id);
+    tx.oncomplete = resolve;
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+function updateStampOrder(stampsArr) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    const store = tx.objectStore(STORE);
+    stampsArr.forEach((s, i) => { s.position = i; store.put(s); });
+    tx.oncomplete = resolve;
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+/* Stamp objects: { id, image, createdAt, position } */
+function makeStampObj(dataURL, position) {
+  return { id: 'stamp_' + Date.now() + '_' + Math.random().toString(36).slice(2), image: dataURL, createdAt: Date.now(), position };
+}
+
+/* =============================================
+   UHD NORMALISE (2048x2048)
+   ============================================= */
+function normaliseToUHD(dataURL) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = 2048; c.height = 2048;
+      const ctx = c.getContext('2d');
+      // Keep aspect ratio, center
+      const scale = Math.min(2048 / img.width, 2048 / img.height);
+      const dx = (2048 - img.width * scale) / 2;
+      const dy = (2048 - img.height * scale) / 2;
+      ctx.drawImage(img, dx, dy, img.width * scale, img.height * scale);
+      resolve(c.toDataURL('image/png'));
+    };
+    img.src = dataURL;
+  });
+}
+
+/* =============================================
+   ZOOM MODAL
+   ============================================= */
+let modalStampId = null;
+
+function openModal(stampObj) {
+  modalStampId = stampObj.id;
+  document.getElementById('modal-img').src = stampObj.image;
+  document.getElementById('stamp-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('stamp-modal').classList.remove('open');
+  modalStampId = null;
+}
+
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.getElementById('stamp-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('stamp-modal')) closeModal();
+});
+
+document.getElementById('modal-export').addEventListener('click', () => {
+  const img = document.getElementById('modal-img');
+  const a = document.createElement('a');
+  a.href = img.src;
+  a.download = 'stamp-' + Date.now() + '.png';
+  a.click();
+  showToast('Stamp exported');
+});
+
+/* =============================================
+   CONFIRM + DELETE
+   ============================================= */
+let pendingDeleteId = null;
+
+document.getElementById('modal-delete').addEventListener('click', () => {
+  pendingDeleteId = modalStampId;
+  closeModal();
+  document.getElementById('confirm-bar').classList.add('show');
+});
+
+document.getElementById('confirm-no').addEventListener('click', () => {
+  document.getElementById('confirm-bar').classList.remove('show');
+  pendingDeleteId = null;
+});
+
+document.getElementById('confirm-yes').addEventListener('click', async () => {
+  document.getElementById('confirm-bar').classList.remove('show');
+  if (!pendingDeleteId) return;
+  // Animate slot then delete
+  const slot = document.querySelector(`.stamp-slot[data-id="${pendingDeleteId}"]`);
+  if (slot) {
+    slot.classList.add('deleting');
+    await new Promise(r => setTimeout(r, 380));
+  }
+  await deleteStampDB(pendingDeleteId);
+  state.stamps = state.stamps.filter(s => s.id !== pendingDeleteId);
+  await updateStampOrder(state.stamps);
+  pendingDeleteId = null;
+  renderBook();
+  showToast('Stamp removed');
+});
+
+/* =============================================
+   DRAG-AND-DROP REARRANGE
+   ============================================= */
+let dragSrcId = null;
+
+function setupDragDrop(slot, stampObj) {
+  slot.setAttribute('draggable', 'true');
+  slot.addEventListener('dragstart', e => {
+    dragSrcId = stampObj.id;
+    slot.classList.add('dragging-source');
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  slot.addEventListener('dragend', () => {
+    slot.classList.remove('dragging-source');
+    document.querySelectorAll('.stamp-slot').forEach(s => s.classList.remove('drag-over'));
+  });
+  slot.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    document.querySelectorAll('.stamp-slot').forEach(s => s.classList.remove('drag-over'));
+    if (dragSrcId !== stampObj.id) slot.classList.add('drag-over');
+  });
+  slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'));
+  slot.addEventListener('drop', async e => {
+    e.preventDefault();
+    slot.classList.remove('drag-over');
+    if (!dragSrcId || dragSrcId === stampObj.id) return;
+    // Swap positions in state.stamps
+    const srcIdx = state.stamps.findIndex(s => s.id === dragSrcId);
+    const dstIdx = state.stamps.findIndex(s => s.id === stampObj.id);
+    if (srcIdx < 0 || dstIdx < 0) return;
+    const tmp = state.stamps[srcIdx];
+    state.stamps[srcIdx] = state.stamps[dstIdx];
+    state.stamps[dstIdx] = tmp;
+    await updateStampOrder(state.stamps);
+    dragSrcId = null;
+    renderBook();
+  });
+}
+
+/* =============================================
+   INIT — Load from IndexedDB on startup
+   ============================================= */
+async function appInit() {
+  await initDB();
+  const saved = await getAllStamps();
+  // state.stamps now stores stamp objects {id,image,createdAt,position}
+  state.stamps = saved;
+}
+
+/* Patch: save to book now persists */
+async function saveStampToCollection(dataURL) {
+  const uhd = await normaliseToUHD(dataURL);
+  const obj = makeStampObj(uhd, state.stamps.length);
+  state.stamps.push(obj);
+  await saveStamp(obj);
+}
+
+/* Patch: import also goes UHD */
+async function importStampToCollection(rawDataURL) {
+  const uhd = await normaliseToUHD(rawDataURL);
+  const obj = makeStampObj(uhd, state.stamps.length);
+  state.stamps.push(obj);
+  await saveStamp(obj);
+}
+
+appInit().then(() => {
+  showScreen('entry');
+}).catch(err => {
+  console.warn('DB init failed:', err);
+  showScreen('entry');
+});
 </script>
+
+<!-- ZOOM MODAL -->
+<div class="stamp-modal-overlay" id="stamp-modal">
+  <div class="stamp-modal-box">
+    <button class="stamp-modal-close" id="modal-close">&#x2715;</button>
+    <img class="stamp-modal-img" id="modal-img" src="" alt="Stamp">
+    <div class="stamp-modal-actions">
+      <button class="editor-btn editor-btn-secondary" style="flex:0;padding:9px 20px;font-size:0.68rem" id="modal-export">Export PNG</button>
+      <button class="stamp-modal-delete" id="modal-delete">Delete Stamp</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM BAR -->
+<div class="confirm-bar" id="confirm-bar">
+  <span class="confirm-bar-label">Delete this stamp?</span>
+  <button class="confirm-yes" id="confirm-yes">Delete</button>
+  <button class="confirm-no" id="confirm-no">Cancel</button>
+</div>
+
 </body>
 </html>
