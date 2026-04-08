@@ -5,891 +5,330 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Philatelia — Digital Stamp Atelier</title>
 <style>
-/* =============================================
-   DESIGN TOKENS & BASE
-   ============================================= */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap');
 
 :root {
-  --cream:     #f5f0e8;
-  --parchment: #ede5d0;
-  --warm-tan:  #c9b89a;
-  --sienna:    #8b6a47;
-  --umber:     #5c4230;
-  --ink:       #2e1f0f;
-  --gold:      #b8962e;
-  --gold-lt:   #d4af5a;
-  --rust:      #9b4a2a;
-  --shadow:    rgba(46,31,15,0.18);
-  --shadow-lg: rgba(46,31,15,0.32);
-  --paper-bg:  #f0e9d6;
+  --cream:      #faf6ee;
+  --parchment:  #f0e8d0;
+  --warm-tan:   #d4b896;
+  --sienna:     #a07550;
+  --umber:      #6b4c30;
+  --ink:        #3a2510;
+  --gold:       #c8a840;
+  --gold-lt:    #e0c060;
+  --gold-dk:    #a08020;
+  --rust:       #b05030;
+  --page-bg:    #f5edda;
+  --board-bg:   #c8a878;
+  --shadow:     rgba(60,35,10,0.15);
+  --shadow-md:  rgba(60,35,10,0.25);
+  --shadow-lg:  rgba(60,35,10,0.38);
 
   --ease-out-expo: cubic-bezier(0.16,1,0.3,1);
   --ease-spring:   cubic-bezier(0.34,1.56,0.64,1);
   --ease-smooth:   cubic-bezier(0.4,0,0.2,1);
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html, body {
-  width: 100%; height: 100%;
-  overflow: hidden;
-  background: var(--ink);
-  font-family: 'Jost', sans-serif;
-  color: var(--ink);
-  -webkit-font-smoothing: antialiased;
-}
-
-/* =============================================
-   GRAIN OVERLAY
-   ============================================= */
-body::before {
-  content: '';
-  position: fixed; inset: 0; z-index: 9999;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  opacity: 0.45;
-  mix-blend-mode: multiply;
-}
-
-/* =============================================
-   SCREEN SYSTEM
-   ============================================= */
-.screen {
-  position: fixed; inset: 0;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.55s var(--ease-smooth), transform 0.55s var(--ease-smooth);
-  transform: translateY(12px);
-  will-change: opacity, transform;
-}
-.screen.active {
-  opacity: 1; pointer-events: all; transform: translateY(0);
-}
-.screen.exit {
-  opacity: 0; transform: translateY(-12px);
-}
-
-/* =============================================
-   ENTRY SCREEN
-   ============================================= */
-#screen-entry {
-  background: var(--paper-bg);
-}
-
-.entry-bg {
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse 80% 60% at 50% 40%, #ede5d0 0%, #d6c9ae 55%, #c0b08a 100%);
-  animation: bgPulse 8s ease-in-out infinite alternate;
-}
-@keyframes bgPulse {
-  0%   { background: radial-gradient(ellipse 80% 60% at 50% 40%, #ede5d0 0%, #d6c9ae 55%, #c0b08a 100%); }
-  100% { background: radial-gradient(ellipse 80% 60% at 55% 45%, #f0e9d6 0%, #cfc0a0 55%, #b8a882 100%); }
-}
-
-.entry-frame {
-  position: relative; z-index: 2;
-  display: flex; flex-direction: column;
-  align-items: center; gap: 0;
-  animation: entryReveal 1.1s var(--ease-out-expo) both;
-}
-@keyframes entryReveal {
-  from { opacity: 0; transform: scale(0.94) translateY(20px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.entry-ornament {
-  width: 120px; margin-bottom: 18px;
-  opacity: 0.55;
-}
-
-.entry-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(2.2rem, 6vw, 3.6rem);
-  font-weight: 700;
-  color: var(--umber);
-  letter-spacing: 0.02em;
-  line-height: 1;
-  text-align: center;
-}
-.entry-subtitle {
-  font-family: 'Libre Baskerville', serif;
-  font-style: italic;
-  font-size: clamp(0.8rem, 2vw, 1rem);
-  color: var(--sienna);
-  letter-spacing: 0.12em;
-  margin-top: 8px;
-  text-align: center;
-  opacity: 0.8;
-}
-
-.entry-divider {
-  width: 80px; height: 1px;
-  background: var(--warm-tan);
-  margin: 28px auto;
-}
-
-.entry-actions {
-  display: flex; gap: 16px;
-  flex-wrap: wrap; justify-content: center;
-}
-
-.entry-btn {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 12px;
-  padding: 28px 36px;
-  background: var(--cream);
-  border: 1.5px solid var(--warm-tan);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: transform 0.25s var(--ease-spring), box-shadow 0.25s var(--ease-smooth), background 0.2s;
-  box-shadow: 0 4px 18px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.6);
-  min-width: 140px;
-  position: relative; overflow: hidden;
-}
-.entry-btn::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 60%);
-  pointer-events: none;
-}
-.entry-btn:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 10px 32px var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.6);
-  background: #faf6ee;
-}
-.entry-btn:active { transform: translateY(0) scale(0.98); }
-
-.entry-btn svg { width: 38px; height: 38px; }
-
-.entry-btn-label {
-  font-family: 'Jost', sans-serif;
-  font-size: 0.78rem;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--umber);
-}
-
-.entry-footer {
-  position: relative; z-index: 2;
-  margin-top: 48px;
-  display: flex; align-items: center; gap: 12px;
-  cursor: pointer;
-  padding: 10px 20px;
-  border: 1px solid var(--warm-tan);
-  border-radius: 3px;
-  background: rgba(245,240,232,0.6);
-  transition: background 0.2s, transform 0.2s var(--ease-spring);
-  animation: entryReveal 1.4s var(--ease-out-expo) both;
-}
-.entry-footer:hover { background: var(--cream); transform: scale(1.03); }
-.entry-footer svg { width: 22px; height: 22px; opacity: 0.7; }
-.entry-footer-label {
-  font-family: 'Jost', sans-serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--sienna);
-}
-
-/* =============================================
-   CAMERA SCREEN
-   ============================================= */
-#screen-camera {
-  background: #1a100a;
-}
-
-.camera-wrapper {
-  position: relative; width: 100%; height: 100%;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-}
-
-.camera-feed-wrap {
-  position: relative;
-  width: min(90vw, 480px);
-  aspect-ratio: 1;
-  border-radius: 2px;
-  overflow: hidden;
-  box-shadow: 0 0 0 1px rgba(184,150,46,0.4), 0 20px 60px rgba(0,0,0,0.7);
-  animation: lensZoomIn 0.55s var(--ease-out-expo) both;
-}
-@keyframes lensZoomIn {
-  from { transform: scale(0.82); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
-}
-
-#camera-video {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.camera-crosshair {
-  position: absolute; inset: 0;
-  pointer-events: none;
-}
-.camera-crosshair::before,
-.camera-crosshair::after {
-  content: '';
-  position: absolute;
-  background: rgba(184,150,46,0.5);
-}
-.camera-crosshair::before { left: 50%; top: 20%; bottom: 20%; width: 1px; transform: translateX(-50%); }
-.camera-crosshair::after  { top: 50%; left: 20%; right: 20%; height: 1px; transform: translateY(-50%); }
-
-.camera-corner {
-  position: absolute;
-  width: 22px; height: 22px;
-  border-color: var(--gold);
-  border-style: solid;
-  border-width: 0;
-  opacity: 0.7;
-}
-.camera-corner.tl { top: 14px; left: 14px; border-top-width: 2px; border-left-width: 2px; }
-.camera-corner.tr { top: 14px; right: 14px; border-top-width: 2px; border-right-width: 2px; }
-.camera-corner.bl { bottom: 14px; left: 14px; border-bottom-width: 2px; border-left-width: 2px; }
-.camera-corner.br { bottom: 14px; right: 14px; border-bottom-width: 2px; border-right-width: 2px; }
-
-.shutter-flash {
-  position: absolute; inset: 0;
-  background: white;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 10;
-}
-.shutter-flash.active {
-  animation: shutterFlash 0.38s ease-out forwards;
-}
-@keyframes shutterFlash {
-  0%   { opacity: 0.95; }
-  100% { opacity: 0; }
-}
-
-.camera-controls {
-  display: flex; align-items: center;
-  justify-content: space-between;
-  width: min(90vw, 480px);
-  margin-top: 24px;
-  gap: 16px;
-}
-
-.cam-btn-back {
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 18px;
-  background: transparent;
-  border: 1px solid rgba(184,150,46,0.4);
-  border-radius: 3px;
-  color: var(--gold-lt);
-  font-family: 'Jost', sans-serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
-}
-.cam-btn-back:hover { border-color: var(--gold); color: var(--gold); }
-.cam-btn-back svg { width: 16px; height: 16px; }
-
-.shutter-btn {
-  width: 64px; height: 64px;
-  border-radius: 50%;
-  border: 3px solid var(--gold);
-  background: transparent;
-  cursor: pointer;
-  position: relative;
-  transition: transform 0.18s var(--ease-spring);
-  flex-shrink: 0;
-}
-.shutter-btn::after {
-  content: '';
-  position: absolute;
-  inset: 7px;
-  border-radius: 50%;
-  background: var(--gold);
-  transition: transform 0.18s var(--ease-spring);
-}
-.shutter-btn:hover { transform: scale(1.06); }
-.shutter-btn:active { transform: scale(0.93); }
-.shutter-btn:active::after { transform: scale(0.88); }
-
-.cam-btn-flip {
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 18px;
-  background: transparent;
-  border: 1px solid rgba(184,150,46,0.4);
-  border-radius: 3px;
-  color: var(--gold-lt);
-  font-family: 'Jost', sans-serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
-}
-.cam-btn-flip:hover { border-color: var(--gold); color: var(--gold); }
-.cam-btn-flip svg { width: 16px; height: 16px; }
-
-/* =============================================
-   EDITOR SCREEN
-   ============================================= */
-#screen-editor {
-  background: var(--ink);
-  flex-direction: column;
-}
-
-.editor-layout {
-  display: flex; flex-direction: column;
-  width: 100%; height: 100%;
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 0;
-}
-
-.editor-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 20px;
-  border-bottom: 1px solid rgba(201,184,154,0.18);
-  flex-shrink: 0;
-}
-.editor-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.05rem;
-  color: var(--warm-tan);
-  letter-spacing: 0.04em;
-}
-.editor-step {
-  font-family: 'Jost', sans-serif;
-  font-size: 0.7rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(201,184,154,0.5);
-}
-
-.editor-canvas-area {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-  background: #1a100a;
-  cursor: grab;
-}
-.editor-canvas-area:active { cursor: grabbing; }
-
-#editor-canvas {
-  display: block;
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  touch-action: none;
-}
-
-.editor-toolbar {
-  flex-shrink: 0;
-  background: #231508;
-  border-top: 1px solid rgba(201,184,154,0.12);
-  padding: 12px 16px;
-}
-
-.toolbar-section {
-  display: flex; align-items: center; gap: 8px;
-  margin-bottom: 10px;
-}
-.toolbar-section:last-child { margin-bottom: 0; }
-
-.toolbar-label {
-  font-family: 'Jost', sans-serif;
-  font-size: 0.65rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: rgba(201,184,154,0.45);
-  width: 56px;
-  flex-shrink: 0;
-}
-
-.toolbar-slider {
-  flex: 1;
-  -webkit-appearance: none;
-  height: 2px;
-  background: rgba(201,184,154,0.2);
-  border-radius: 1px;
-  outline: none;
-  cursor: pointer;
-}
-.toolbar-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 14px; height: 14px;
-  border-radius: 50%;
-  background: var(--gold);
-  border: 2px solid var(--ink);
-  box-shadow: 0 0 0 1px var(--gold);
-  transition: transform 0.15s var(--ease-spring);
-}
-.toolbar-slider::-webkit-slider-thumb:hover { transform: scale(1.3); }
-
-.stencil-shape-row {
-  display: flex; gap: 8px; flex-wrap: wrap;
-}
-
-.shape-btn {
-  padding: 6px 12px;
-  border: 1px solid rgba(201,184,154,0.25);
-  background: transparent;
-  border-radius: 2px;
-  color: rgba(201,184,154,0.6);
-  font-family: 'Jost', sans-serif;
-  font-size: 0.65rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
-}
-.shape-btn.active, .shape-btn:hover {
-  border-color: var(--gold);
-  color: var(--gold);
-  background: rgba(184,150,46,0.08);
-}
-
-.editor-footer {
-  display: flex; gap: 10px;
-  padding: 12px 16px;
-  background: #1a100a;
-  border-top: 1px solid rgba(201,184,154,0.12);
-  flex-shrink: 0;
-}
-
-.editor-btn {
-  flex: 1;
-  padding: 13px;
-  border: 1px solid;
-  border-radius: 2px;
-  font-family: 'Jost', sans-serif;
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: transform 0.18s var(--ease-spring), box-shadow 0.18s;
-}
-.editor-btn:active { transform: scale(0.97); }
-
-.editor-btn-secondary {
-  background: transparent;
-  border-color: rgba(201,184,154,0.3);
-  color: rgba(201,184,154,0.7);
-}
-.editor-btn-secondary:hover { border-color: var(--warm-tan); color: var(--warm-tan); }
-
-.editor-btn-primary {
-  background: var(--gold);
-  border-color: var(--gold);
-  color: var(--ink);
-  font-weight: 600;
-  box-shadow: 0 4px 16px rgba(184,150,46,0.3);
-}
-.editor-btn-primary:hover {
-  background: var(--gold-lt);
-  box-shadow: 0 6px 22px rgba(184,150,46,0.45);
-}
-
-/* Create stamp press animation */
-.editor-btn-primary.pressing {
-  animation: stampPress 0.35s var(--ease-spring);
-}
-@keyframes stampPress {
-  0%   { transform: scale(1); }
-  40%  { transform: scale(0.93); }
-  100% { transform: scale(1); }
-}
-
-/* =============================================
-   PREVIEW SCREEN
-   ============================================= */
-#screen-preview {
-  background: var(--ink);
-}
-
-.preview-inner {
-  display: flex; flex-direction: column;
-  align-items: center;
-  width: 100%; height: 100%;
-  padding: 0 20px 20px;
-}
-
-.preview-header {
-  display: flex; align-items: center; justify-content: space-between;
-  width: 100%; max-width: 500px;
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(201,184,154,0.18);
-  flex-shrink: 0;
-}
-
-.preview-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.05rem;
-  color: var(--warm-tan);
-}
-
-.preview-stamp-wrap {
-  flex: 1; display: flex;
-  align-items: center; justify-content: center;
-  position: relative;
-}
-
-.preview-stamp-img {
-  max-width: min(85vw, 340px);
-  max-height: 45vh;
-  object-fit: contain;
-  filter: drop-shadow(0 12px 40px rgba(0,0,0,0.7));
-  animation: stampBounceIn 0.55s var(--ease-spring) both;
-}
-@keyframes stampBounceIn {
-  from { transform: scale(0.7) translateY(20px); opacity: 0; }
-  to   { transform: scale(1) translateY(0); opacity: 1; }
-}
-
-.preview-stamp-img:hover {
-  animation: stampTilt 0.4s var(--ease-smooth) forwards;
-}
-@keyframes stampTilt {
-  0%   { transform: scale(1) rotate(0deg); }
-  50%  { transform: scale(1.03) rotate(-1.5deg); }
-  100% { transform: scale(1.02) rotate(-0.8deg); }
-}
-
-.preview-actions {
-  display: flex; gap: 10px;
-  width: 100%; max-width: 500px;
-  flex-shrink: 0;
-}
-
-/* =============================================
-   BOOK SCREEN
-   ============================================= */
-#screen-book {
-  background: #1a0f08;
-  perspective: 1200px;
-}
-
-.book-container {
-  width: 100%; height: 100%;
-  display: flex; flex-direction: column;
-  align-items: center;
-}
-
-.book-header {
-  display: flex; align-items: center; justify-content: space-between;
-  width: 100%; padding: 14px 20px;
-  border-bottom: 1px solid rgba(201,184,154,0.15);
-  flex-shrink: 0;
-}
-.book-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.05rem;
-  color: var(--warm-tan);
-}
-.book-count {
-  font-family: 'Jost', sans-serif;
-  font-size: 0.7rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(201,184,154,0.45);
-}
-
-.book-pages-wrap {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-  width: 100%;
-}
-
-.book-page {
-  position: absolute; inset: 16px;
-  background: var(--parchment);
-  border-radius: 2px;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.4);
-  overflow: hidden;
-  backface-visibility: hidden;
-  transform-origin: left center;
-  transition: transform 0.7s cubic-bezier(0.645, 0.045, 0.355, 1.000);
-}
-.book-page::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: 
-    repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(201,184,154,0.25) 31px, rgba(201,184,154,0.25) 32px),
-    linear-gradient(90deg, rgba(201,184,154,0.15) 0%, transparent 8%);
-  pointer-events: none;
-}
-.book-page::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(90deg, rgba(0,0,0,0.08) 0%, transparent 12%);
-  pointer-events: none;
-}
-
-.page-flip-out {
-  animation: pageFlipOut 0.7s cubic-bezier(0.645, 0.045, 0.355, 1.000) forwards;
-}
-@keyframes pageFlipOut {
-  from { transform: perspective(1000px) rotateY(0deg); box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
-  to   { transform: perspective(1000px) rotateY(-90deg); box-shadow: -12px 8px 40px rgba(0,0,0,0.3); }
-}
-.page-flip-in {
-  animation: pageFlipIn 0.7s cubic-bezier(0.645, 0.045, 0.355, 1.000) forwards;
-}
-@keyframes pageFlipIn {
-  from { transform: perspective(1000px) rotateY(90deg); }
-  to   { transform: perspective(1000px) rotateY(0deg); }
-}
-
-.stamps-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  padding: 24px;
-  position: relative; z-index: 1;
-}
-
-.stamp-slot {
-  aspect-ratio: 1;
-  border: 1.5px dashed rgba(140,106,71,0.35);
-  border-radius: 2px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  transition: border-color 0.2s;
-  overflow: hidden;
-  position: relative;
-}
-.stamp-slot:empty { border-style: dashed; }
-.stamp-slot.has-stamp { border-style: solid; border-color: rgba(140,106,71,0.5); }
-.stamp-slot.has-stamp:hover { border-color: var(--sienna); }
-
-.stamp-slot img {
-  width: 100%; height: 100%;
-  object-fit: contain;
-  padding: 4px;
-  transition: transform 0.25s var(--ease-spring);
-}
-.stamp-slot img:hover { transform: scale(1.07); }
-
-/* Page full shimmer */
-.page-shimmer {
-  position: absolute; inset: 0;
-  background: linear-gradient(105deg, transparent 30%, rgba(255,255,220,0.3) 50%, transparent 70%);
-  background-size: 200% 100%;
-  animation: shimmerSweep 1.2s ease-in-out;
-  pointer-events: none;
-  z-index: 5;
-}
-@keyframes shimmerSweep {
-  from { background-position: 200% 0; }
-  to   { background-position: -200% 0; }
-}
-
-/* Glow pulse on full page */
-.page-glow {
-  animation: glowPulse 0.9s ease-in-out;
-}
-@keyframes glowPulse {
-  0%   { box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
-  50%  { box-shadow: 0 8px 40px rgba(184,150,46,0.35), 0 0 60px rgba(184,150,46,0.2); }
-  100% { box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
-}
-
-.book-nav {
-  display: flex; align-items: center; justify-content: center;
-  gap: 16px;
-  padding: 14px;
-  flex-shrink: 0;
-}
-.book-nav-btn {
-  display: flex; align-items: center; gap: 6px;
-  padding: 9px 18px;
-  background: transparent;
-  border: 1px solid rgba(201,184,154,0.25);
-  border-radius: 2px;
-  color: rgba(201,184,154,0.6);
-  font-family: 'Jost', sans-serif;
-  font-size: 0.7rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
-}
-.book-nav-btn:hover { border-color: var(--gold); color: var(--gold); }
-.book-nav-btn:disabled { opacity: 0.25; pointer-events: none; }
-.book-nav-btn svg { width: 14px; height: 14px; }
-
-.book-page-indicator {
-  font-family: 'Libre Baskerville', serif;
-  font-style: italic;
-  font-size: 0.8rem;
-  color: rgba(201,184,154,0.5);
-  min-width: 60px;
-  text-align: center;
-}
-
-.book-footer {
-  display: flex; justify-content: center; gap: 10px;
-  padding: 12px 20px 16px;
-  flex-shrink: 0;
-  border-top: 1px solid rgba(201,184,154,0.12);
-}
-
-/* =============================================
-   SHARED ICON BUTTON
-   ============================================= */
-.icon-btn {
-  display: flex; align-items: center; gap: 7px;
-  padding: 8px 14px;
-  border: 1px solid rgba(201,184,154,0.25);
-  background: transparent;
-  border-radius: 2px;
-  color: rgba(201,184,154,0.6);
-  font-family: 'Jost', sans-serif;
-  font-size: 0.7rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
-}
-.icon-btn:hover { border-color: var(--warm-tan); color: var(--warm-tan); }
-.icon-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
-
-/* =============================================
-   TOAST NOTIFICATION
-   ============================================= */
-.toast {
-  position: fixed;
-  bottom: 28px; left: 50%;
-  transform: translateX(-50%) translateY(60px);
-  background: var(--umber);
-  color: var(--cream);
-  font-family: 'Jost', sans-serif;
-  font-size: 0.78rem;
-  letter-spacing: 0.1em;
-  padding: 10px 20px;
-  border-radius: 2px;
-  border: 1px solid var(--sienna);
-  z-index: 10000;
-  transition: transform 0.35s var(--ease-spring), opacity 0.35s;
-  opacity: 0;
-  pointer-events: none;
-  white-space: nowrap;
-}
-.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-
-/* =============================================
-   EMPTY STATE
-   ============================================= */
-.empty-state {
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  height: 100%;
-  gap: 12px;
-  opacity: 0.4;
-}
-.empty-state svg { width: 48px; height: 48px; }
-.empty-state-text {
-  font-family: 'Libre Baskerville', serif;
-  font-style: italic;
-  font-size: 0.9rem;
-  color: var(--warm-tan);
-  text-align: center;
-  line-height: 1.6;
-}
-
-/* =============================================
-   HIDDEN FILE INPUT
-   ============================================= */
-#file-input { display: none; }
+  --ease-flip:     cubic-bezier(0.645,0.045,0.355,1.0);
+
+  --paper-tex: url("data:image/jpeg;base64,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");
+  --parchment-tex: url("data:image/jpeg;base64,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");
+  --board-tex: url("data:image/jpeg;base64,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");
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--board-bg);font-family:'Jost',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+
+/* GRAIN OVERLAY */
+body::before{
+  content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+  opacity:0.6;mix-blend-mode:multiply
+}
+
+/* SCREENS */
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.5s var(--ease-smooth),transform 0.5s var(--ease-smooth);transform:translateY(14px);will-change:opacity,transform}
+.screen.active{opacity:1;pointer-events:all;transform:translateY(0)}
+.screen.exit{opacity:0;transform:translateY(-14px)}
+
+/* ============ ENTRY SCREEN ============ */
+#screen-entry{background:var(--parchment-tex),var(--parchment);background-size:256px 256px,cover}
+
+.entry-bg{position:absolute;inset:0;background:radial-gradient(ellipse 90% 70% at 50% 40%,rgba(255,248,235,0.85) 0%,rgba(240,232,208,0.75) 55%,rgba(210,185,150,0.6) 100%)}
+
+.entry-frame{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:0;animation:entryReveal 1.1s var(--ease-out-expo) both}
+@keyframes entryReveal{from{opacity:0;transform:scale(0.93) translateY(22px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+.entry-ornament{width:110px;margin-bottom:16px;opacity:0.6}
+
+.entry-title{font-family:'Playfair Display',serif;font-size:clamp(2.4rem,6vw,3.8rem);font-weight:700;color:var(--umber);letter-spacing:0.02em;line-height:1;text-align:center;text-shadow:0 2px 8px rgba(107,76,48,0.12)}
+.entry-subtitle{font-family:'Libre Baskerville',serif;font-style:italic;font-size:clamp(0.78rem,2vw,0.96rem);color:var(--sienna);letter-spacing:0.14em;margin-top:8px;text-align:center;opacity:0.85}
+
+.entry-divider{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--warm-tan),transparent);margin:24px auto}
+
+.entry-actions{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+
+.entry-btn{
+  display:flex;flex-direction:column;align-items:center;gap:11px;padding:24px 32px;
+  background:linear-gradient(160deg,#fff9f0 0%,var(--cream) 60%,#f0e6d0 100%);
+  border:1.5px solid rgba(180,150,100,0.4);border-radius:6px;cursor:pointer;min-width:136px;
+  box-shadow:0 2px 8px var(--shadow),0 6px 24px var(--shadow),inset 0 1px 0 rgba(255,255,255,0.8),inset 0 -1px 0 rgba(180,140,80,0.2);
+  transition:transform 0.22s var(--ease-spring),box-shadow 0.22s var(--ease-smooth);position:relative;overflow:hidden
+}
+.entry-btn::before{content:'';position:absolute;inset:0;background:var(--paper-tex);background-size:256px 256px;opacity:0.18;pointer-events:none}
+.entry-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.35) 0%,transparent 55%);pointer-events:none}
+.entry-btn:hover{transform:translateY(-4px) scale(1.025);box-shadow:0 4px 12px var(--shadow),0 14px 40px var(--shadow-md),inset 0 1px 0 rgba(255,255,255,0.8)}
+.entry-btn:active{transform:translateY(0) scale(0.97);box-shadow:0 1px 4px var(--shadow),inset 0 2px 4px rgba(0,0,0,0.06)}
+.entry-btn svg{width:36px;height:36px;position:relative;z-index:1}
+.entry-btn-label{font-family:'Jost',sans-serif;font-size:0.75rem;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:var(--umber);position:relative;z-index:1}
+
+.entry-footer{position:relative;z-index:2;margin-top:40px;display:flex;align-items:center;gap:11px;cursor:pointer;padding:10px 20px;border:1px solid rgba(180,150,100,0.35);border-radius:4px;background:rgba(250,246,238,0.7);backdrop-filter:blur(4px);transition:background 0.2s,transform 0.2s var(--ease-spring);animation:entryReveal 1.4s var(--ease-out-expo) both}
+.entry-footer:hover{background:var(--cream);transform:scale(1.04)}
+.entry-footer svg{width:20px;height:20px;opacity:0.65}
+.entry-footer-label{font-family:'Jost',sans-serif;font-size:0.73rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--sienna)}
+
+/* ============ CAMERA SCREEN ============ */
+#screen-camera{background:#140c04}
+.camera-wrapper{position:relative;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.camera-feed-wrap{position:relative;width:min(90vw,480px);aspect-ratio:1;border-radius:3px;overflow:hidden;box-shadow:0 0 0 1px rgba(200,168,64,0.4),0 20px 60px rgba(0,0,0,0.7);animation:lensZoomIn 0.55s var(--ease-out-expo) both}
+@keyframes lensZoomIn{from{transform:scale(0.82);opacity:0}to{transform:scale(1);opacity:1}}
+#camera-video{width:100%;height:100%;object-fit:cover;display:block}
+.camera-crosshair{position:absolute;inset:0;pointer-events:none}
+.camera-crosshair::before,.camera-crosshair::after{content:'';position:absolute;background:rgba(200,168,64,0.45)}
+.camera-crosshair::before{left:50%;top:20%;bottom:20%;width:1px;transform:translateX(-50%)}
+.camera-crosshair::after{top:50%;left:20%;right:20%;height:1px;transform:translateY(-50%)}
+.camera-corner{position:absolute;width:22px;height:22px;border-color:var(--gold);border-style:solid;border-width:0;opacity:0.75}
+.camera-corner.tl{top:14px;left:14px;border-top-width:2px;border-left-width:2px}
+.camera-corner.tr{top:14px;right:14px;border-top-width:2px;border-right-width:2px}
+.camera-corner.bl{bottom:14px;left:14px;border-bottom-width:2px;border-left-width:2px}
+.camera-corner.br{bottom:14px;right:14px;border-bottom-width:2px;border-right-width:2px}
+.shutter-flash{position:absolute;inset:0;background:white;opacity:0;pointer-events:none;z-index:10}
+.shutter-flash.active{animation:shutterFlash 0.38s ease-out forwards}
+@keyframes shutterFlash{0%{opacity:0.95}100%{opacity:0}}
+.camera-controls{display:flex;align-items:center;justify-content:space-between;width:min(90vw,480px);margin-top:24px;gap:16px}
+.cam-btn-back,.cam-btn-flip{display:flex;align-items:center;gap:8px;padding:10px 18px;background:transparent;border:1px solid rgba(200,168,64,0.4);border-radius:3px;color:var(--gold-lt);font-family:'Jost',sans-serif;font-size:0.73rem;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:border-color 0.2s,color 0.2s}
+.cam-btn-back:hover,.cam-btn-flip:hover{border-color:var(--gold);color:var(--gold)}
+.cam-btn-back svg,.cam-btn-flip svg{width:16px;height:16px}
+.shutter-btn{width:64px;height:64px;border-radius:50%;border:3px solid var(--gold);background:transparent;cursor:pointer;position:relative;transition:transform 0.18s var(--ease-spring);flex-shrink:0}
+.shutter-btn::after{content:'';position:absolute;inset:7px;border-radius:50%;background:var(--gold);transition:transform 0.18s var(--ease-spring)}
+.shutter-btn:hover{transform:scale(1.06)}
+.shutter-btn:active{transform:scale(0.93)}
+.shutter-btn:active::after{transform:scale(0.88)}
+
+/* ============ EDITOR SCREEN ============ */
+#screen-editor{background:var(--ink)}
+.editor-layout{display:flex;flex-direction:column;width:100%;height:100%;max-width:700px;margin:0 auto}
+.editor-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid rgba(180,150,100,0.2);flex-shrink:0;background:rgba(58,37,16,0.95)}
+.editor-title{font-family:'Playfair Display',serif;font-size:1rem;color:var(--warm-tan);letter-spacing:0.04em}
+.editor-step{font-family:'Jost',sans-serif;font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(212,184,150,0.45)}
+.editor-canvas-area{flex:1;position:relative;overflow:hidden;background:#1a0e06;cursor:crosshair}
+#editor-canvas{display:block;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);touch-action:none}
+.editor-drag-hint{position:absolute;bottom:8px;left:0;right:0;text-align:center;font-family:'Jost',sans-serif;font-size:0.6rem;letter-spacing:0.13em;text-transform:uppercase;color:rgba(200,168,64,0.4);pointer-events:none;z-index:2;transition:opacity 0.4s}
+.editor-toolbar{flex-shrink:0;background:linear-gradient(180deg,#2e1a0a 0%,#261508 100%);border-top:1px solid rgba(180,150,100,0.15);padding:11px 16px}
+.toolbar-section{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.toolbar-section:last-child{margin-bottom:0}
+.toolbar-label{font-family:'Jost',sans-serif;font-size:0.63rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(212,184,150,0.45);width:54px;flex-shrink:0}
+.toolbar-slider{flex:1;-webkit-appearance:none;height:2px;background:rgba(200,168,64,0.2);border-radius:1px;outline:none;cursor:pointer}
+.toolbar-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--gold);border:2px solid #261508;box-shadow:0 0 0 1px var(--gold-dk);transition:transform 0.15s var(--ease-spring)}
+.toolbar-slider::-webkit-slider-thumb:hover{transform:scale(1.3)}
+.stencil-shape-row{display:flex;gap:6px;flex-wrap:wrap}
+.shape-btn{padding:5px 11px;border:1px solid rgba(180,150,100,0.22);background:transparent;border-radius:3px;color:rgba(212,184,150,0.55);font-family:'Jost',sans-serif;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:border-color 0.15s,color 0.15s,background 0.15s}
+.shape-btn.active,.shape-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(200,168,64,0.1)}
+.editor-footer{display:flex;gap:10px;padding:11px 16px;background:#1a0e06;border-top:1px solid rgba(180,150,100,0.12);flex-shrink:0}
+
+/* BUTTONS — shared */
+.editor-btn{flex:1;padding:12px;border:1px solid;border-radius:3px;font-family:'Jost',sans-serif;font-size:0.7rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;transition:transform 0.18s var(--ease-spring),box-shadow 0.18s}
+.editor-btn:active{transform:scale(0.97)}
+.editor-btn-secondary{background:transparent;border-color:rgba(180,150,100,0.28);color:rgba(212,184,150,0.7)}
+.editor-btn-secondary:hover{border-color:var(--warm-tan);color:var(--warm-tan)}
+.editor-btn-primary{background:linear-gradient(160deg,var(--gold-lt) 0%,var(--gold) 50%,var(--gold-dk) 100%);border-color:var(--gold-dk);color:var(--umber);font-weight:600;box-shadow:0 3px 12px rgba(200,168,64,0.35),inset 0 1px 0 rgba(255,255,255,0.3)}
+.editor-btn-primary:hover{background:linear-gradient(160deg,#f0d070 0%,var(--gold-lt) 60%,var(--gold) 100%);box-shadow:0 5px 20px rgba(200,168,64,0.5),inset 0 1px 0 rgba(255,255,255,0.4)}
+.editor-btn-primary.pressing{animation:stampPress 0.35s var(--ease-spring)}
+@keyframes stampPress{0%{transform:scale(1)}40%{transform:scale(0.93)}100%{transform:scale(1)}}
+
+/* ============ PREVIEW SCREEN ============ */
+#screen-preview{background:var(--ink)}
+.preview-inner{display:flex;flex-direction:column;align-items:center;width:100%;height:100%;padding:0 20px 20px}
+.preview-header{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:500px;padding:14px 0;border-bottom:1px solid rgba(180,150,100,0.18);flex-shrink:0}
+.preview-title{font-family:'Playfair Display',serif;font-size:1rem;color:var(--warm-tan)}
+.preview-stamp-wrap{flex:1;display:flex;align-items:center;justify-content:center;position:relative}
+.preview-stamp-img{max-width:min(85vw,340px);max-height:45vh;object-fit:contain;filter:drop-shadow(0 12px 40px rgba(0,0,0,0.6)) drop-shadow(0 4px 16px rgba(0,0,0,0.4));animation:stampBounceIn 0.55s var(--ease-spring) both}
+@keyframes stampBounceIn{from{transform:scale(0.7) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.preview-actions{display:flex;gap:10px;width:100%;max-width:500px;flex-shrink:0}
+
+/* ============ BOOK SCREEN ============ */
+#screen-book{background:var(--board-tex),#8a6040;background-size:256px 256px,cover;perspective:1400px}
+.book-container{width:100%;height:100%;display:flex;flex-direction:column;align-items:center}
+.book-header{display:flex;align-items:center;justify-content:space-between;width:100%;padding:13px 18px;border-bottom:1px solid rgba(107,76,48,0.35);flex-shrink:0;background:rgba(140,96,64,0.7);backdrop-filter:blur(6px)}
+.book-title{font-family:'Playfair Display',serif;font-size:1rem;color:var(--cream);letter-spacing:0.03em}
+.book-count{font-family:'Jost',sans-serif;font-size:0.68rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(250,246,238,0.5)}
+
+/* Book page wrapper — 3D stage */
+.book-pages-wrap{flex:1;overflow:hidden;position:relative;width:100%;display:flex;align-items:center;justify-content:center;padding:12px 14px}
+
+/* The actual page card */
+.book-page{
+  position:relative;width:100%;height:100%;
+  background:var(--paper-tex),var(--page-bg);background-size:256px 256px,cover;
+  border-radius:3px;
+  box-shadow:0 6px 32px rgba(60,35,10,0.4),0 2px 8px rgba(60,35,10,0.25),inset 0 1px 0 rgba(255,255,255,0.55),-4px 0 12px rgba(60,35,10,0.15);
+  overflow:hidden;
+  transform-origin:left center;
+  transform-style:preserve-3d;
+}
+.book-page::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(60,35,10,0.10) 0%,transparent 10%,transparent 90%,rgba(60,35,10,0.06) 100%);
+  pointer-events:none;z-index:1
+}
+/* binding shadow strip */
+.book-page::after{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:28px;
+  background:linear-gradient(90deg,rgba(60,35,10,0.18) 0%,transparent 100%);
+  pointer-events:none;z-index:1
+}
+
+/* 6x8 stamp grid */
+.stamps-grid{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:8px;
+  padding:16px 18px 14px 28px;
+  position:relative;z-index:2;
+  height:100%;
+  align-content:start;
+}
+
+.stamp-slot{
+  aspect-ratio:1;
+  border:1.5px dashed rgba(140,106,71,0.3);
+  border-radius:2px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;overflow:hidden;position:relative;
+  transition:border-color 0.2s,transform 0.2s var(--ease-spring);
+  background:rgba(250,246,238,0.4)
+}
+.stamp-slot.has-stamp{border-style:solid;border-color:rgba(140,106,71,0.45)}
+.stamp-slot.has-stamp:hover{border-color:var(--sienna);transform:scale(1.06)}
+.stamp-slot img{width:100%;height:100%;object-fit:contain;padding:2px;display:block;transition:transform 0.25s var(--ease-spring)}
+.stamp-slot img:hover{transform:scale(1.08)}
+
+/* Stamp fly-in animation */
+.stamp-slot.stamp-enter img{animation:stampFlyIn 0.5s var(--ease-spring) both}
+@keyframes stampFlyIn{from{transform:scale(0.4) translateY(-30px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+
+/* Page flip */
+.page-flipping-out{animation:pageFlipOut 0.65s var(--ease-flip) forwards}
+@keyframes pageFlipOut{
+  0%{transform:perspective(1200px) rotateY(0deg);box-shadow:0 6px 32px rgba(60,35,10,0.4)}
+  50%{box-shadow:-16px 6px 40px rgba(60,35,10,0.3)}
+  100%{transform:perspective(1200px) rotateY(-90deg);box-shadow:-6px 6px 20px rgba(60,35,10,0.2)}
+}
+.page-flipping-in-r{animation:pageFlipInR 0.65s var(--ease-flip) forwards}
+@keyframes pageFlipInR{
+  0%{transform:perspective(1200px) rotateY(90deg)}
+  100%{transform:perspective(1200px) rotateY(0deg)}
+}
+.page-flipping-out-r{animation:pageFlipOutR 0.65s var(--ease-flip) forwards}
+@keyframes pageFlipOutR{
+  0%{transform:perspective(1200px) rotateY(0deg)}
+  100%{transform:perspective(1200px) rotateY(90deg)}
+}
+.page-flipping-in{animation:pageFlipIn 0.65s var(--ease-flip) forwards}
+@keyframes pageFlipIn{
+  0%{transform:perspective(1200px) rotateY(-90deg)}
+  100%{transform:perspective(1200px) rotateY(0deg)}
+}
+
+.page-glow{animation:glowPulse 0.9s ease-in-out}
+@keyframes glowPulse{
+  0%{box-shadow:0 6px 32px rgba(60,35,10,0.4)}
+  50%{box-shadow:0 6px 32px rgba(200,168,64,0.4),0 0 60px rgba(200,168,64,0.2)}
+  100%{box-shadow:0 6px 32px rgba(60,35,10,0.4)}
+}
+.page-shimmer{position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(255,240,180,0.35) 50%,transparent 70%);background-size:200% 100%;animation:shimmerSweep 1.2s ease-in-out;pointer-events:none;z-index:5}
+@keyframes shimmerSweep{from{background-position:200% 0}to{background-position:-200% 0}}
+
+.book-nav{display:flex;align-items:center;justify-content:center;gap:14px;padding:11px;flex-shrink:0}
+.book-nav-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(250,246,238,0.15);border:1px solid rgba(180,150,100,0.3);border-radius:3px;color:rgba(250,246,238,0.65);font-family:'Jost',sans-serif;font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:border-color 0.2s,color 0.2s,background 0.2s}
+.book-nav-btn:hover{border-color:var(--gold-lt);color:var(--gold-lt);background:rgba(200,168,64,0.12)}
+.book-nav-btn:disabled{opacity:0.25;pointer-events:none}
+.book-nav-btn svg{width:13px;height:13px}
+.book-page-indicator{font-family:'Libre Baskerville',serif;font-style:italic;font-size:0.78rem;color:rgba(250,246,238,0.5);min-width:56px;text-align:center}
+.book-footer{display:flex;justify-content:center;gap:10px;padding:10px 18px 14px;flex-shrink:0;border-top:1px solid rgba(107,76,48,0.28)}
+
+/* ============ ICON BUTTON ============ */
+.icon-btn{display:flex;align-items:center;gap:7px;padding:7px 13px;border:1px solid rgba(180,150,100,0.25);background:transparent;border-radius:3px;color:rgba(212,184,150,0.65);font-family:'Jost',sans-serif;font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:border-color 0.2s,color 0.2s}
+.icon-btn:hover{border-color:var(--warm-tan);color:var(--warm-tan)}
+.icon-btn svg{width:14px;height:14px;flex-shrink:0}
+
+/* ============ TOAST ============ */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);background:linear-gradient(135deg,var(--parchment),var(--cream));color:var(--umber);font-family:'Jost',sans-serif;font-size:0.76rem;letter-spacing:0.1em;padding:10px 22px;border-radius:3px;border:1px solid var(--warm-tan);z-index:10000;box-shadow:0 4px 20px var(--shadow-md);transition:transform 0.35s var(--ease-spring),opacity 0.35s;opacity:0;pointer-events:none;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* ============ EMPTY STATE ============ */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;opacity:0.35}
+.empty-state svg{width:44px;height:44px}
+.empty-state-text{font-family:'Libre Baskerville',serif;font-style:italic;font-size:0.88rem;color:var(--umber);text-align:center;line-height:1.7}
+
+/* Hidden */
+#file-input{display:none}
+#import-input{display:none}
 </style>
 </head>
 <body>
 
-<!-- ============================================================
-     SCREEN 1: ENTRY
-     ============================================================ -->
+<!-- ENTRY -->
 <div id="screen-entry" class="screen active">
   <div class="entry-bg"></div>
-
   <div class="entry-frame">
-    <!-- Ornamental SVG -->
     <svg class="entry-ornament" viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="4" y="4" width="112" height="72" rx="2" stroke="#8b6a47" stroke-width="1.5" fill="none"/>
       <rect x="10" y="10" width="100" height="60" rx="1" stroke="#8b6a47" stroke-width="0.7" fill="none" stroke-dasharray="3 3"/>
       <circle cx="60" cy="40" r="18" stroke="#8b6a47" stroke-width="1" fill="none"/>
       <path d="M44 40h32M60 24v32" stroke="#8b6a47" stroke-width="0.8"/>
       <circle cx="60" cy="40" r="3" fill="#8b6a47" opacity="0.7"/>
-      <path d="M20 20 L30 20 M20 20 L20 30" stroke="#8b6a47" stroke-width="1.2"/>
-      <path d="M100 20 L90 20 M100 20 L100 30" stroke="#8b6a47" stroke-width="1.2"/>
-      <path d="M20 60 L30 60 M20 60 L20 50" stroke="#8b6a47" stroke-width="1.2"/>
-      <path d="M100 60 L90 60 M100 60 L100 50" stroke="#8b6a47" stroke-width="1.2"/>
+      <path d="M20 20L30 20M20 20L20 30M100 20L90 20M100 20L100 30M20 60L30 60M20 60L20 50M100 60L90 60M100 60L100 50" stroke="#8b6a47" stroke-width="1.2"/>
     </svg>
-
     <h1 class="entry-title">Philatelia</h1>
     <p class="entry-subtitle">Digital Stamp Atelier</p>
     <div class="entry-divider"></div>
-
     <div class="entry-actions">
-      <!-- Camera button -->
       <button class="entry-btn" id="btn-open-camera">
         <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="4" y="11" width="30" height="22" rx="2" stroke="#5c4230" stroke-width="1.5"/>
-          <circle cx="19" cy="22" r="7" stroke="#5c4230" stroke-width="1.5"/>
-          <circle cx="19" cy="22" r="3.5" fill="#5c4230" opacity="0.4"/>
-          <path d="M14 11V9a2 2 0 012-2h6a2 2 0 012 2v2" stroke="#5c4230" stroke-width="1.5"/>
-          <circle cx="31" cy="15" r="1.5" fill="#5c4230" opacity="0.5"/>
+          <rect x="4" y="11" width="30" height="22" rx="2" stroke="#6b4c30" stroke-width="1.5"/>
+          <circle cx="19" cy="22" r="7" stroke="#6b4c30" stroke-width="1.5"/>
+          <circle cx="19" cy="22" r="3.5" fill="#6b4c30" opacity="0.4"/>
+          <path d="M14 11V9a2 2 0 012-2h6a2 2 0 012 2v2" stroke="#6b4c30" stroke-width="1.5"/>
+          <circle cx="31" cy="15" r="1.5" fill="#6b4c30" opacity="0.5"/>
         </svg>
         <span class="entry-btn-label">Camera</span>
       </button>
-
-      <!-- Upload button -->
       <button class="entry-btn" id="btn-open-upload">
         <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="5" y="7" width="28" height="20" rx="2" stroke="#5c4230" stroke-width="1.5"/>
-          <path d="M12 17l7-7 7 7" stroke="#5c4230" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="19" y1="10" x2="19" y2="24" stroke="#5c4230" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M8 31h22" stroke="#5c4230" stroke-width="1.5" stroke-linecap="round"/>
+          <rect x="5" y="7" width="28" height="20" rx="2" stroke="#6b4c30" stroke-width="1.5"/>
+          <path d="M12 17l7-7 7 7" stroke="#6b4c30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="19" y1="10" x2="19" y2="24" stroke="#6b4c30" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M8 31h22" stroke="#6b4c30" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
         <span class="entry-btn-label">Upload</span>
       </button>
     </div>
   </div>
-
-  <!-- Collection book shortcut -->
   <div class="entry-footer" id="btn-open-book">
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="#8b6a47" stroke-width="1.4" stroke-linecap="round"/>
-      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" stroke="#8b6a47" stroke-width="1.4"/>
-      <line x1="9" y1="7" x2="15" y2="7" stroke="#8b6a47" stroke-width="1" stroke-linecap="round"/>
-      <line x1="9" y1="11" x2="13" y2="11" stroke="#8b6a47" stroke-width="1" stroke-linecap="round"/>
-    </svg>
+    <svg viewBox="0 0 24 24" fill="none"><path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="#8b6a47" stroke-width="1.4" stroke-linecap="round"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" stroke="#8b6a47" stroke-width="1.4"/><line x1="9" y1="7" x2="15" y2="7" stroke="#8b6a47" stroke-width="1" stroke-linecap="round"/><line x1="9" y1="11" x2="13" y2="11" stroke="#8b6a47" stroke-width="1" stroke-linecap="round"/></svg>
     <span class="entry-footer-label">My Collection</span>
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px">
-      <path d="M9 18l6-6-6-6" stroke="#8b6a47" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
+    <svg viewBox="0 0 24 24" fill="none" style="width:13px;height:13px"><path d="M9 18l6-6-6-6" stroke="#8b6a47" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </div>
 </div>
 
-<!-- ============================================================
-     SCREEN 2: CAMERA
-     ============================================================ -->
+<!-- CAMERA -->
 <div id="screen-camera" class="screen">
   <div class="camera-wrapper">
     <div class="camera-feed-wrap">
       <video id="camera-video" autoplay playsinline muted></video>
       <div class="camera-crosshair"></div>
-      <div class="camera-corner tl"></div>
-      <div class="camera-corner tr"></div>
-      <div class="camera-corner bl"></div>
-      <div class="camera-corner br"></div>
+      <div class="camera-corner tl"></div><div class="camera-corner tr"></div>
+      <div class="camera-corner bl"></div><div class="camera-corner br"></div>
       <div class="shutter-flash" id="shutter-flash"></div>
     </div>
-
     <div class="camera-controls">
       <button class="cam-btn-back" id="btn-cam-back">
         <svg viewBox="0 0 16 16" fill="none"><path d="M10 13L5 8l5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -904,9 +343,7 @@ body::before {
   </div>
 </div>
 
-<!-- ============================================================
-     SCREEN 3: EDITOR
-     ============================================================ -->
+<!-- EDITOR -->
 <div id="screen-editor" class="screen">
   <div class="editor-layout">
     <div class="editor-header">
@@ -917,15 +354,11 @@ body::before {
       <span class="editor-title">Stencil Editor</span>
       <span class="editor-step">Step 1 of 2</span>
     </div>
-
-    <!-- Canvas area for stencil/image editing -->
     <div class="editor-canvas-area" id="editor-canvas-area">
       <canvas id="editor-canvas"></canvas>
+      <div class="editor-drag-hint" id="editor-drag-hint">Drag inside frame to move stencil &middot; Drag outside to move image</div>
     </div>
-
-    <!-- Toolbar -->
     <div class="editor-toolbar">
-      <!-- Shape selector -->
       <div class="toolbar-section">
         <span class="toolbar-label">Shape</span>
         <div class="stencil-shape-row">
@@ -935,23 +368,19 @@ body::before {
           <button class="shape-btn" data-shape="hexagon">Hex</button>
         </div>
       </div>
-      <!-- Image zoom -->
       <div class="toolbar-section">
         <span class="toolbar-label">Zoom</span>
         <input type="range" class="toolbar-slider" id="img-zoom" min="50" max="300" value="100">
       </div>
-      <!-- Image rotate -->
       <div class="toolbar-section">
         <span class="toolbar-label">Rotate</span>
         <input type="range" class="toolbar-slider" id="img-rotate" min="-180" max="180" value="0">
       </div>
-      <!-- Stencil scale -->
       <div class="toolbar-section">
         <span class="toolbar-label">Stencil</span>
         <input type="range" class="toolbar-slider" id="stencil-scale" min="30" max="95" value="65">
       </div>
     </div>
-
     <div class="editor-footer">
       <button class="editor-btn editor-btn-secondary" id="btn-editor-reset">Reset</button>
       <button class="editor-btn editor-btn-primary" id="btn-create-stamp">Create Stamp</button>
@@ -959,9 +388,7 @@ body::before {
   </div>
 </div>
 
-<!-- ============================================================
-     SCREEN 4: PREVIEW
-     ============================================================ -->
+<!-- PREVIEW -->
 <div id="screen-preview" class="screen">
   <div class="preview-inner">
     <div class="preview-header">
@@ -970,16 +397,20 @@ body::before {
         Edit
       </button>
       <span class="preview-title">Stamp Preview</span>
-      <button class="icon-btn" id="btn-export-stamp">
-        <svg viewBox="0 0 15 15" fill="none"><path d="M7.5 10V2M4 7l3.5 3.5L11 7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 13h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-        Export
-      </button>
+      <div style="display:flex;gap:8px">
+        <button class="icon-btn" id="btn-share-stamp">
+          <svg viewBox="0 0 15 15" fill="none"><circle cx="12" cy="3" r="1.5" stroke="currentColor" stroke-width="1.2"/><circle cx="3" cy="7.5" r="1.5" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="12" r="1.5" stroke="currentColor" stroke-width="1.2"/><line x1="4.4" y1="6.7" x2="10.6" y2="3.8" stroke="currentColor" stroke-width="1.2"/><line x1="4.4" y1="8.3" x2="10.6" y2="11.2" stroke="currentColor" stroke-width="1.2"/></svg>
+          Share
+        </button>
+        <button class="icon-btn" id="btn-export-stamp">
+          <svg viewBox="0 0 15 15" fill="none"><path d="M7.5 10V2M4 7l3.5 3.5L11 7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 13h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Export
+        </button>
+      </div>
     </div>
-
     <div class="preview-stamp-wrap">
       <img id="preview-stamp-img" class="preview-stamp-img" alt="Stamp preview" src="" style="display:none">
     </div>
-
     <div class="preview-actions">
       <button class="editor-btn editor-btn-secondary" id="btn-preview-redo">Re-cut</button>
       <button class="editor-btn editor-btn-primary" id="btn-add-to-book">Add to Collection</button>
@@ -987,26 +418,22 @@ body::before {
   </div>
 </div>
 
-<!-- ============================================================
-     SCREEN 5: BOOK
-     ============================================================ -->
+<!-- BOOK -->
 <div id="screen-book" class="screen">
   <div class="book-container">
     <div class="book-header">
-      <button class="icon-btn" id="btn-book-home">
+      <button class="icon-btn" id="btn-book-home" style="border-color:rgba(250,246,238,0.2);color:rgba(250,246,238,0.65)">
         <svg viewBox="0 0 15 15" fill="none"><path d="M10 13L5 7.5 10 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Home
       </button>
       <span class="book-title">Collection Book</span>
       <span class="book-count" id="book-count">0 stamps</span>
     </div>
-
     <div class="book-pages-wrap" id="book-pages-wrap">
       <div class="book-page" id="current-page">
         <div class="stamps-grid" id="stamps-grid"></div>
       </div>
     </div>
-
     <div class="book-nav">
       <button class="book-nav-btn" id="btn-prev-page" disabled>
         <svg viewBox="0 0 14 14" fill="none"><path d="M9 12L4 7l5-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1018,206 +445,182 @@ body::before {
         <svg viewBox="0 0 14 14" fill="none"><path d="M5 12l5-5-5-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
-
     <div class="book-footer">
-      <button class="editor-btn editor-btn-secondary" style="flex:0;padding:11px 20px;font-size:0.68rem" id="btn-export-page">
-        Export Page
-      </button>
-      <button class="editor-btn editor-btn-primary" style="flex:0;padding:11px 20px;font-size:0.68rem" id="btn-book-add-new">
-        Add Stamp
-      </button>
+      <button class="editor-btn editor-btn-secondary" style="flex:0;padding:10px 18px;font-size:0.66rem" id="btn-import-stamp">Import PNG</button>
+      <button class="editor-btn editor-btn-secondary" style="flex:0;padding:10px 18px;font-size:0.66rem" id="btn-export-page">Export Page</button>
+      <button class="editor-btn editor-btn-primary" style="flex:0;padding:10px 18px;font-size:0.66rem" id="btn-book-add-new">Add Stamp</button>
     </div>
   </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
-
-<!-- Hidden file input -->
 <input type="file" id="file-input" accept="image/*">
-
-<!-- Hidden capture canvas -->
+<input type="file" id="import-input" accept="image/png,image/*">
 <canvas id="capture-canvas" style="display:none"></canvas>
 
 <script>
-/* =============================================
-   STATE
-   ============================================= */
 const state = {
   currentScreen: 'entry',
-  sourceImageData: null,  // data URL of the loaded image
-  stampDataURL: null,     // generated stamp PNG
-  stamps: [],             // array of data URLs
-  currentPage: 0,         // page index
-  STAMPS_PER_PAGE: 9,
+  sourceImageData: null,
+  stampDataURL: null,
+  stamps: [],
+  currentPage: 0,
+  STAMPS_PER_PAGE: 48, // 6x8
   stencilShape: 'rect',
-
-  // Editor interaction
   imgX: 0, imgY: 0,
-  imgScale: 1,
-  imgRotate: 0,
-  stencilScale: 0.65,     // fraction of canvas size
-
-  // Camera
+  imgScale: 1, imgRotate: 0,
+  stencilX: 0, stencilY: 0,
+  stencilScale: 0.65,
   cameraStream: null,
   facingMode: 'environment',
-
-  // Canvas size
   canvasSize: 0,
+  _dragHinted: false
 };
 
-/* =============================================
-   SCREEN ROUTER
-   ============================================= */
+/* SCREEN ROUTER */
 function showScreen(id) {
-  const current = document.querySelector('.screen.active');
-  const next    = document.getElementById('screen-' + id);
-  if (!next || (current === next)) return;
-  if (current) {
-    current.classList.add('exit');
-    setTimeout(() => { current.classList.remove('active', 'exit'); }, 560);
-  }
-  setTimeout(() => { next.classList.add('active'); }, 60);
+  const cur = document.querySelector('.screen.active');
+  const nxt = document.getElementById('screen-' + id);
+  if (!nxt || cur === nxt) return;
+  if (cur) { cur.classList.add('exit'); setTimeout(() => cur.classList.remove('active', 'exit'), 560); }
+  setTimeout(() => nxt.classList.add('active'), 60);
   state.currentScreen = id;
 }
 
-/* =============================================
-   TOAST
-   ============================================= */
-function showToast(msg, dur = 2200) {
+function showToast(msg, dur = 2400) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  clearTimeout(showToast._timer);
-  showToast._timer = setTimeout(() => t.classList.remove('show'), dur);
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => t.classList.remove('show'), dur);
 }
 
-/* =============================================
-   ENTRY SCREEN
-   ============================================= */
+/* ENTRY */
 document.getElementById('btn-open-camera').addEventListener('click', openCamera);
-document.getElementById('btn-open-upload').addEventListener('click', () => {
-  document.getElementById('file-input').click();
-});
-document.getElementById('btn-open-book').addEventListener('click', () => {
-  showScreen('book');
-  renderBook();
-});
+document.getElementById('btn-open-upload').addEventListener('click', () => document.getElementById('file-input').click());
+document.getElementById('btn-open-book').addEventListener('click', () => { showScreen('book'); renderBook(); });
 
 document.getElementById('file-input').addEventListener('change', e => {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
+  reader.onload = ev => { state.sourceImageData = ev.target.result; e.target.value = ''; openEditor(); };
+  reader.readAsDataURL(file);
+});
+
+/* IMPORT STAMP (transparent PNG into collection) */
+document.getElementById('import-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
   reader.onload = ev => {
-    state.sourceImageData = ev.target.result;
-    e.target.value = '';
-    openEditor();
+    // Normalise: load onto canvas preserving transparency
+    const img = new Image();
+    img.onload = () => {
+      const sz = 400;
+      const c = document.createElement('canvas');
+      c.width = sz; c.height = sz;
+      const ctx = c.getContext('2d');
+      // Center and scale to fit
+      const scale = Math.min(sz / img.width, sz / img.height);
+      const dx = (sz - img.width * scale) / 2;
+      const dy = (sz - img.height * scale) / 2;
+      ctx.drawImage(img, dx, dy, img.width * scale, img.height * scale);
+      const dataURL = c.toDataURL('image/png');
+      state.stamps.push(dataURL);
+      e.target.value = '';
+      renderBook();
+      showToast('Stamp imported');
+      animateLastStampSlot();
+    };
+    img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
 });
 
-/* =============================================
-   CAMERA
-   ============================================= */
+document.getElementById('btn-import-stamp').addEventListener('click', () => document.getElementById('import-input').click());
+
+function animateLastStampSlot() {
+  const SLOTS = state.STAMPS_PER_PAGE;
+  const idx = state.stamps.length - 1;
+  const pageOfStamp = Math.floor(idx / SLOTS);
+  if (pageOfStamp === state.currentPage) {
+    const grid = document.getElementById('stamps-grid');
+    const slots = grid.querySelectorAll('.stamp-slot');
+    const slotIdx = idx % SLOTS;
+    if (slots[slotIdx]) {
+      slots[slotIdx].classList.add('stamp-enter');
+      setTimeout(() => slots[slotIdx].classList.remove('stamp-enter'), 600);
+    }
+  }
+}
+
+/* CAMERA */
 async function openCamera() {
   showScreen('camera');
   await startCamera();
 }
-
 async function startCamera() {
   stopCamera();
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: state.facingMode, width: { ideal: 1280 }, height: { ideal: 1280 } }
-    });
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.facingMode, width: { ideal: 1280 }, height: { ideal: 1280 } } });
     state.cameraStream = stream;
-    const video = document.getElementById('camera-video');
-    video.srcObject = stream;
-  } catch (err) {
-    showToast('Camera unavailable — please upload an image.');
-    showScreen('entry');
-  }
+    document.getElementById('camera-video').srcObject = stream;
+  } catch { showToast('Camera unavailable — please upload'); showScreen('entry'); }
 }
-
 function stopCamera() {
-  if (state.cameraStream) {
-    state.cameraStream.getTracks().forEach(t => t.stop());
-    state.cameraStream = null;
-  }
+  if (state.cameraStream) { state.cameraStream.getTracks().forEach(t => t.stop()); state.cameraStream = null; }
 }
-
-document.getElementById('btn-cam-back').addEventListener('click', () => {
-  stopCamera();
-  showScreen('entry');
-});
-
-document.getElementById('btn-cam-flip').addEventListener('click', () => {
-  state.facingMode = state.facingMode === 'environment' ? 'user' : 'environment';
-  startCamera();
-});
-
+document.getElementById('btn-cam-back').addEventListener('click', () => { stopCamera(); showScreen('entry'); });
+document.getElementById('btn-cam-flip').addEventListener('click', () => { state.facingMode = state.facingMode === 'environment' ? 'user' : 'environment'; startCamera(); });
 document.getElementById('btn-shutter').addEventListener('click', () => {
   const flash = document.getElementById('shutter-flash');
   flash.classList.add('active');
   setTimeout(() => flash.classList.remove('active'), 400);
-
   const video = document.getElementById('camera-video');
-  const cap   = document.getElementById('capture-canvas');
-  const size  = Math.min(video.videoWidth, video.videoHeight);
-  cap.width  = size;
-  cap.height = size;
+  const cap = document.getElementById('capture-canvas');
+  const size = Math.min(video.videoWidth, video.videoHeight);
+  cap.width = size; cap.height = size;
   const ctx = cap.getContext('2d');
-  const ox = (video.videoWidth  - size) / 2;
-  const oy = (video.videoHeight - size) / 2;
-  ctx.drawImage(video, ox, oy, size, size, 0, 0, size, size);
+  ctx.drawImage(video, (video.videoWidth-size)/2, (video.videoHeight-size)/2, size, size, 0, 0, size, size);
   state.sourceImageData = cap.toDataURL('image/jpeg', 0.92);
-
-  setTimeout(() => {
-    stopCamera();
-    openEditor();
-  }, 320);
+  setTimeout(() => { stopCamera(); openEditor(); }, 320);
 });
 
-/* =============================================
-   EDITOR — Canvas Setup
-   ============================================= */
-let editorCanvas, editorCtx;
-let sourceImg = null;
-let isDragging = false, lastX = 0, lastY = 0;
-let isPinching = false, pinchDist0 = 0, pinchScale0 = 1, pinchAngle0 = 0;
+/* EDITOR */
+let editorCanvas, editorCtx, sourceImg;
 
 function openEditor() {
   showScreen('editor');
-  resetEditorState();
   initEditorCanvas();
-  loadSourceImage(() => {
-    fitImageToCanvas();
-    drawEditor();
-  });
+  resetEditorState();
+  loadSourceImage(() => { fitImageToCanvas(); drawEditor(); });
 }
 
 function resetEditorState() {
-  state.imgX = 0; state.imgY = 0;
-  state.imgScale = 1; state.imgRotate = 0;
-  state.stencilScale = 0.65;
-  state.stencilShape = 'rect';
-  document.getElementById('img-zoom').value   = 100;
+  const cs = state.canvasSize || 0;
+  state.imgX = 0; state.imgY = 0; state.imgScale = 1; state.imgRotate = 0;
+  state.stencilX = cs/2; state.stencilY = cs/2;
+  state.stencilScale = 0.65; state.stencilShape = 'rect';
+  state._dragHinted = false;
+  document.getElementById('img-zoom').value = 100;
   document.getElementById('img-rotate').value = 0;
   document.getElementById('stencil-scale').value = 65;
   document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
   document.querySelector('[data-shape="rect"]').classList.add('active');
+  const hint = document.getElementById('editor-drag-hint');
+  if (hint) hint.style.opacity = '1';
 }
 
 function initEditorCanvas() {
   editorCanvas = document.getElementById('editor-canvas');
-  editorCtx    = editorCanvas.getContext('2d');
-  const area   = document.getElementById('editor-canvas-area');
-  const sz     = Math.min(area.clientWidth, area.clientHeight, 500);
+  editorCtx = editorCanvas.getContext('2d');
+  const area = document.getElementById('editor-canvas-area');
+  const sz = Math.min(area.clientWidth, area.clientHeight, 500);
   state.canvasSize = sz;
-  editorCanvas.width  = sz;
-  editorCanvas.height = sz;
-  editorCanvas.style.width  = sz + 'px';
-  editorCanvas.style.height = sz + 'px';
+  editorCanvas.width = sz; editorCanvas.height = sz;
+  editorCanvas.style.width = sz + 'px'; editorCanvas.style.height = sz + 'px';
+  state.stencilX = sz/2; state.stencilY = sz/2;
 }
 
 function loadSourceImage(cb) {
@@ -1230,617 +633,353 @@ function fitImageToCanvas() {
   const cs = state.canvasSize;
   const asp = sourceImg.width / sourceImg.height;
   let w, h;
-  if (asp >= 1) { w = cs; h = cs / asp; }
-  else          { h = cs; w = cs * asp; }
+  if (asp >= 1) { w = cs; h = cs/asp; } else { h = cs; w = cs*asp; }
   state.imgScale = w / sourceImg.width;
-  state.imgX = (cs - w) / 2;
-  state.imgY = (cs - h) / 2;
+  state.imgX = (cs-w)/2; state.imgY = (cs-h)/2;
 }
 
-/* =============================================
-   EDITOR DRAWING
-   ============================================= */
 function drawEditor() {
-  if (!editorCtx) return;
-  const cs  = state.canvasSize;
+  if (!editorCtx || !sourceImg) return;
+  const cs = state.canvasSize;
   const ctx = editorCtx;
   ctx.clearRect(0, 0, cs, cs);
 
-  // — Draw image (behind stencil)
-  ctx.save();
-  ctx.translate(state.imgX + (sourceImg.width * state.imgScale) / 2,
-                state.imgY + (sourceImg.height * state.imgScale) / 2);
-  ctx.rotate(state.imgRotate * Math.PI / 180);
-  ctx.scale(state.imgScale, state.imgScale);
-  ctx.drawImage(sourceImg, -sourceImg.width / 2, -sourceImg.height / 2);
-  ctx.restore();
-
-  // — Dim overlay outside stencil
-  const stencilSize = cs * state.stencilScale;
-  const cx = cs / 2, cy = cs / 2;
-
-  ctx.save();
-  // Full dim layer
-  ctx.fillStyle = 'rgba(26,16,10,0.62)';
+  // Dark background
+  ctx.fillStyle = '#1a0e06';
   ctx.fillRect(0, 0, cs, cs);
 
-  // Cut out the stencil shape using composite
-  ctx.globalCompositeOperation = 'destination-out';
-  ctx.fillStyle = 'rgba(0,0,0,1)';
-  drawStencilPath(ctx, cx, cy, stencilSize, stencilSize);
-  ctx.fill();
+  // Draw image
+  ctx.save();
+  const icx = state.imgX + (sourceImg.width * state.imgScale)/2;
+  const icy = state.imgY + (sourceImg.height * state.imgScale)/2;
+  ctx.translate(icx, icy);
+  ctx.rotate(state.imgRotate * Math.PI/180);
+  ctx.scale(state.imgScale, state.imgScale);
+  ctx.drawImage(sourceImg, -sourceImg.width/2, -sourceImg.height/2);
   ctx.restore();
 
-  // — Stencil border (perforations)
+  const stencilSz = cs * state.stencilScale;
+  const scx = state.stencilX, scy = state.stencilY;
+
+  // Dim overlay with punch-out
+  const off = document.createElement('canvas');
+  off.width = cs; off.height = cs;
+  const offCtx = off.getContext('2d');
+  offCtx.fillStyle = 'rgba(15,8,2,0.72)';
+  offCtx.fillRect(0, 0, cs, cs);
+  offCtx.globalCompositeOperation = 'destination-out';
+  offCtx.fillStyle = 'rgba(0,0,0,1)';
+  drawStencilPath(offCtx, scx, scy, stencilSz, stencilSz);
+  offCtx.fill();
+  ctx.drawImage(off, 0, 0);
+
+  // Stencil border
   ctx.save();
-  drawStencilPerforations(ctx, cx, cy, stencilSize, stencilSize);
+  ctx.strokeStyle = 'rgba(224,192,96,0.6)';
+  ctx.lineWidth = 1.5;
+  drawStencilPath(ctx, scx, scy, stencilSz, stencilSz);
+  ctx.stroke();
+  ctx.restore();
+
+  // Perforations
+  ctx.save();
+  drawStencilPerforations(ctx, scx, scy, stencilSz, stencilSz);
   ctx.restore();
 }
 
 function drawStencilPath(ctx, cx, cy, w, h) {
-  const hw = w / 2, hh = h / 2;
+  const hw = w/2, hh = h/2;
   ctx.beginPath();
-  switch (state.stencilShape) {
-    case 'rect':
-      ctx.rect(cx - hw, cy - hh, w, h);
-      break;
-    case 'oval':
-      ctx.ellipse(cx, cy, hw, hh, 0, 0, Math.PI * 2);
-      break;
-    case 'diamond': {
-      ctx.moveTo(cx, cy - hh);
-      ctx.lineTo(cx + hw, cy);
-      ctx.lineTo(cx, cy + hh);
-      ctx.lineTo(cx - hw, cy);
-      ctx.closePath();
-      break;
-    }
-    case 'hexagon': {
-      for (let i = 0; i < 6; i++) {
-        const angle = (Math.PI / 3) * i - Math.PI / 6;
-        const px = cx + hw * Math.cos(angle);
-        const py = cy + hh * Math.sin(angle);
-        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
-      }
-      ctx.closePath();
-      break;
-    }
+  switch(state.stencilShape) {
+    case 'rect': ctx.rect(cx-hw, cy-hh, w, h); break;
+    case 'oval': ctx.ellipse(cx, cy, hw, hh, 0, 0, Math.PI*2); break;
+    case 'diamond': ctx.moveTo(cx,cy-hh); ctx.lineTo(cx+hw,cy); ctx.lineTo(cx,cy+hh); ctx.lineTo(cx-hw,cy); ctx.closePath(); break;
+    case 'hexagon': for(let i=0;i<6;i++){const a=(Math.PI/3)*i-Math.PI/6;const px=cx+hw*Math.cos(a);const py=cy+hh*Math.sin(a);i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);}ctx.closePath(); break;
   }
 }
 
 function drawStencilPerforations(ctx, cx, cy, w, h) {
-  const hw = w / 2, hh = h / 2;
-  const dotR = 3.5;
-  const gap  = 14;
-  ctx.fillStyle = 'rgba(201,184,154,0.7)';
-
-  // Generate points around perimeter
-  const pts = [];
-  switch (state.stencilShape) {
-    case 'rect': {
-      const perimeter = 2 * (w + h);
-      const count = Math.floor(perimeter / gap);
-      for (let i = 0; i < count; i++) {
-        const d = (i / count) * perimeter;
-        let px, py;
-        if (d < w)          { px = cx - hw + d; py = cy - hh; }
-        else if (d < w + h) { px = cx + hw; py = cy - hh + (d - w); }
-        else if (d < 2*w+h) { px = cx + hw - (d - w - h); py = cy + hh; }
-        else                 { px = cx - hw; py = cy + hh - (d - 2*w - h); }
-        pts.push([px, py]);
-      }
-      break;
-    }
-    case 'oval': {
-      const count = Math.max(24, Math.floor((w + h) * Math.PI / gap));
-      for (let i = 0; i < count; i++) {
-        const a = (i / count) * Math.PI * 2;
-        pts.push([cx + hw * Math.cos(a), cy + hh * Math.sin(a)]);
-      }
-      break;
-    }
-    case 'diamond': {
-      const sides = [[cx, cy-hh, cx+hw, cy], [cx+hw, cy, cx, cy+hh],
-                     [cx, cy+hh, cx-hw, cy], [cx-hw, cy, cx, cy-hh]];
-      for (const [x1,y1,x2,y2] of sides) {
-        const len = Math.hypot(x2-x1, y2-y1);
-        const n = Math.floor(len / gap);
-        for (let i = 0; i < n; i++) { pts.push([x1+(x2-x1)*i/n, y1+(y2-y1)*i/n]); }
-      }
-      break;
-    }
-    case 'hexagon': {
-      for (let s = 0; s < 6; s++) {
-        const a1 = (Math.PI/3)*s - Math.PI/6;
-        const a2 = (Math.PI/3)*(s+1) - Math.PI/6;
-        const x1 = cx + hw*Math.cos(a1), y1 = cy + hh*Math.sin(a1);
-        const x2 = cx + hw*Math.cos(a2), y2 = cy + hh*Math.sin(a2);
-        const n = Math.floor(Math.hypot(x2-x1,y2-y1)/gap);
-        for (let i = 0; i < n; i++) { pts.push([x1+(x2-x1)*i/n, y1+(y2-y1)*i/n]); }
-      }
-      break;
-    }
-  }
-
-  for (const [px, py] of pts) {
-    ctx.beginPath();
-    ctx.arc(px, py, dotR, 0, Math.PI * 2);
-    ctx.fill();
-  }
+  const pts = getPerimeterPoints(cx, cy, w, h, 13);
+  ctx.fillStyle = 'rgba(224,192,96,0.65)';
+  for(const [px,py] of pts) { ctx.beginPath(); ctx.arc(px,py,3.5,0,Math.PI*2); ctx.fill(); }
 }
 
-/* =============================================
-   EDITOR CONTROLS — Sliders & Shapes
-   ============================================= */
+/* EDITOR CONTROLS */
 document.getElementById('img-zoom').addEventListener('input', e => {
-  const cs = state.canvasSize;
-  const centerX = state.imgX + (sourceImg.width * state.imgScale) / 2;
-  const centerY = state.imgY + (sourceImg.height * state.imgScale) / 2;
-  state.imgScale = e.target.value / 100;
-  state.imgX = centerX - (sourceImg.width * state.imgScale) / 2;
-  state.imgY = centerY - (sourceImg.height * state.imgScale) / 2;
-  drawEditor();
+  const ns = e.target.value/100, os = state.imgScale, d = ns/os;
+  const cx = state.canvasSize/2, cy = state.canvasSize/2;
+  state.imgX = cx+(state.imgX-cx)*d; state.imgY = cy+(state.imgY-cy)*d;
+  state.imgScale = ns; drawEditor();
 });
-
-document.getElementById('img-rotate').addEventListener('input', e => {
-  state.imgRotate = parseInt(e.target.value);
-  drawEditor();
-});
-
-document.getElementById('stencil-scale').addEventListener('input', e => {
-  state.stencilScale = e.target.value / 100;
-  drawEditor();
-});
-
+document.getElementById('img-rotate').addEventListener('input', e => { state.imgRotate = parseInt(e.target.value); drawEditor(); });
+document.getElementById('stencil-scale').addEventListener('input', e => { state.stencilScale = e.target.value/100; drawEditor(); });
 document.querySelectorAll('.shape-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    state.stencilShape = btn.dataset.shape;
-    drawEditor();
+    btn.classList.add('active'); state.stencilShape = btn.dataset.shape; drawEditor();
   });
 });
+document.getElementById('btn-editor-reset').addEventListener('click', () => { resetEditorState(); fitImageToCanvas(); drawEditor(); });
+document.getElementById('btn-editor-back').addEventListener('click', () => { stopCamera(); showScreen('entry'); });
 
-document.getElementById('btn-editor-reset').addEventListener('click', () => {
-  resetEditorState();
-  fitImageToCanvas();
-  drawEditor();
-});
+/* DRAG */
+let dragMode=null,isDragging=false,lastX=0,lastY=0,isPinching=false,pinchDist0=0,pinchScale0=1,pinchAngle0=0;
 
-document.getElementById('btn-editor-back').addEventListener('click', () => {
-  stopCamera();
-  showScreen('entry');
-});
-
-/* =============================================
-   EDITOR — Drag Interaction (Mouse + Touch)
-   ============================================= */
-const editorArea = document.getElementById('editor-canvas-area');
-
-function pointerDown(x, y) {
-  isDragging = true;
-  lastX = x; lastY = y;
+function pointInStencil(px,py) {
+  const cs=state.canvasSize,sz=cs*state.stencilScale,hw=sz/2,hh=sz/2;
+  return px>=state.stencilX-hw&&px<=state.stencilX+hw&&py>=state.stencilY-hh&&py<=state.stencilY+hh;
 }
-function pointerMove(x, y) {
-  if (!isDragging) return;
-  state.imgX += x - lastX;
-  state.imgY += y - lastY;
-  lastX = x; lastY = y;
+function editorPointerDown(x,y,forceImage) {
+  state._dragHinted=true;
+  const hint=document.getElementById('editor-drag-hint');
+  if(hint)hint.style.opacity='0';
+  isDragging=true;lastX=x;lastY=y;
+  dragMode=(!forceImage&&pointInStencil(x,y))?'stencil':'image';
+}
+function editorPointerMove(x,y) {
+  if(!isDragging)return;
+  const dx=x-lastX,dy=y-lastY;lastX=x;lastY=y;
+  if(dragMode==='stencil') {
+    const cs=state.canvasSize,half=(cs*state.stencilScale)/2;
+    state.stencilX=Math.max(half*0.5,Math.min(cs-half*0.5,state.stencilX+dx));
+    state.stencilY=Math.max(half*0.5,Math.min(cs-half*0.5,state.stencilY+dy));
+  } else { state.imgX+=dx; state.imgY+=dy; }
   drawEditor();
 }
-function pointerUp() { isDragging = false; }
+function editorPointerUp(){isDragging=false;dragMode=null;}
 
-editorCanvas.addEventListener('mousedown', e => { pointerDown(e.offsetX, e.offsetY); });
-window.addEventListener('mousemove', e => {
-  if (!isDragging) return;
-  const rect = editorCanvas.getBoundingClientRect();
-  pointerMove(e.clientX - rect.left, e.clientY - rect.top);
-});
-window.addEventListener('mouseup', pointerUp);
-
-editorCanvas.addEventListener('touchstart', e => {
-  if (e.touches.length === 1) {
-    const t = e.touches[0];
-    const rect = editorCanvas.getBoundingClientRect();
-    pointerDown(t.clientX - rect.left, t.clientY - rect.top);
-  } else if (e.touches.length === 2) {
-    isPinching = true; isDragging = false;
-    pinchDist0  = getTouchDist(e.touches);
-    pinchScale0 = state.imgScale;
-    pinchAngle0 = getTouchAngle(e.touches);
-  }
+const editorCanvasEl=document.getElementById('editor-canvas');
+editorCanvasEl.addEventListener('mousedown',e=>{const r=editorCanvasEl.getBoundingClientRect();editorPointerDown(e.clientX-r.left,e.clientY-r.top,e.button===2);});
+window.addEventListener('mousemove',e=>{if(!isDragging)return;const r=editorCanvasEl.getBoundingClientRect();editorPointerMove(e.clientX-r.left,e.clientY-r.top);});
+window.addEventListener('mouseup',editorPointerUp);
+editorCanvasEl.addEventListener('contextmenu',e=>e.preventDefault());
+editorCanvasEl.addEventListener('touchstart',e=>{
+  if(e.touches.length===1){const t=e.touches[0],r=editorCanvasEl.getBoundingClientRect();editorPointerDown(t.clientX-r.left,t.clientY-r.top,false);}
+  else if(e.touches.length===2){isPinching=true;isDragging=false;pinchDist0=getTouchDist(e.touches);pinchScale0=state.imgScale;pinchAngle0=getTouchAngle(e.touches);}
   e.preventDefault();
-}, { passive: false });
-
-editorCanvas.addEventListener('touchmove', e => {
-  if (e.touches.length === 1 && !isPinching) {
-    const t = e.touches[0];
-    const rect = editorCanvas.getBoundingClientRect();
-    pointerMove(t.clientX - rect.left, t.clientY - rect.top);
-  } else if (e.touches.length === 2 && isPinching) {
-    const dist  = getTouchDist(e.touches);
-    const angle = getTouchAngle(e.touches);
-    state.imgScale  = pinchScale0 * (dist / pinchDist0);
-    state.imgRotate += (angle - pinchAngle0) * (180 / Math.PI);
-    pinchAngle0 = angle;
-    document.getElementById('img-zoom').value   = state.imgScale * 100;
-    document.getElementById('img-rotate').value = state.imgRotate;
+},{passive:false});
+editorCanvasEl.addEventListener('touchmove',e=>{
+  if(e.touches.length===1&&!isPinching){const t=e.touches[0],r=editorCanvasEl.getBoundingClientRect();editorPointerMove(t.clientX-r.left,t.clientY-r.top);}
+  else if(e.touches.length===2&&isPinching){
+    const dist=getTouchDist(e.touches),angle=getTouchAngle(e.touches);
+    const os=state.imgScale;state.imgScale=Math.max(0.1,pinchScale0*(dist/pinchDist0));
+    const d=state.imgScale/os,cx=state.canvasSize/2,cy=state.canvasSize/2;
+    state.imgX=cx+(state.imgX-cx)*d;state.imgY=cy+(state.imgY-cy)*d;
+    state.imgRotate+=(angle-pinchAngle0)*(180/Math.PI);pinchAngle0=angle;
+    document.getElementById('img-zoom').value=Math.round(state.imgScale*100);
+    document.getElementById('img-rotate').value=Math.round(state.imgRotate);
     drawEditor();
   }
   e.preventDefault();
-}, { passive: false });
+},{passive:false});
+editorCanvasEl.addEventListener('touchend',e=>{if(e.touches.length<2)isPinching=false;if(e.touches.length===0)editorPointerUp();},{passive:false});
+function getTouchDist(t){return Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);}
+function getTouchAngle(t){return Math.atan2(t[1].clientY-t[0].clientY,t[1].clientX-t[0].clientX);}
 
-editorCanvas.addEventListener('touchend', e => {
-  if (e.touches.length < 2) isPinching = false;
-  if (e.touches.length === 0) pointerUp();
-}, { passive: false });
-
-function getTouchDist(touches) {
-  const dx = touches[0].clientX - touches[1].clientX;
-  const dy = touches[0].clientY - touches[1].clientY;
-  return Math.hypot(dx, dy);
-}
-function getTouchAngle(touches) {
-  return Math.atan2(touches[1].clientY - touches[0].clientY, touches[1].clientX - touches[0].clientX);
-}
-
-/* =============================================
-   STAMP GENERATION
-   ============================================= */
+/* STAMP GENERATION */
 document.getElementById('btn-create-stamp').addEventListener('click', () => {
-  const btn = document.getElementById('btn-create-stamp');
-  btn.classList.add('pressing');
-  setTimeout(() => btn.classList.remove('pressing'), 400);
-  setTimeout(generateStamp, 200);
+  if(!sourceImg||!state.sourceImageData){showToast('No image loaded');return;}
+  const btn=document.getElementById('btn-create-stamp');
+  btn.classList.add('pressing');setTimeout(()=>btn.classList.remove('pressing'),400);
+  setTimeout(generateStamp,180);
 });
 
 function generateStamp() {
-  const cs   = state.canvasSize;
-  const size = Math.round(cs * state.stencilScale);
-  const pad  = 18; // space for perforations
-  const total = size + pad * 2;
+  const cs=state.canvasSize;
+  const stencilSz=Math.round(cs*state.stencilScale);
+  const perfPad=24;
+  const outputSz=stencilSz+perfPad*2;
+  const out=document.createElement('canvas');
+  out.width=outputSz;out.height=outputSz;
+  const ctx=out.getContext('2d');
+  const outCx=outputSz/2,outCy=outputSz/2;
 
-  const out = document.createElement('canvas');
-  out.width  = total;
-  out.height = total;
-  const ctx  = out.getContext('2d');
-
-  const cx = total / 2, cy = total / 2;
-  const hw = size / 2, hh = size / 2;
-
-  // — Clip to stencil shape
+  // Clip and draw image
   ctx.save();
-  drawStencilPathOnCtx(ctx, cx, cy, size, size);
+  drawStencilPath(ctx,outCx,outCy,stencilSz,stencilSz);
   ctx.clip();
-
-  // — Draw image transformed to match editor view
-  const edCx = cs / 2, edCy = cs / 2;
-  const imgCx = state.imgX + (sourceImg.width * state.imgScale) / 2;
-  const imgCy = state.imgY + (sourceImg.height * state.imgScale) / 2;
-  const dx = imgCx - edCx;
-  const dy = imgCy - edCy;
-  ctx.translate(cx + dx, cy + dy);
-  ctx.rotate(state.imgRotate * Math.PI / 180);
-  ctx.scale(state.imgScale, state.imgScale);
-  ctx.drawImage(sourceImg, -sourceImg.width / 2, -sourceImg.height / 2);
+  const imgCenterX=state.imgX+(sourceImg.width*state.imgScale)/2;
+  const imgCenterY=state.imgY+(sourceImg.height*state.imgScale)/2;
+  const offsetX=outCx+(imgCenterX-state.stencilX);
+  const offsetY=outCy+(imgCenterY-state.stencilY);
+  ctx.translate(offsetX,offsetY);
+  ctx.rotate(state.imgRotate*Math.PI/180);
+  ctx.scale(state.imgScale,state.imgScale);
+  ctx.drawImage(sourceImg,-sourceImg.width/2,-sourceImg.height/2);
   ctx.restore();
 
-  // — Paper texture overlay
+  // Inner effects
   ctx.save();
-  drawStencilPathOnCtx(ctx, cx, cy, size, size);
+  drawStencilPath(ctx,outCx,outCy,stencilSz,stencilSz);
   ctx.clip();
-  ctx.globalAlpha = 0.08;
-  for (let i = 0; i < total * 1.5; i++) {
-    const x = Math.random() * total;
-    const y = Math.random() * total;
-    ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.4)';
-    ctx.fillRect(x, y, 1, 1);
-  }
-  ctx.globalAlpha = 1;
-  // vignette
-  const vg = ctx.createRadialGradient(cx, cy, size*0.25, cx, cy, size*0.6);
-  vg.addColorStop(0, 'rgba(0,0,0,0)');
-  vg.addColorStop(1, 'rgba(0,0,0,0.18)');
-  ctx.fillStyle = vg;
-  ctx.fillRect(0, 0, total, total);
+  // Vignette
+  const vg=ctx.createRadialGradient(outCx,outCy,stencilSz*0.2,outCx,outCy,stencilSz*0.62);
+  vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,0.22)');
+  ctx.fillStyle=vg;ctx.fillRect(0,0,outputSz,outputSz);
+  // Gleam
+  const eg=ctx.createLinearGradient(outCx-stencilSz/2,outCy-stencilSz/2,outCx+stencilSz*0.4,outCy+stencilSz*0.4);
+  eg.addColorStop(0,'rgba(255,255,255,0.12)');eg.addColorStop(1,'rgba(0,0,0,0.04)');
+  ctx.fillStyle=eg;ctx.fillRect(0,0,outputSz,outputSz);
   ctx.restore();
 
-  // — Emboss highlight
+  // Border stroke
   ctx.save();
-  drawStencilPathOnCtx(ctx, cx, cy, size, size);
-  ctx.clip();
-  const eg = ctx.createLinearGradient(cx - hw, cy - hh, cx + hw * 0.5, cy + hh * 0.5);
-  eg.addColorStop(0, 'rgba(255,255,255,0.12)');
-  eg.addColorStop(1, 'rgba(0,0,0,0.06)');
-  ctx.fillStyle = eg;
-  ctx.fill();
+  ctx.strokeStyle='rgba(180,150,80,0.6)';ctx.lineWidth=1.5;
+  drawStencilPath(ctx,outCx,outCy,stencilSz,stencilSz);ctx.stroke();
   ctx.restore();
 
-  // — Stencil border (filled outline for clean edge)
+  // Perforated holes — punch out (transparent)
+  const perf=getPerimeterPoints(outCx,outCy,stencilSz,stencilSz,13);
   ctx.save();
-  ctx.strokeStyle = 'rgba(201,184,154,0.45)';
-  ctx.lineWidth = 1.5;
-  drawStencilPathOnCtx(ctx, cx, cy, size, size);
-  ctx.stroke();
+  ctx.globalCompositeOperation='destination-out';
+  ctx.fillStyle='rgba(0,0,0,1)';
+  for(const [px,py] of perf){ctx.beginPath();ctx.arc(px,py,4.5,0,Math.PI*2);ctx.fill();}
   ctx.restore();
 
-  // — Perforations around border
-  const dotR = 3.8;
-  const gap  = 13;
-  ctx.fillStyle = 'rgba(30,18,10,0.85)';
-
-  const pts = getPerimeterPoints(cx, cy, size, size, gap);
-  for (const [px, py] of pts) {
-    ctx.beginPath();
-    ctx.arc(px, py, dotR, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  // — Drop shadow at bottom-right (rendered via CSS on the img element)
-  state.stampDataURL = out.toDataURL('image/png');
+  state.stampDataURL=out.toDataURL('image/png');
   showPreview();
 }
 
-function drawStencilPathOnCtx(ctx, cx, cy, w, h) {
-  const hw = w / 2, hh = h / 2;
-  ctx.beginPath();
-  switch (state.stencilShape) {
-    case 'rect': ctx.rect(cx - hw, cy - hh, w, h); break;
-    case 'oval': ctx.ellipse(cx, cy, hw, hh, 0, 0, Math.PI * 2); break;
-    case 'diamond':
-      ctx.moveTo(cx, cy - hh); ctx.lineTo(cx + hw, cy);
-      ctx.lineTo(cx, cy + hh); ctx.lineTo(cx - hw, cy);
-      ctx.closePath(); break;
-    case 'hexagon':
-      for (let i = 0; i < 6; i++) {
-        const a = (Math.PI / 3) * i - Math.PI / 6;
-        const px = cx + hw * Math.cos(a), py = cy + hh * Math.sin(a);
-        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
-      }
-      ctx.closePath(); break;
-  }
-}
-
-function getPerimeterPoints(cx, cy, w, h, gap) {
-  const pts = [];
-  const hw = w / 2, hh = h / 2;
-  switch (state.stencilShape) {
-    case 'rect': {
-      const perimeter = 2 * (w + h);
-      const count = Math.floor(perimeter / gap);
-      for (let i = 0; i < count; i++) {
-        const d = (i / count) * perimeter;
-        let px, py;
-        if (d < w)           { px = cx - hw + d; py = cy - hh; }
-        else if (d < w + h)  { px = cx + hw; py = cy - hh + (d - w); }
-        else if (d < 2*w+h)  { px = cx + hw - (d - w - h); py = cy + hh; }
-        else                  { px = cx - hw; py = cy + hh - (d - 2*w - h); }
-        pts.push([px, py]);
-      }
-      break;
-    }
-    case 'oval': {
-      const count = Math.max(24, Math.floor((w + h) * Math.PI / gap));
-      for (let i = 0; i < count; i++) {
-        const a = (i / count) * Math.PI * 2;
-        pts.push([cx + (hw + 8) * Math.cos(a), cy + (hh + 8) * Math.sin(a)]);
-      }
-      break;
-    }
-    case 'diamond': {
-      const sides = [[cx, cy-hh-8, cx+hw+8, cy], [cx+hw+8, cy, cx, cy+hh+8],
-                     [cx, cy+hh+8, cx-hw-8, cy], [cx-hw-8, cy, cx, cy-hh-8]];
-      for (const [x1,y1,x2,y2] of sides) {
-        const len = Math.hypot(x2-x1, y2-y1);
-        const n = Math.floor(len / gap);
-        for (let i = 0; i < n; i++) pts.push([x1+(x2-x1)*i/n, y1+(y2-y1)*i/n]);
-      }
-      break;
-    }
-    case 'hexagon': {
-      for (let s = 0; s < 6; s++) {
-        const a1 = (Math.PI/3)*s - Math.PI/6;
-        const a2 = (Math.PI/3)*(s+1) - Math.PI/6;
-        const x1 = cx + (hw+8)*Math.cos(a1), y1 = cy + (hh+8)*Math.sin(a1);
-        const x2 = cx + (hw+8)*Math.cos(a2), y2 = cy + (hh+8)*Math.sin(a2);
-        const n = Math.floor(Math.hypot(x2-x1, y2-y1) / gap);
-        for (let i = 0; i < n; i++) pts.push([x1+(x2-x1)*i/n, y1+(y2-y1)*i/n]);
-      }
-      break;
-    }
+function getPerimeterPoints(cx,cy,w,h,gap) {
+  const pts=[],hw=w/2,hh=h/2;
+  switch(state.stencilShape) {
+    case 'rect':{
+      const perim=2*(w+h),count=Math.floor(perim/gap);
+      for(let i=0;i<count;i++){const d=(i/count)*perim;let px,py;
+        if(d<w){px=cx-hw+d;py=cy-hh;}else if(d<w+h){px=cx+hw;py=cy-hh+(d-w);}
+        else if(d<2*w+h){px=cx+hw-(d-w-h);py=cy+hh;}else{px=cx-hw;py=cy+hh-(d-2*w-h);}
+        pts.push([px,py]);}break;}
+    case 'oval':{
+      const count=Math.max(24,Math.floor((w+h)*Math.PI/gap));
+      for(let i=0;i<count;i++){const a=(i/count)*Math.PI*2;pts.push([cx+hw*Math.cos(a),cy+hh*Math.sin(a)]);}break;}
+    case 'diamond':{
+      const sides=[[cx,cy-hh,cx+hw,cy],[cx+hw,cy,cx,cy+hh],[cx,cy+hh,cx-hw,cy],[cx-hw,cy,cx,cy-hh]];
+      for(const [x1,y1,x2,y2] of sides){const n=Math.floor(Math.hypot(x2-x1,y2-y1)/gap);for(let i=0;i<n;i++)pts.push([x1+(x2-x1)*i/n,y1+(y2-y1)*i/n]);}break;}
+    case 'hexagon':{
+      for(let s=0;s<6;s++){const a1=(Math.PI/3)*s-Math.PI/6,a2=(Math.PI/3)*(s+1)-Math.PI/6;
+        const x1=cx+hw*Math.cos(a1),y1=cy+hh*Math.sin(a1),x2=cx+hw*Math.cos(a2),y2=cy+hh*Math.sin(a2);
+        const n=Math.floor(Math.hypot(x2-x1,y2-y1)/gap);for(let i=0;i<n;i++)pts.push([x1+(x2-x1)*i/n,y1+(y2-y1)*i/n]);}break;}
   }
   return pts;
 }
 
-/* =============================================
-   PREVIEW SCREEN
-   ============================================= */
+/* PREVIEW */
 function showPreview() {
-  const img = document.getElementById('preview-stamp-img');
-  img.src = state.stampDataURL;
-  img.style.display = 'block';
-  // Re-trigger animation
-  img.classList.remove('preview-stamp-img');
-  void img.offsetWidth;
-  img.classList.add('preview-stamp-img');
+  const img=document.getElementById('preview-stamp-img');
+  img.src=state.stampDataURL;img.style.display='block';
+  img.classList.remove('preview-stamp-img');void img.offsetWidth;img.classList.add('preview-stamp-img');
   showScreen('preview');
 }
-
-document.getElementById('btn-preview-back').addEventListener('click', () => showScreen('editor'));
-document.getElementById('btn-preview-redo').addEventListener('click', () => showScreen('editor'));
-
-document.getElementById('btn-export-stamp').addEventListener('click', () => {
-  const a = document.createElement('a');
-  a.href     = state.stampDataURL;
-  a.download = 'stamp-' + Date.now() + '.png';
-  a.click();
+document.getElementById('btn-preview-back').addEventListener('click',()=>showScreen('editor'));
+document.getElementById('btn-preview-redo').addEventListener('click',()=>showScreen('editor'));
+document.getElementById('btn-export-stamp').addEventListener('click',()=>{
+  const a=document.createElement('a');a.href=state.stampDataURL;a.download='stamp-'+Date.now()+'.png';a.click();
   showToast('Stamp exported');
 });
-
-document.getElementById('btn-add-to-book').addEventListener('click', () => {
+document.getElementById('btn-share-stamp').addEventListener('click',async()=>{
+  if(navigator.share&&navigator.canShare){
+    try{
+      const res=await fetch(state.stampDataURL);const blob=await res.blob();
+      const file=new File([blob],'stamp.png',{type:'image/png'});
+      if(navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'My Philatelia Stamp'});return;}
+    }catch(e){}
+  }
+  // Fallback
+  const a=document.createElement('a');a.href=state.stampDataURL;a.download='stamp-'+Date.now()+'.png';a.click();
+  showToast('Stamp saved');
+});
+document.getElementById('btn-add-to-book').addEventListener('click',()=>{
   state.stamps.push(state.stampDataURL);
-  showScreen('book');
-  renderBook();
-  showToast('Stamp added to collection');
-  // Check if page just filled
-  const SLOTS = state.STAMPS_PER_PAGE;
-  const pageStamps = state.stamps.slice(state.currentPage * SLOTS, (state.currentPage + 1) * SLOTS);
-  if (pageStamps.length === SLOTS) {
-    const page = document.getElementById('current-page');
+  showScreen('book');renderBook();showToast('Stamp added to collection');
+  setTimeout(()=>{animateLastStampSlot();},100);
+  const SLOTS=state.STAMPS_PER_PAGE;
+  if(state.stamps.length%SLOTS===0){
+    const page=document.getElementById('current-page');
     page.classList.add('page-glow');
-    setTimeout(() => {
-      const shimmer = document.createElement('div');
-      shimmer.className = 'page-shimmer';
-      page.appendChild(shimmer);
-      setTimeout(() => shimmer.remove(), 1300);
-    }, 100);
-    setTimeout(() => page.classList.remove('page-glow'), 1000);
+    setTimeout(()=>{const sh=document.createElement('div');sh.className='page-shimmer';page.appendChild(sh);setTimeout(()=>sh.remove(),1300);},100);
+    setTimeout(()=>page.classList.remove('page-glow'),1000);
   }
 });
 
-/* =============================================
-   BOOK SCREEN
-   ============================================= */
+/* BOOK */
 function renderBook() {
-  const SLOTS = state.STAMPS_PER_PAGE;
-  const totalPages = Math.max(1, Math.ceil(state.stamps.length / SLOTS));
-  if (state.currentPage >= totalPages) state.currentPage = totalPages - 1;
-
-  const grid = document.getElementById('stamps-grid');
-  grid.innerHTML = '';
-
-  const start = state.currentPage * SLOTS;
-  const count = document.getElementById('book-count');
-  count.textContent = state.stamps.length + (state.stamps.length === 1 ? ' stamp' : ' stamps');
-
-  for (let i = 0; i < SLOTS; i++) {
-    const slot = document.createElement('div');
-    slot.className = 'stamp-slot';
-    if (state.stamps[start + i]) {
+  const SLOTS=state.STAMPS_PER_PAGE;
+  const totalPages=Math.max(1,Math.ceil(state.stamps.length/SLOTS));
+  if(state.currentPage>=totalPages)state.currentPage=totalPages-1;
+  const grid=document.getElementById('stamps-grid');
+  grid.innerHTML='';
+  const start=state.currentPage*SLOTS;
+  document.getElementById('book-count').textContent=state.stamps.length+(state.stamps.length===1?' stamp':' stamps');
+  for(let i=0;i<SLOTS;i++){
+    const slot=document.createElement('div');slot.className='stamp-slot';
+    if(state.stamps[start+i]){
       slot.classList.add('has-stamp');
-      const img = document.createElement('img');
-      img.src = state.stamps[start + i];
-      img.alt = 'Stamp ' + (start + i + 1);
+      const img=document.createElement('img');img.src=state.stamps[start+i];img.alt='Stamp'+(start+i+1);
       slot.appendChild(img);
     }
     grid.appendChild(slot);
   }
-
-  const pageInd = document.getElementById('page-indicator');
-  pageInd.textContent = (state.currentPage + 1) + ' / ' + totalPages;
-
-  document.getElementById('btn-prev-page').disabled = state.currentPage === 0;
-  document.getElementById('btn-next-page').disabled = state.currentPage >= totalPages - 1;
+  document.getElementById('page-indicator').textContent=(state.currentPage+1)+' / '+totalPages;
+  document.getElementById('btn-prev-page').disabled=state.currentPage===0;
+  document.getElementById('btn-next-page').disabled=state.currentPage>=totalPages-1;
 }
 
-function flipPage(direction) {
-  const wrap = document.getElementById('book-pages-wrap');
-  const old  = document.getElementById('current-page');
-
-  // Animate outgoing
-  old.classList.add(direction === 1 ? 'page-flip-out' : 'page-flip-in-reverse');
-  old.style.transform = direction === 1
-    ? 'perspective(1000px) rotateY(-90deg)'
-    : 'perspective(1000px) rotateY(90deg)';
-  old.style.transition = 'transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1.000)';
-
-  state.currentPage += direction;
-
-  setTimeout(() => {
-    old.style.transform = '';
-    old.style.transition = '';
-    old.classList.remove('page-flip-out', 'page-flip-in-reverse');
-
-    // Animate incoming
-    old.style.transform = direction === 1
-      ? 'perspective(1000px) rotateY(90deg)'
-      : 'perspective(1000px) rotateY(-90deg)';
-    old.style.transition = 'none';
+function flipPage(dir) {
+  const page=document.getElementById('current-page');
+  const outClass=dir===1?'page-flipping-out':'page-flipping-out-r';
+  const inClass=dir===1?'page-flipping-in-r':'page-flipping-in';
+  page.classList.add(outClass);
+  setTimeout(()=>{
+    page.classList.remove(outClass);
+    state.currentPage+=dir;
     renderBook();
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        old.style.transition = 'transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1.000)';
-        old.style.transform  = 'perspective(1000px) rotateY(0deg)';
-        setTimeout(() => { old.style.transform = ''; old.style.transition = ''; }, 650);
-      });
-    });
-  }, 600);
+    page.classList.add(inClass);
+    setTimeout(()=>page.classList.remove(inClass),680);
+  },660);
 }
 
-document.getElementById('btn-prev-page').addEventListener('click', () => flipPage(-1));
-document.getElementById('btn-next-page').addEventListener('click', () => flipPage(1));
-
-document.getElementById('btn-book-home').addEventListener('click', () => showScreen('entry'));
-document.getElementById('btn-book-add-new').addEventListener('click', () => {
-  document.getElementById('file-input').click();
-});
-
-document.getElementById('btn-export-page').addEventListener('click', () => {
-  const SLOTS = state.STAMPS_PER_PAGE;
-  const start  = state.currentPage * SLOTS;
-  const stamps = state.stamps.slice(start, start + SLOTS);
-  if (!stamps.length) { showToast('No stamps on this page'); return; }
-
-  const cols = 3, rows = 3;
-  const stampSz = 200, padding = 24, bgPad = 36;
-  const W = cols * stampSz + (cols - 1) * padding + bgPad * 2;
-  const H = rows * stampSz + (rows - 1) * padding + bgPad * 2;
-
-  const out = document.createElement('canvas');
-  out.width = W; out.height = H;
-  const ctx = out.getContext('2d');
-
-  // Paper bg
-  ctx.fillStyle = '#ede5d0';
-  ctx.fillRect(0, 0, W, H);
-  // Light grid lines
-  ctx.strokeStyle = 'rgba(201,184,154,0.3)';
-  ctx.lineWidth = 1;
-  for (let r = 0; r <= rows; r++) {
-    const y = bgPad + r * (stampSz + padding) - padding / 2;
-    ctx.beginPath(); ctx.moveTo(bgPad, y); ctx.lineTo(W - bgPad, y); ctx.stroke();
-  }
-
-  const loadPromises = stamps.map((src, idx) => new Promise(res => {
-    const img = new Image();
-    img.onload = () => {
-      const col = idx % cols, row = Math.floor(idx / cols);
-      const x = bgPad + col * (stampSz + padding);
-      const y = bgPad + row * (stampSz + padding);
-      ctx.drawImage(img, x, y, stampSz, stampSz);
-      res();
-    };
-    img.src = src;
+document.getElementById('btn-prev-page').addEventListener('click',()=>flipPage(-1));
+document.getElementById('btn-next-page').addEventListener('click',()=>flipPage(1));
+document.getElementById('btn-book-home').addEventListener('click',()=>showScreen('entry'));
+document.getElementById('btn-book-add-new').addEventListener('click',()=>document.getElementById('file-input').click());
+document.getElementById('btn-export-page').addEventListener('click',()=>{
+  const SLOTS=state.STAMPS_PER_PAGE;
+  const start=state.currentPage*SLOTS;
+  const stamps=state.stamps.slice(start,start+SLOTS);
+  if(!stamps.length){showToast('No stamps on this page');return;}
+  const cols=6,rows=8,stampSz=120,padding=10,bgPad=24;
+  const W=cols*stampSz+(cols-1)*padding+bgPad*2;
+  const H=rows*stampSz+(rows-1)*padding+bgPad*2;
+  const out=document.createElement('canvas');out.width=W;out.height=H;
+  const ctx=out.getContext('2d');
+  ctx.fillStyle='#f5edda';ctx.fillRect(0,0,W,H);
+  const loads=stamps.map((src,idx)=>new Promise(res=>{
+    const img=new Image();img.onload=()=>{
+      const col=idx%cols,row=Math.floor(idx/cols);
+      const x=bgPad+col*(stampSz+padding),y=bgPad+row*(stampSz+padding);
+      ctx.drawImage(img,x,y,stampSz,stampSz);res();
+    };img.src=src;
   }));
-
-  Promise.all(loadPromises).then(() => {
-    const a = document.createElement('a');
-    a.href     = out.toDataURL('image/png');
-    a.download = 'collection-page-' + (state.currentPage + 1) + '.png';
-    a.click();
+  Promise.all(loads).then(()=>{
+    const a=document.createElement('a');a.href=out.toDataURL('image/png');
+    a.download='collection-page-'+(state.currentPage+1)+'.png';a.click();
     showToast('Page exported');
   });
 });
 
-/* =============================================
-   WINDOW RESIZE — Redraw editor canvas
-   ============================================= */
+/* RESIZE */
 let resizeTimer;
-window.addEventListener('resize', () => {
+window.addEventListener('resize',()=>{
   clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    if (state.currentScreen === 'editor' && sourceImg) {
-      initEditorCanvas();
-      fitImageToCanvas();
+  resizeTimer=setTimeout(()=>{
+    if(state.currentScreen==='editor'&&sourceImg){
+      const oldSz=state.canvasSize;initEditorCanvas();const newSz=state.canvasSize;
+      if(oldSz>0&&newSz!==oldSz){const r=newSz/oldSz;state.imgX*=r;state.imgY*=r;state.imgScale*=r;}
       drawEditor();
     }
-  }, 200);
+  },200);
 });
 
-/* =============================================
-   INITIAL SCREEN
-   ============================================= */
 showScreen('entry');
 </script>
 </body>
