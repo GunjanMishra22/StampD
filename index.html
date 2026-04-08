@@ -655,9 +655,12 @@ let editorCanvas, editorCtx, sourceImg;
 
 function openEditor() {
   showScreen('editor');
-  initEditorCanvas();
-  resetEditorState();
-  loadSourceImage(() => { fitImageToCanvas(); drawEditor(); });
+  // Small delay so screen transition completes and canvas area has correct dimensions
+  setTimeout(() => {
+    initEditorCanvas();
+    resetEditorState();
+    loadSourceImage(() => { fitImageToCanvas(); drawEditor(); });
+  }, 80);
 }
 
 function resetEditorState() {
@@ -842,9 +845,13 @@ function getTouchAngle(t){return Math.atan2(t[1].clientY-t[0].clientY,t[1].clien
 /* STAMP GENERATION */
 document.getElementById('btn-create-stamp').addEventListener('click', () => {
   if(!sourceImg||!state.sourceImageData){showToast('No image loaded');return;}
+  if(state.canvasSize===0){showToast('Editor not ready — please wait');return;}
   const btn=document.getElementById('btn-create-stamp');
   btn.classList.add('pressing');setTimeout(()=>btn.classList.remove('pressing'),400);
-  setTimeout(generateStamp,180);
+  setTimeout(()=>{
+    try { generateStamp(); }
+    catch(e) { console.error('generateStamp error:', e); showToast('Stamp generation failed — please try again'); }
+  }, 180);
 });
 
 function generateStamp() {
@@ -899,11 +906,14 @@ function generateStamp() {
   for(const [px,py] of perf){ctx.beginPath();ctx.arc(px,py,4.5,0,Math.PI*2);ctx.fill();}
   ctx.restore();
 
-  const rawPng = out.toDataURL('image/png');
-  normaliseToUHD(rawPng).then(uhd => {
-    state.stampDataURL = uhd;
-    showPreview();
-  });
+  try {
+    state.stampDataURL = out.toDataURL('image/png');
+  } catch(e) {
+    showToast('Could not capture stamp — please try uploading the image instead.');
+    console.error('Stamp canvas error:', e);
+    return;
+  }
+  showPreview();
 }
 
 function getPerimeterPoints(cx,cy,w,h,gap) {
@@ -1257,16 +1267,18 @@ async function appInit() {
 
 /* Patch: save to book now persists */
 async function saveStampToCollection(dataURL) {
-  const uhd = await normaliseToUHD(dataURL);
-  const obj = makeStampObj(uhd, state.stamps.length);
+  let storeURL = dataURL;
+  try { storeURL = await normaliseToUHD(dataURL); } catch(e) { console.warn('UHD upscale failed, storing original', e); }
+  const obj = makeStampObj(storeURL, state.stamps.length);
   state.stamps.push(obj);
   await saveStamp(obj);
 }
 
 /* Patch: import also goes UHD */
 async function importStampToCollection(rawDataURL) {
-  const uhd = await normaliseToUHD(rawDataURL);
-  const obj = makeStampObj(uhd, state.stamps.length);
+  let storeURL = rawDataURL;
+  try { storeURL = await normaliseToUHD(rawDataURL); } catch(e) { console.warn('UHD upscale failed, storing original', e); }
+  const obj = makeStampObj(storeURL, state.stamps.length);
   state.stamps.push(obj);
   await saveStamp(obj);
 }
